@@ -22,18 +22,18 @@ export interface SelectProps {
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(
-  ({ 
-    label, 
+  ({
+    label,
     value,
     onChange,
     options,
     placeholder = "Select an option",
-    error, 
-    helperText, 
-    size = 'md', 
+    error,
+    helperText,
+    size = 'md',
     variant = 'default',
     disabled = false,
-    className = '', 
+    className = '',
   }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -42,20 +42,20 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const sizeClasses = {
-      sm: 'px-2 py-1 text-sm',
-      md: 'px-3 py-2 text-sm',
-      lg: 'px-4 py-3 text-base',
+      sm: 'px-3 py-2 text-base h-10',
+      md: 'px-4 py-3 text-base h-12', // 48px hit area standard
+      lg: 'px-5 py-4 text-base h-14',
     };
 
     const variantClasses = {
-      default: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-      outline: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+      default: 'border-gray-300 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 hover:border-gray-400',
+      outline: 'border-gray-300 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 hover:border-gray-400',
     };
 
     const baseClasses = [
-      'w-full rounded-lg border bg-white transition-all duration-200',
-      'focus:outline-none focus:ring-2 focus:ring-opacity-50',
-      'disabled:bg-gray-50 disabled:cursor-not-allowed',
+      'w-full rounded-lg border bg-white transition-all duration-200 text-left',
+      'focus:outline-none',
+      'disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-500',
       sizeClasses[size],
       variantClasses[variant],
     ];
@@ -76,21 +76,21 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         const rect = selectRef.current.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        
+
         // Calculate available space
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
         const dropdownHeight = Math.min(options.length * 40 + 16, 240); // Approximate height
-        
+
         // Determine if dropdown should appear above or below
         const spaceBelow = viewportHeight - rect.bottom;
         const spaceAbove = rect.top;
         const shouldShowAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
-        
+
         // Determine horizontal position
         let left = rect.left + scrollLeft;
         const dropdownWidth = Math.max(rect.width, 200);
-        
+
         // Ensure dropdown doesn't go off-screen horizontally
         if (left + dropdownWidth > viewportWidth + scrollLeft) {
           left = viewportWidth + scrollLeft - dropdownWidth - 8; // 8px margin
@@ -98,10 +98,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         if (left < scrollLeft) {
           left = scrollLeft + 8; // 8px margin
         }
-        
+
         setDropdownPosition({
-          top: shouldShowAbove 
-            ? rect.top + scrollTop - dropdownHeight 
+          top: shouldShowAbove
+            ? rect.top + scrollTop - dropdownHeight
             : rect.bottom + scrollTop,
           left,
           width: dropdownWidth,
@@ -134,10 +134,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       if (isOpen) {
         const handleScroll = () => updateDropdownPosition();
         const handleResize = () => updateDropdownPosition();
-        
+
         window.addEventListener('scroll', handleScroll, true);
         window.addEventListener('resize', handleResize);
-        
+
         return () => {
           window.removeEventListener('scroll', handleScroll, true);
           window.removeEventListener('resize', handleResize);
@@ -153,7 +153,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         switch (event.key) {
           case 'ArrowDown':
             event.preventDefault();
-            setHighlightedIndex(prev => 
+            setHighlightedIndex(prev =>
               prev < options.length - 1 ? prev + 1 : prev
             );
             break;
@@ -212,7 +212,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
             {label}
           </label>
         )}
-        
+
         <div className="relative" ref={selectRef}>
           <button
             type="button"
@@ -223,16 +223,15 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
             <span className={`${selectedOption ? 'text-gray-900' : 'text-gray-500'}`}>
               {selectedOption ? selectedOption.label : placeholder}
             </span>
-            <FaChevronDown 
-              className={`ml-2 transition-transform duration-200 ${
-                isOpen ? 'rotate-180' : ''
-              }`}
+            <FaChevronDown
+              className={`ml-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+                }`}
             />
           </button>
 
           {/* Dropdown - Fixed positioning outside container */}
           {isOpen && (
-            <div 
+            <div
               ref={dropdownRef}
               className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto"
               style={{
@@ -247,13 +246,12 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                   <button
                     key={option.value}
                     type="button"
-                    className={`w-full px-3 py-2 text-left flex items-center justify-between transition-colors duration-150 ${
-                      option.disabled 
-                        ? 'text-gray-400 cursor-not-allowed' 
+                    className={`w-full px-3 py-2 text-left flex items-center justify-between transition-colors duration-150 ${option.disabled
+                        ? 'text-gray-400 cursor-not-allowed'
                         : index === highlightedIndex
-                        ? 'bg-blue-50 text-blue-900'
-                        : 'text-gray-900 hover:bg-gray-50'
-                    }`}
+                          ? 'bg-blue-50 text-blue-900'
+                          : 'text-gray-900 hover:bg-gray-50'
+                      }`}
                     onClick={() => handleOptionClick(option)}
                     disabled={option.disabled}
                   >

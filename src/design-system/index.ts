@@ -30,6 +30,8 @@ export { Dialog } from "./components/dialog";
 export { DialogHeader } from "./components/dialog-header";
 export { DialogBody } from "./components/dialog-body";
 export { DialogFooter } from "./components/dialog-footer";
+export { BottomNav } from "./components/bottom-nav";
+export type { BottomNavItem, BottomNavProps } from "./components/bottom-nav";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/tabs";
 
 export { Switch } from "./components/switch";

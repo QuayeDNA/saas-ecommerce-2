@@ -17,9 +17,7 @@ import {
   Button,
   Alert,
   Card,
-  CardHeader,
   CardBody,
-  Container,
 } from "../design-system";
 import {
   FaCheckCircle,
@@ -27,7 +25,6 @@ import {
   FaSpinner,
   FaArrowLeft,
 } from "react-icons/fa";
-import { DirectDataIcon } from "../components/common/DirectDataLogo";
 
 export const VerifyAccountPage = () => {
   const location = useLocation();
@@ -78,71 +75,55 @@ export const VerifyAccountPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-indigo-100">
-      {/* Header */}
-      <header className="p-4 sm:p-6">
-        <Container>
-          <div className="flex items-center justify-between">
+    <div className="min-h-[100dvh] flex flex-col bg-gray-50 sm:bg-gray-100 sm:justify-center sm:items-center relative">
+      {/* Mobile background/header area */}
+      <div className="flex flex-col flex-grow items-center justify-center p-6 text-center sm:hidden bg-slate-900 text-white min-h-[35vh]">
+        <div className="mx-auto p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6 bg-slate-800 border border-slate-700 shadow-md">
+          {isVerifying && <FaSpinner className="text-3xl text-blue-400 animate-spin" />}
+          {isSuccess && <FaCheckCircle className="text-3xl text-green-400" />}
+          {!isVerifying && !isSuccess && <FaExclamationTriangle className="text-3xl text-red-500" />}
+        </div>
+        <h1 className="text-2xl font-bold mb-2">
+          {isVerifying ? "Verifying Account" : isSuccess ? "Account Verified!" : "Verification Failed"}
+        </h1>
+        <p className="text-gray-300 text-sm max-w-xs">
+          {isVerifying && "Please wait while we verify your account..."}
+          {isSuccess && "Your email has been successfully verified."}
+          {!isVerifying && !isSuccess && "We couldn't verify your account."}
+        </p>
+      </div>
+
+      {/* Main container mimicking a bottom sheet on mobile, standard card on desktop */}
+      <div className="w-full sm:max-w-md mt-auto sm:mt-0 z-10 transition-transform">
+        <Card variant="bottom-sheet" noPadding>
+
+          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
             <Link
               to="/home"
-              className="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors group"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 sm:bg-gray-50 hover:bg-gray-200 transition-colors text-gray-600 sm:text-gray-500"
             >
-              <FaArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" />
-              <span className="hidden sm:inline">Back to Home</span>
-              <span className="sm:hidden">Back</span>
+              <FaArrowLeft />
             </Link>
-
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <DirectDataIcon className="w-8 h-8" />
-              <span className="font-bold text-gray-900 hidden sm:block">
-                DirectData
-              </span>
-            </div>
           </div>
-        </Container>
-      </header>
 
-      {/* Main content */}
-      <div className="flex-grow flex items-center justify-center px-4 sm:px-6">
-        <Card
-          className="w-full max-w-lg shadow-xl border-0"
-          variant="elevated"
-          size="lg"
-        >
-          <CardHeader className="text-center pb-6">
-            {isVerifying && (
-              <div className="mx-auto bg-gradient-to-br from-blue-100 to-indigo-100 p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6">
-                <FaSpinner className="text-blue-600 text-2xl animate-spin" />
-              </div>
-            )}
-
-            {isSuccess && (
-              <div className="mx-auto bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6 animate-fade-in">
-                <FaCheckCircle className="text-green-600 text-2xl" />
-              </div>
-            )}
-
-            {!isVerifying && !isSuccess && (
-              <div className="mx-auto bg-gradient-to-br from-red-100 to-orange-100 p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6">
-                <FaExclamationTriangle className="text-red-600 text-2xl" />
-              </div>
-            )}
-
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isVerifying && "Verifying Your Account"}
-              {isSuccess && "Account Verified!"}
-              {!isVerifying && !isSuccess && "Verification Failed"}
+          {/* Desktop-only header */}
+          <div className="hidden sm:block text-center pt-12 pb-4 bg-slate-900 w-full mb-6">
+            <div className="mx-auto p-3 rounded-full w-16 h-16 flex items-center justify-center mb-4 bg-slate-800">
+              {isVerifying && <FaSpinner className="text-2xl text-blue-400 animate-spin" />}
+              {isSuccess && <FaCheckCircle className="text-2xl text-green-400" />}
+              {!isVerifying && !isSuccess && <FaExclamationTriangle className="text-2xl text-red-500" />}
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {isVerifying ? "Verifying Account" : isSuccess ? "Account Verified!" : "Verification Failed"}
             </h1>
-
-            <p className="text-gray-600">
+            <p className="text-gray-300 text-sm">
               {isVerifying && "Please wait while we verify your account..."}
               {isSuccess && "Your email has been successfully verified."}
               {!isVerifying && !isSuccess && "We couldn't verify your account."}
             </p>
-          </CardHeader>
+          </div>
 
-          <CardBody className="pt-0">
+          <CardBody className="p-6 sm:p-8 pt-8 sm:pt-2">
             {isVerifying && (
               <div className="flex justify-center py-6">
                 <div className="w-full max-w-sm">
@@ -157,25 +138,24 @@ export const VerifyAccountPage = () => {
 
             {isSuccess && (
               <div className="space-y-6 animate-fade-in">
-                <Alert status="success" variant="left-accent">
-                  <div className="text-sm">
-                    Your account has been successfully verified. You can now
-                    access all features of your account.
-                  </div>
+                <Alert status="success" variant="solid" className="flex items-start text-sm font-semibold">
+                  <FaCheckCircle className="mt-0.5 mr-2.5 flex-shrink-0" />
+                  <span>Your account has been successfully verified. You can now access all features.</span>
                 </Alert>
 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <Button
                     variant="primary"
                     size="lg"
                     fullWidth
                     onClick={handleContinue}
+                    className="h-12 font-bold text-[16px] shadow-sm rounded-xl"
                   >
                     Continue to Dashboard
                   </Button>
 
-                  <Link to="/login">
-                    <Button variant="outline" size="lg" fullWidth>
+                  <Link to="/login" className="block">
+                    <Button variant="outline" size="lg" fullWidth className="h-12 font-bold text-[16px] rounded-xl border-gray-300 text-gray-700">
                       Back to Login
                     </Button>
                   </Link>
@@ -185,19 +165,20 @@ export const VerifyAccountPage = () => {
 
             {!isVerifying && !isSuccess && (
               <div className="space-y-6">
-                <Alert status="error" variant="left-accent">
-                  <div className="text-sm">{verificationError}</div>
+                <Alert status="error" variant="solid" className="flex items-start text-sm font-semibold">
+                  <FaExclamationTriangle className="mt-0.5 mr-2.5 flex-shrink-0" />
+                  <span>{verificationError || "An error occurred during verification."}</span>
                 </Alert>
 
-                <div className="space-y-3">
-                  <Link to="/login">
-                    <Button variant="primary" size="lg" fullWidth>
+                <div className="space-y-3 pt-2">
+                  <Link to="/login" className="block">
+                    <Button variant="primary" size="lg" fullWidth className="h-12 font-bold text-[16px] shadow-sm rounded-xl">
                       Go to Login
                     </Button>
                   </Link>
 
-                  <Link to="/">
-                    <Button variant="outline" size="lg" fullWidth>
+                  <Link to="/" className="block">
+                    <Button variant="outline" size="lg" fullWidth className="h-12 font-bold text-[16px] rounded-xl border-gray-300 text-gray-700">
                       Back to Home
                     </Button>
                   </Link>
@@ -207,8 +188,9 @@ export const VerifyAccountPage = () => {
           </CardBody>
         </Card>
       </div>
+
+      {/* Mobile background spacer */}
+      <div className="fixed inset-0 sm:hidden bg-slate-900 -z-10"></div>
     </div>
   );
 };
-
-

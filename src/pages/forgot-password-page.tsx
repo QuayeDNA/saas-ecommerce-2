@@ -19,7 +19,6 @@ import {
   Input,
   Alert,
   Card,
-  CardHeader,
   CardBody,
 } from "../design-system";
 import {
@@ -48,63 +47,65 @@ export const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white p-4 sm:p-6">
-      <div className="mb-4">
-        <Link
-          to="/login"
-          className="inline-flex items-center transition"
-          style={{ color: "var(--color-primary-600)" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--color-primary-700)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--color-primary-600)")
-          }
-        >
-          <FaArrowLeft className="mr-1" />
-          Back to Login
-        </Link>
+    <div className="min-h-[100dvh] flex flex-col bg-gray-50 sm:bg-gray-100 sm:justify-center sm:items-center relative">
+      {/* Mobile background/header area */}
+      <div className="flex flex-col flex-grow items-center justify-center p-6 text-center sm:hidden bg-slate-900 text-white min-h-[35vh]">
+        <div className="mx-auto p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6 bg-slate-800 border border-slate-700 shadow-md">
+          <FaLock className="text-3xl text-primary-400" />
+        </div>
+        <h1 className="text-2xl font-bold mb-2">
+          Reset password
+        </h1>
+        <p className="text-gray-300 text-sm max-w-xs">
+          Enter your email and we'll send you a reset link
+        </p>
       </div>
 
-      <div className="flex-grow flex items-center justify-center">
-        <Card className="w-full max-w-md" variant="elevated" size="lg">
-          <CardHeader className="text-center">
-            <div
-              className="mx-auto p-3 rounded-full w-16 h-16 flex items-center justify-center mb-4"
-              style={{ backgroundColor: "var(--color-primary-100)" }}
+      {/* Main form container mimicking a bottom sheet on mobile, standard card on desktop */}
+      <div className="w-full sm:max-w-md mt-auto sm:mt-0 z-10 transition-transform">
+        <Card variant="bottom-sheet" noPadding>
+
+          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 sm:bg-gray-50 hover:bg-gray-200 transition-colors text-gray-600 sm:text-gray-500"
             >
-              <FaLock
-                className="text-2xl"
-                style={{ color: "var(--color-primary-600)" }}
-              />
+              <FaArrowLeft />
+            </Link>
+          </div>
+
+          {/* Desktop-only header */}
+          <div className="hidden sm:block text-center pt-12 pb-4 bg-slate-900 w-full mb-6">
+            <div className="mx-auto p-3 rounded-full w-16 h-16 flex items-center justify-center mb-4 bg-slate-800">
+              <FaLock className="text-2xl text-primary-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-white mb-2">
               Reset your password
-            </h2>
-            <p className="mt-2 text-gray-600 text-sm">
+            </h1>
+            <p className="text-gray-300 text-sm">
               Enter your email and we'll send you a reset link
             </p>
-          </CardHeader>
+          </div>
 
-          <CardBody>
+          <CardBody className="p-6 sm:p-8 pt-8 sm:pt-2">
             {isSubmitted ? (
-              <div className="text-center">
-                <div className="mx-auto bg-green-100 p-3 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                  <FaCheck className="text-green-600 text-2xl" />
+              <div className="text-center py-6">
+                <div className="mx-auto bg-green-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+                  <FaCheck className="text-green-600 text-3xl" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Check your email
                 </h3>
-                <p className="mt-2 text-gray-500 text-sm">
+                <p className="text-gray-500 text-[15px] mb-8 leading-relaxed">
                   We've sent a password reset link to your email address.
                 </p>
-                <div className="mt-6">
-                  <Link to="/login">
+                <div>
+                  <Link to="/login" className="block">
                     <Button
                       variant="primary"
-                      colorScheme="default"
-                      size="md"
+                      size="lg"
                       fullWidth
+                      className="h-12 w-full font-bold text-[16px] shadow-sm rounded-xl"
                     >
                       Back to login
                     </Button>
@@ -112,60 +113,57 @@ export const ForgotPasswordPage = () => {
                 </div>
               </div>
             ) : (
-              <form className="space-y-5" onSubmit={handleSubmit}>
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 {authState.error && (
                   <Alert
                     status="error"
-                    variant="left-accent"
-                    className="flex items-start"
+                    variant="solid"
+                    className="flex items-start text-sm font-semibold mb-2"
                   >
-                    <FaExclamationTriangle className="mt-0.5 mr-2 flex-shrink-0" />
+                    <FaExclamationTriangle className="mt-0.5 mr-2.5 flex-shrink-0" />
                     <span>{authState.error}</span>
                   </Alert>
                 )}
 
-                <div>
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-gray-700"
+                  >
+                    Email address
+                  </label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    label="Email address"
                     autoComplete="email"
                     required
-                    placeholder="your@email.com"
-                    size="md"
-                    variant="outline"
-                    colorScheme="default"
-                    fullWidth
+                    placeholder="Enter your email"
+                    className="w-full h-12"
                     leftIcon={<FaEnvelope className="text-gray-400" />}
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={authState.isLoading}
-                  isLoading={authState.isLoading}
-                  variant="primary"
-                  colorScheme="default"
-                  size="lg"
-                  fullWidth
-                >
-                  {authState.isLoading ? "Sending..." : "Send reset link"}
-                </Button>
+                <div className="pt-2">
+                  <Button
+                    type="submit"
+                    disabled={authState.isLoading}
+                    isLoading={authState.isLoading}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    className="h-12 w-full font-bold text-[16px] shadow-sm rounded-xl"
+                  >
+                    {authState.isLoading ? "Sending..." : "Send reset link"}
+                  </Button>
+                </div>
 
-                <div className="mt-4 text-center text-sm text-gray-600">
+                <div className="mt-6 pt-6 text-center text-sm text-gray-500 font-medium border-t border-gray-100">
                   <Link
                     to="/"
-                    className="font-medium transition"
-                    style={{ color: "var(--color-primary-600)" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "var(--color-primary-700)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "var(--color-primary-600)")
-                    }
+                    className="text-primary-600 hover:text-primary-700 font-bold hover:underline transition-all"
                   >
-                    ← Back to home
+                    Back to Home
                   </Link>
                 </div>
               </form>
@@ -173,6 +171,9 @@ export const ForgotPasswordPage = () => {
           </CardBody>
         </Card>
       </div>
+
+      {/* Mobile background spacer */}
+      <div className="fixed inset-0 sm:hidden bg-slate-900 -z-10"></div>
     </div>
   );
 };

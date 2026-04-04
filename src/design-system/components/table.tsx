@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, createContext, useContext } from "react";
 import type {
   ReactNode,
   HTMLAttributes,
@@ -7,6 +7,16 @@ import type {
   ThHTMLAttributes,
 } from "react";
 import { useTheme } from "../../hooks/use-theme";
+
+// View Mode
+export type TableViewMode = "table" | "list" | "auto";
+
+// Context for View Mode
+const TableContext = createContext<{ viewMode: TableViewMode }>({
+  viewMode: "auto",
+});
+
+export const useTableContext = () => useContext(TableContext);
 
 // Table variants
 type TableVariant = "simple" | "striped" | "bordered";
@@ -33,6 +43,7 @@ interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   stickyHeader?: boolean;
   className?: string;
   useThemeColor?: boolean;
+  viewMode?: TableViewMode;
 }
 
 // Table header props
@@ -69,6 +80,7 @@ interface TableCellProps extends TdHTMLAttributes<HTMLTableCellElement> {
   children: ReactNode;
   className?: string;
   numeric?: boolean;
+  label?: string; // Optional label for mobile card view
 }
 
 // Table caption props
@@ -89,6 +101,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
       stickyHeader = false,
       className = "",
       useThemeColor = true,
+      viewMode = "auto",
       ...props
     },
     ref
@@ -259,20 +272,35 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
       }
     };
 
+    const getViewModeClasses = () => {
+      switch (viewMode) {
+        case "list":
+          return "block w-full"; // Force block
+        case "table":
+          return "table"; // Force table
+        case "auto":
+        default:
+          return "block sm:table w-full"; // Block on mobile, table on desktop
+      }
+    };
+
     const tableClasses = [
       "table-auto",
       sizeClasses[size],
       getVariantClasses(),
       fullWidth ? "w-full" : "",
+      getViewModeClasses(),
       className,
     ].join(" ");
 
     return (
-      <div className={stickyHeader ? "overflow-auto" : ""}>
-        <table ref={ref} className={tableClasses} {...props}>
-          {children}
-        </table>
-      </div>
+      <TableContext.Provider value={{ viewMode }}>
+        <div className={`rounded-[16px] overflow-hidden ${stickyHeader ? "overflow-auto" : ""} ${variant === "bordered" ? "border border-gray-200" : ""}`}>
+          <table ref={ref} className={tableClasses} {...props}>
+            {children}
+          </table>
+        </div>
+      </TableContext.Provider>
     );
   }
 );
@@ -282,8 +310,22 @@ export const TableHeader = forwardRef<
   HTMLTableSectionElement,
   TableHeaderProps
 >(({ children, className = "", ...props }, ref) => {
+  const { viewMode } = useTableContext();
+
+  const getHeaderClasses = () => {
+    switch (viewMode) {
+      case "list":
+        return "hidden"; // Hide header in list mode
+      case "table":
+        return "table-header-group";
+      case "auto":
+      default:
+        return "hidden sm:table-header-group"; // Hide on mobile, show on desktop
+    }
+  };
+
   return (
-    <thead ref={ref} className={`${className}`} {...props}>
+    <thead ref={ref} className={`${getHeaderClasses()} ${className}`} {...props}>
       {children}
     </thead>
   );
@@ -292,8 +334,22 @@ export const TableHeader = forwardRef<
 // Table Body component
 export const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(
   ({ children, className = "", ...props }, ref) => {
+    const { viewMode } = useTableContext();
+
+    const getBodyClasses = () => {
+      switch (viewMode) {
+        case "list":
+          return "block w-full"; // Block layout
+        case "table":
+          return "table-row-group";
+        case "auto":
+        default:
+          return "block sm:table-row-group w-full"; // Block on mobile, table on desktop
+      }
+    };
+
     return (
-      <tbody ref={ref} className={`${className}`} {...props}>
+      <tbody ref={ref} className={`${getBodyClasses()} ${className}`} {...props}>
         {children}
       </tbody>
     );
@@ -312,8 +368,22 @@ export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
     },
     ref
   ) => {
+    const { viewMode } = useTableContext();
+
+    const getRowClasses = () => {
+      switch (viewMode) {
+        case "list":
+          return "block w-full p-4 mb-4 bg-white shadow-sm border border-gray-200 rounded-[16px] last:mb-0";
+        case "table":
+          return "table-row border-b border-gray-200";
+        case "auto":
+        default:
+          return "block w-full p-4 mb-4 bg-white shadow-sm border border-gray-200 rounded-[16px] last:mb-0 sm:table-row sm:bg-transparent sm:shadow-none sm:border sm:rounded-none sm:p-0 sm:mb-0 sm:border-b sm:border-gray-200";
+      }
+    };
+
     const rowClasses = [
-      "border-b border-gray-200",
+      getRowClasses(),
       isHoverable ? "hover:bg-gray-50" : "",
       isSelected ? "bg-blue-100" : "",
       "transition-colors duration-150",
@@ -345,6 +415,7 @@ export const TableHeaderCell = forwardRef<
     ref
   ) => {
     const { primaryColor } = useTheme();
+    const { viewMode } = useTableContext();
 
     const getThemeColors = () => {
       switch (primaryColor) {
@@ -367,7 +438,20 @@ export const TableHeaderCell = forwardRef<
       }
     };
 
+    const getHeaderCellClasses = () => {
+      switch (viewMode) {
+        case "list":
+          return "hidden"; // Hidden in list
+        case "table":
+          return "table-cell";
+        case "auto":
+        default:
+          return "hidden sm:table-cell"; // Hidden on mobile, cell on desktop
+      }
+    };
+
     const headerClasses = [
+      getHeaderCellClasses(),
       "px-4 py-3",
       "text-left text-xs font-medium uppercase tracking-wider",
       getThemeColors(),
@@ -439,18 +523,38 @@ export const TableHeaderCell = forwardRef<
 
 // Table Cell component
 export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
-  ({ children, className = "", numeric = false, ...props }, ref) => {
+  ({ children, className = "", numeric = false, label, ...props }, ref) => {
+    const { viewMode } = useTableContext();
+
+    const getCellBaseClasses = () => {
+      switch (viewMode) {
+        case "list":
+          return "flex justify-between items-center w-full py-2 px-0 text-sm bg-transparent border-b border-gray-100 last:border-0";
+        case "table":
+          return "table-cell px-4 py-3 text-sm border-b border-gray-200";
+        case "auto":
+        default:
+          return "flex justify-between items-center py-2 px-0 text-sm border-b border-gray-100 last:border-0 sm:table-cell sm:px-4 sm:py-3 sm:border-gray-200 sm:last:border-b"; // flex on mobile, table-cell on desktop
+      }
+    };
+
     const cellClasses = [
-      "px-4 py-3",
-      "text-sm text-gray-900",
-      "border-b border-gray-200",
-      numeric ? "text-right font-mono" : "text-left",
+      getCellBaseClasses(),
+      "text-gray-900",
+      numeric && viewMode !== "list" ? "sm:text-right font-mono" : "text-left",
       className,
     ].join(" ");
 
     return (
       <td ref={ref} className={cellClasses} {...props}>
-        {children}
+        {label && (
+          <span className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mr-4 ${viewMode === "list" ? "block" : viewMode === "auto" ? "block sm:hidden" : "hidden"}`}>
+            {label}
+          </span>
+        )}
+        <div className={`flex-grow ${viewMode !== "table" && numeric ? (viewMode === "list" ? "text-right" : "text-right sm:text-left") : ""} ${numeric && viewMode !== "list" ? "sm:text-right font-mono" : ""}`}>
+          {children}
+        </div>
       </td>
     );
   }

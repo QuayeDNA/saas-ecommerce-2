@@ -84,20 +84,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Size styles for regular buttons
     const sizeClasses = {
-      xs: "text-xs px-2 py-1 h-6",
-      sm: "text-sm px-3 py-1.5 h-8",
-      md: "text-sm px-4 py-2 h-10",
-      lg: "text-base px-5 py-2.5 h-12",
-      xl: "text-lg px-6 py-3 h-14",
+      xs: "text-xs px-3 py-1.5 h-8",
+      sm: "text-sm px-4 py-2 h-10",
+      md: "text-base px-5 py-3 h-12 font-medium", // 48px hit area standard
+      lg: "text-lg px-6 py-4 h-14 font-semibold",
+      xl: "text-xl px-8 py-5 h-16 font-bold",
     };
 
     // Size styles for icon-only buttons (equal width and height)
     const iconOnlySizeClasses = {
-      xs: "p-1 min-h-6 h-6 w-6",
-      sm: "p-1.5 min-h-8 h-8 w-8",
-      md: "p-2 min-h-10 h-10 w-10",
-      lg: "p-2.5 min-h-12 h-12 w-12",
-      xl: "p-3 min-h-14 h-14 w-14",
+      xs: "p-1.5 h-8 w-8",
+      sm: "p-2 h-10 w-10",
+      md: "p-3 h-12 w-12",
+      lg: "p-4 h-14 w-14",
+      xl: "p-5 h-16 w-16",
     };
 
     // Helper function to get theme-based color classes

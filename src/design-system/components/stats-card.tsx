@@ -5,12 +5,14 @@ export interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   size?: "sm" | "md" | "lg";
   iconOnly?: boolean;
   trend?: string | null;
   trendLabel?: string;
   trendUp?: boolean;
+  variant?: "solid" | "wallet";
+  children?: React.ReactNode; // Optional children allowing injection of action buttons like in the mockup
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -23,25 +25,27 @@ export const StatCard: React.FC<StatCardProps> = ({
   trend,
   trendLabel,
   trendUp,
+  variant = "solid",
+  children,
 }) => {
   const sizeClasses = {
     sm: {
-      title: "text-xs font-medium text-gray-300",
-      value: "text-base sm:text-lg font-bold text-white",
+      title: "text-xs font-medium",
+      value: "text-base sm:text-lg font-bold",
       subtitle: "text-xs mt-0.5 sm:mt-1",
       icon: "text-xs sm:text-sm",
       iconContainer: "p-1.5 sm:p-2",
     },
     md: {
-      title: "text-xs sm:text-sm font-medium text-gray-300",
-      value: "text-lg sm:text-xl lg:text-2xl font-bold text-white",
+      title: "text-xs sm:text-sm font-medium",
+      value: "text-2xl sm:text-3xl font-bold tracking-tight",
       subtitle: "text-xs sm:text-sm mt-0.5 sm:mt-1",
       icon: "text-sm sm:text-base lg:text-lg",
       iconContainer: "p-2 sm:p-2.5 lg:p-3",
     },
     lg: {
-      title: "text-sm sm:text-base font-medium text-gray-300",
-      value: "text-xl sm:text-2xl lg:text-3xl font-bold text-white",
+      title: "text-sm sm:text-base font-medium",
+      value: "text-3xl sm:text-4xl font-bold tracking-tight",
       subtitle: "text-xs sm:text-sm mt-0.5 sm:mt-1",
       icon: "text-base sm:text-lg lg:text-xl",
       iconContainer: "p-2 sm:p-3 lg:p-4",
@@ -49,60 +53,70 @@ export const StatCard: React.FC<StatCardProps> = ({
   };
 
   const classes = sizeClasses[size];
+  const isWallet = variant === "wallet";
+
+  const cardStyle = isWallet
+    ? { backgroundColor: "white", borderColor: "white", color: "var(--color-primary-900)" }
+    : { backgroundColor: "var(--color-primary-500)", borderColor: "var(--color-primary-600)", color: "white" };
 
   return (
     <Card
-      className="transition-colors duration-200 h-full"
-      style={{
-        backgroundColor: "var(--color-primary-500)",
-        borderColor: "var(--color-primary-700)",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = "var(--color-primary-600)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = "var(--color-primary-500)";
-      }}
+      className={`transition-colors duration-200 h-full relative overflow-hidden ${isWallet ? 'shadow-lg' : ''}`}
+      style={cardStyle}
     >
-      <CardBody className={`h-full`}>
-        <div className="flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
+      {/* Decorative background element for wallet variant */}
+      {isWallet && (
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary-50 rounded-full opacity-50 pointer-events-none" />
+      )}
+
+      <CardBody className={`h-full relative z-10 flex flex-col gap-4 sm:gap-6`}>
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className={`${classes.title} mb-0.5 sm:mb-1 lg:mb-2 truncate`}>
+            <p className={`${classes.title} mb-1 sm:mb-2 truncate ${isWallet ? 'text-gray-500' : 'text-primary-100'}`}>
               {title}
             </p>
-            <p className={`${classes.value} leading-tight`}>{value}</p>
+            <p className={`${classes.value} leading-none ${isWallet ? 'text-gray-900' : 'text-white'}`}>{value}</p>
             {subtitle && (
               <p
-                className={`${classes.subtitle} mt-0.5 sm:mt-1`}
-                style={{ color: "var(--color-accent-500, #9ca3af)" }}
+                className={`${classes.subtitle} mt-1`}
+                style={{ color: isWallet ? "var(--color-gray-500, #6b7280)" : "var(--color-primary-200, #b0c9ff)" }}
               >
                 {subtitle}
               </p>
             )}
             {(trend || trendLabel) && (
               <p
-                className={`text-xs sm:text-sm mt-1 flex items-center ${trendUp !== undefined
-                    ? trendUp
-                      ? "text-green-400"
-                      : "text-red-400"
-                    : "text-gray-300"
+                className={`text-sm mt-2 flex items-center ${trendUp !== undefined
+                  ? trendUp
+                    ? isWallet ? "text-primary-600" : "text-green-400"
+                    : "text-red-500"
+                  : isWallet ? "text-gray-500" : "text-primary-200"
                   }`}
               >
-                {trend && <span className="mr-1">{trend}</span>}
+                {trendUp !== undefined && trendUp && <span className="mr-1">↑</span>}
+                {trendUp !== undefined && !trendUp && <span className="mr-1">↓</span>}
+                {trend && <span>{trend}</span>}
                 {trendLabel && (
-                  <span className="text-gray-400">{trendLabel}</span>
+                  <span className={`ml-1 ${isWallet ? "text-gray-500" : "text-primary-200"}`}>{trendLabel}</span>
                 )}
               </p>
             )}
           </div>
-          {!iconOnly && (
+          {!iconOnly && icon && (
             <div
-              className={`${classes.iconContainer} bg-white/20 rounded-full flex-shrink-0 hidden sm:flex items-center justify-center`}
+              className={`${classes.iconContainer} ${isWallet ? 'bg-primary-50 text-primary-500' : 'bg-white/20 text-white'} rounded-full flex-shrink-0 flex items-center justify-center`}
             >
-              <div className={`${classes.icon} text-white`}>{icon}</div>
+              <div className={`${classes.icon}`}>{icon}</div>
             </div>
           )}
         </div>
+
+        {/* Render optional children (e.g. Action buttons for Wallet) */}
+        {children && (
+          <div className="mt-2 w-full">
+            {children}
+          </div>
+        )}
       </CardBody>
     </Card>
   );

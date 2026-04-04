@@ -82,16 +82,16 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
     // Size classes
     const sizeClasses = {
       trigger: {
-        xs: "text-xs h-7 px-2",
-        sm: "text-sm h-8 px-3",
-        md: "text-sm h-10 px-4",
-        lg: "text-base h-12 px-4",
+        xs: "text-base h-8 px-2",
+        sm: "text-base h-10 px-3",
+        md: "text-base h-12 px-4", // standard height 48px
+        lg: "text-base h-14 px-4",
       },
       label: {
-        xs: "text-xs",
-        sm: "text-xs",
-        md: "text-sm",
-        lg: "text-sm",
+        xs: "text-xs font-medium",
+        sm: "text-sm font-medium",
+        md: "text-sm font-medium",
+        lg: "text-base font-medium",
       },
       helperText: {
         xs: "text-xs",
@@ -100,10 +100,10 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
         lg: "text-sm",
       },
       option: {
-        xs: "text-xs px-2 py-1",
-        sm: "text-sm px-3 py-2",
-        md: "text-sm px-4 py-2",
-        lg: "text-base px-4 py-3",
+        xs: "text-base px-4 py-3", // increased padding for mobile
+        sm: "text-base px-4 py-3",
+        md: "text-base px-4 py-4", // massive touch targets for the lists
+        lg: "text-lg px-5 py-4",
       },
     };
 
@@ -318,12 +318,11 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
 
     const triggerClasses = [
       "relative flex items-center justify-between w-full",
-      "border border-gray-300 bg-white rounded-lg cursor-pointer",
-      "transition duration-200",
+      "bg-white rounded-lg cursor-pointer transition duration-200",
       sizeClasses.trigger[size],
-      isOpen ? `${colors.border} ${colors.ring}` : "hover:border-gray-400",
+      isOpen ? `${colors.border} ${colors.ring}` : "border border-gray-300 hover:border-gray-400 focus:ring-[3px] focus:ring-primary-100",
       isInvalid ? "border-red-500 text-red-900" : "text-gray-900",
-      isDisabled ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "",
+      isDisabled ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "",
       className,
     ].join(" ");
 
@@ -371,9 +370,8 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
             )}
           </span>
           <svg
-            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-              isOpen ? "transform rotate-180" : ""
-            }`}
+            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""
+              }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -389,33 +387,53 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
 
         {/* Options */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-            {options.map((option, index) => (
-              <div
-                key={option.value}
-                className={[
-                  "cursor-pointer transition-colors duration-150",
-                  sizeClasses.option[size],
-                  option.disabled
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-gray-900",
-                  !option.disabled && colors.optionHover,
-                  option.value === value ? colors.optionSelected : "",
-                  index === focusedIndex ? "bg-gray-100" : "",
-                ].join(" ")}
-                onClick={() =>
-                  !option.disabled && handleOptionSelect(option.value)
-                }
-                role="option"
-                aria-selected={option.value === value}
-              >
-                <div className="flex items-center">
-                  {option.icon && <span className="mr-2">{option.icon}</span>}
-                  {option.label}
-                </div>
+          <>
+            {/* Mobile Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/40 z-40 sm:hidden animate-fade-in"
+              onClick={() => setIsOpen(false)}
+            />
+            {/* Options Container (Bottom Sheet on Mobile, Absolute on Desktop) */}
+            <div className="fixed sm:absolute inset-x-0 bottom-0 sm:bottom-auto sm:top-full z-50 sm:mt-1 bg-white sm:border border-gray-300 rounded-t-[32px] sm:rounded-lg shadow-xl sm:shadow-lg max-h-[60vh] sm:max-h-60 overflow-hidden sm:overflow-auto pb-safe-area sm:pb-0 transition-transform duration-300 translate-y-0 sm:translate-y-0 animate-slide-in-from-bottom sm:animate-none">
+              <div className="sm:hidden w-full flex justify-center py-3">
+                <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
               </div>
-            ))}
-          </div>
+              <div className="overflow-y-auto max-h-[calc(60vh-40px)] sm:max-h-60">
+                {options.map((option, index) => (
+                  <div
+                    key={option.value}
+                    className={[
+                      "cursor-pointer transition-colors duration-150 border-b border-gray-100 sm:border-none",
+                      sizeClasses.option[size],
+                      option.disabled
+                        ? "text-gray-400 cursor-not-allowed bg-gray-50"
+                        : "text-gray-900",
+                      !option.disabled && colors.optionHover,
+                      option.value === value ? colors.optionSelected : "",
+                      index === focusedIndex ? "bg-gray-100" : "",
+                    ].join(" ")}
+                    onClick={() =>
+                      !option.disabled && handleOptionSelect(option.value)
+                    }
+                    role="option"
+                    aria-selected={option.value === value}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center">
+                        {option.icon && <span className="mr-3">{option.icon}</span>}
+                        <span className={option.value === value ? "font-semibold" : ""}>{option.label}</span>
+                      </div>
+                      {option.value === value && (
+                        <svg className="w-5 h-5 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         {/* Helper text or Error text */}

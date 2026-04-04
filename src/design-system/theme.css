@@ -1,18 +1,18 @@
 /* Theme.css - Base theme definitions using CSS variables */
 
 :root {
-  /* Primary colors - based on #142850 */
-  --color-primary-50: #f0f4f8;
-  --color-primary-100: #d9e2ec;
-  --color-primary-200: #bcccdc;
-  --color-primary-300: #9fb3c8;
-  --color-primary-400: #829ab1;
-  --color-primary-500: #142850; /* Main primary color */
-  --color-primary-600: #0f1f3a;
-  --color-primary-700: #0a1628;
-  --color-primary-800: #061016;
-  --color-primary-900: #030a0c;
-  --color-primary-950: #020608;
+  /* Primary colors - DirectData Blue #0052FF */
+  --color-primary-50: #eff4ff;
+  --color-primary-100: #dbe6ff;
+  --color-primary-200: #b0c9ff;
+  --color-primary-300: #7b9cff;
+  --color-primary-400: #426bff;
+  --color-primary-500: #0052ff; /* Main primary color */
+  --color-primary-600: #0045f0;
+  --color-primary-700: #0036d1;
+  --color-primary-800: #002cac;
+  --color-primary-900: #002a87;
+  --color-primary-950: #001e52;
 
   /* Secondary colors - complementary blue */
   --color-secondary-50: #f0f9ff;

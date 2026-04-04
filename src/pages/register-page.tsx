@@ -34,25 +34,20 @@ import {
 } from "react-icons/fa";
 import {
   Button,
-  Card,
-  CardHeader,
-  CardBody,
   Input,
   Alert,
-  Container,
   Dialog,
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Card,
+  CardBody,
 } from "../design-system";
 import { useAuth } from "../hooks";
 import { useSiteStatus } from "../contexts/site-status-context";
 import { useToast } from "../design-system/components/toast";
 import type { RegisterAgentData } from "../services/auth.service";
-import {
-  DirectDataLogoCompact,
-  DirectDataLogo,
-} from "../components/common/DirectDataLogo";
+import { DirectDataLogo } from "../components/common/DirectDataLogo";
 
 interface FormData {
   fullName: string;
@@ -315,34 +310,41 @@ export const RegisterPage = () => {
   const passwordStrength = getPasswordStrength();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
-      <header className="p-4 sm:p-6 bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
-        <Container>
-          <div className="flex items-center justify-between">
-            <Link
-              to="/home"
-              className="inline-flex items-center text-gray-600 hover:text-blue-600 transition-all group"
-            >
-              <FaArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-              <span className="hidden sm:inline font-medium">Back to Home</span>
-              <span className="sm:hidden font-medium">Back</span>
-            </Link>
+    <div className="min-h-[100dvh] flex flex-col bg-gray-50 sm:bg-gray-100 sm:justify-center sm:items-center relative">
+      {/* Mobile background/header area */}
+      <div className="flex flex-col flex-grow items-center justify-center p-6 text-center sm:hidden bg-slate-900 text-white min-h-[35vh]">
+        <div className="flex justify-center items-center mb-6">
+          <DirectDataLogo width={100} height={120} />
+        </div>
+        <h1 className="text-2xl font-bold mb-2">
+          Create an Account
+        </h1>
+        <p className="text-gray-300 text-sm max-w-xs">
+          Join our platform and start managing your telecom business today
+        </p>
+      </div>
 
-            <div className="flex items-center space-x-2">
-              <DirectDataLogoCompact width={140} height={40} />
+      {/* Main form container mimicking a bottom sheet on mobile, standard card on desktop */}
+      <div className="w-full sm:max-w-2xl mt-auto sm:mt-0 z-10 transition-transform">
+        <Card variant="bottom-sheet" noPadding>
+
+          {/* Desktop-only header */}
+          <div className="hidden sm:block text-center pt-8 pb-4 bg-slate-900 w-full mb-6">
+            <div className="flex justify-center items-center mb-4">
+              <DirectDataLogo width={80} height={100} />
             </div>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              Agent Registration
+            </h1>
+            <p className="text-gray-300 text-sm">
+              Join our platform and start earning commissions
+            </p>
           </div>
-        </Container>
-      </header>
 
-      {/* Main Content */}
-      <main className="flex-grow flex items-center justify-center px-4 sm:px-6 py-6 sm:py-12">
-        <div className="w-full max-w-2xl">
-          {/* Progress Indicator - Mobile Optimized */}
-          <div className="mb-6 sm:mb-8 px-4 sm:px-0">
-            <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-between w-full max-w-md">
+          <CardBody className="p-6 sm:p-8 pt-8 sm:pt-2">
+            {/* Progress Indicator - Mobile Optimized */}
+            <div className="mb-8 px-2 sm:px-0">
+              <div className="flex items-center justify-between w-full max-w-md mx-auto">
                 {[1, 2, 3].map((step, index) => {
                   const StepIcon = getStepConfig(step).icon;
                   const isCompleted = step < currentStep;
@@ -356,10 +358,9 @@ export const RegisterPage = () => {
                           className={`
                             w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center
                             transition-all duration-300 ease-in-out
-                            ${
-                              isCompleted
-                                ? "bg-green-500 text-white shadow-lg scale-100"
-                                : isCurrent
+                            ${isCompleted
+                              ? "bg-green-500 text-white shadow-lg scale-100"
+                              : isCurrent
                                 ? "bg-blue-600 text-white shadow-lg scale-110 ring-4 ring-blue-100"
                                 : "bg-gray-200 text-gray-500"
                             }
@@ -390,10 +391,9 @@ export const RegisterPage = () => {
                           <div
                             className={`
                               absolute inset-0 rounded-full transition-all duration-500
-                              ${
-                                step < currentStep
-                                  ? "bg-green-500 w-full"
-                                  : "w-0"
+                              ${step < currentStep
+                                ? "bg-green-500 w-full"
+                                : "w-0"
                               }
                             `}
                           />
@@ -406,382 +406,359 @@ export const RegisterPage = () => {
             </div>
 
             {/* Current Step Info - Mobile */}
-            <div className="text-center sm:hidden">
-              <p className="text-sm font-medium text-gray-900">
+            <div className="text-center sm:hidden mb-4">
+              <p className="text-base font-bold text-gray-900">
                 {getStepConfig(currentStep).title}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Step {currentStep} of {totalSteps}
+              <p className="text-xs font-semibold text-primary-600 mt-1">
+                STEP {currentStep} OF {totalSteps}
               </p>
             </div>
-          </div>
 
-          <Card className="shadow-2xl border-0" variant="elevated" size="lg">
-            <CardHeader className="text-center pb-4 sm:pb-6 space-y-4">
-              <div className="flex justify-center">
-                <DirectDataLogo
-                  width={100}
-                  height={120}
-                  className="sm:w-[120px] sm:h-[140px]"
-                />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                  Agent Registration
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600">
-                  Join our platform and start earning commissions
-                </p>
-              </div>
-            </CardHeader>
-
-            <CardBody className="pt-4">
+            <div className="pt-2">
               {localError && (
                 <Alert
                   status="error"
-                  variant="left-accent"
-                  className="mb-6 animate-shake"
+                  variant="solid"
+                  className="mb-8 font-semibold text-sm"
                 >
                   <div className="flex items-start">
-                    <FaExclamationTriangle className="mr-2 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{localError}</span>
+                    <FaExclamationTriangle className="mr-2.5 mt-0.5 flex-shrink-0" />
+                    <span>{localError}</span>
                   </div>
                 </Alert>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Step 1: Personal Information */}
-                {currentStep === 1 && (
-                  <div className="space-y-5 animate-fadeIn">
-                    <Input
-                      label="Full Name"
-                      value={formData.fullName}
-                      onChange={(e) =>
-                        handleInputChange("fullName", e.target.value)
-                      }
-                      onBlur={() => handleFieldBlur("fullName")}
-                      type="text"
-                      required
-                      placeholder="Enter your full name"
-                      leftIcon={<FaUser className="text-gray-400" />}
-                      errorText={
-                        touchedFields.has("fullName")
-                          ? fieldErrors.fullName
-                          : undefined
-                      }
-                      className="transition-all"
-                    />
+            </div>
 
-                    <Input
-                      label="Email Address"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      onBlur={() => handleFieldBlur("email")}
-                      type="email"
-                      required
-                      placeholder="your.email@example.com"
-                      leftIcon={<FaEnvelope className="text-gray-400" />}
-                      errorText={
-                        touchedFields.has("email")
-                          ? fieldErrors.email
-                          : undefined
-                      }
-                      className="transition-all"
-                    />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Step 1: Personal Information */}
+              {currentStep === 1 && (
+                <div className="space-y-5 animate-fadeIn">
+                  <Input
+                    label="Full Name"
+                    value={formData.fullName}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
+                    onBlur={() => handleFieldBlur("fullName")}
+                    type="text"
+                    required
+                    placeholder="Enter your full name"
+                    leftIcon={<FaUser className="text-gray-400" />}
+                    errorText={
+                      touchedFields.has("fullName")
+                        ? fieldErrors.fullName
+                        : undefined
+                    }
+                    className="transition-all"
+                  />
 
-                    <div className="bg-blue-50 rounded-lg p-4 mt-6">
-                      <p className="text-sm text-blue-800">
-                        <strong>Note:</strong> Your email will be used for
-                        account notifications and communication.
-                      </p>
-                    </div>
+                  <Input
+                    label="Email Address"
+                    value={formData.email}
+                    onChange={(e) =>
+                      handleInputChange("email", e.target.value)
+                    }
+                    onBlur={() => handleFieldBlur("email")}
+                    type="email"
+                    required
+                    placeholder="your.email@example.com"
+                    leftIcon={<FaEnvelope className="text-gray-400" />}
+                    errorText={
+                      touchedFields.has("email")
+                        ? fieldErrors.email
+                        : undefined
+                    }
+                    className="transition-all"
+                  />
+
+                  <div className="bg-blue-50 rounded-lg p-4 mt-6">
+                    <p className="text-sm text-blue-800">
+                      <strong>Note:</strong> Your email will be used for
+                      account notifications and communication.
+                    </p>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Step 2: Business Information */}
-                {currentStep === 2 && (
-                  <div className="space-y-5 animate-fadeIn">
-                    <Input
-                      label="Business Name"
-                      value={formData.businessName}
-                      onChange={(e) =>
-                        handleInputChange("businessName", e.target.value)
-                      }
-                      onBlur={() => handleFieldBlur("businessName")}
-                      type="text"
-                      required
-                      placeholder="Enter your business name"
-                      leftIcon={<FaBuilding className="text-gray-400" />}
-                      errorText={
-                        touchedFields.has("businessName")
-                          ? fieldErrors.businessName
-                          : undefined
-                      }
-                      className="transition-all"
-                    />
+              {/* Step 2: Business Information */}
+              {currentStep === 2 && (
+                <div className="space-y-5 animate-fadeIn">
+                  <Input
+                    label="Business Name"
+                    value={formData.businessName}
+                    onChange={(e) =>
+                      handleInputChange("businessName", e.target.value)
+                    }
+                    onBlur={() => handleFieldBlur("businessName")}
+                    type="text"
+                    required
+                    placeholder="Enter your business name"
+                    leftIcon={<FaBuilding className="text-gray-400" />}
+                    errorText={
+                      touchedFields.has("businessName")
+                        ? fieldErrors.businessName
+                        : undefined
+                    }
+                    className="transition-all"
+                  />
 
-                    <Input
-                      label="Phone Number"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                      onBlur={() => handleFieldBlur("phone")}
-                      type="tel"
-                      required
-                      placeholder="+233 XX XXX XXXX"
-                      leftIcon={<FaPhoneAlt className="text-gray-400" />}
-                      errorText={
-                        touchedFields.has("phone")
-                          ? fieldErrors.phone
-                          : undefined
-                      }
-                      className="transition-all"
-                    />
+                  <Input
+                    label="Phone Number"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      handleInputChange("phone", e.target.value)
+                    }
+                    onBlur={() => handleFieldBlur("phone")}
+                    type="tel"
+                    required
+                    placeholder="+233 XX XXX XXXX"
+                    leftIcon={<FaPhoneAlt className="text-gray-400" />}
+                    errorText={
+                      touchedFields.has("phone")
+                        ? fieldErrors.phone
+                        : undefined
+                    }
+                    className="transition-all"
+                  />
 
-                    <div className="bg-blue-50 rounded-lg p-4 mt-6">
-                      <p className="text-sm text-blue-800">
-                        <strong>Business verification:</strong> Ensure your
-                        business details are accurate for faster approval.
-                      </p>
-                    </div>
+                  <div className="bg-blue-50 rounded-lg p-4 mt-6">
+                    <p className="text-sm text-blue-800">
+                      <strong>Business verification:</strong> Ensure your
+                      business details are accurate for faster approval.
+                    </p>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Step 3: Security */}
-                {currentStep === 3 && (
-                  <div className="space-y-5 animate-fadeIn">
-                    <div>
-                      <Input
-                        label="Password"
-                        value={formData.password}
-                        onChange={(e) =>
-                          handleInputChange("password", e.target.value)
-                        }
-                        onBlur={() => handleFieldBlur("password")}
-                        type={showPasswords ? "text" : "password"}
-                        required
-                        placeholder="Create a strong password"
-                        leftIcon={<FaLock className="text-gray-400" />}
-                        rightIcon={
-                          <button
-                            type="button"
-                            onClick={() => setShowPasswords(!showPasswords)}
-                            className="absolute bottom-0.5 right-1 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                            aria-label={
-                              showPasswords ? "Hide passwords" : "Show passwords"
-                            }
-                          >
-                            {showPasswords ? (
-                              <FaEyeSlash className="w-5 h-5" />
-                            ) : (
-                              <FaEye className="w-5 h-5" />
-                            )}
-                          </button>
-                        }
-                        errorText={
-                          touchedFields.has("password")
-                            ? fieldErrors.password
-                            : undefined
-                        }
-                      />
+              {/* Step 3: Security */}
+              {currentStep === 3 && (
+                <div className="space-y-5 animate-fadeIn">
+                  <div>
+                    <Input
+                      label="Password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      onBlur={() => handleFieldBlur("password")}
+                      type={showPasswords ? "text" : "password"}
+                      required
+                      placeholder="Create a strong password"
+                      leftIcon={<FaLock className="text-gray-400" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setShowPasswords(!showPasswords)}
+                          className="absolute bottom-0.5 right-1 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                          aria-label={
+                            showPasswords ? "Hide passwords" : "Show passwords"
+                          }
+                        >
+                          {showPasswords ? (
+                            <FaEyeSlash className="w-5 h-5" />
+                          ) : (
+                            <FaEye className="w-5 h-5" />
+                          )}
+                        </button>
+                      }
+                      errorText={
+                        touchedFields.has("password")
+                          ? fieldErrors.password
+                          : undefined
+                      }
+                    />
 
-                      {/* Password Strength Bar */}
-                      {formData.password && (
-                        <div className="mt-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-600">
-                              Password Strength:
-                            </span>
-                            <span
-                              className={`text-xs font-medium ${
-                                passwordStrength.strength === 100
-                                  ? "text-green-600"
-                                  : passwordStrength.strength >= 60
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
+                    {/* Password Strength Bar */}
+                    {formData.password && (
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-600">
+                            Password Strength:
+                          </span>
+                          <span
+                            className={`text-xs font-medium ${passwordStrength.strength === 100
+                              ? "text-green-600"
+                              : passwordStrength.strength >= 60
+                                ? "text-yellow-600"
+                                : "text-red-600"
                               }`}
-                            >
-                              {passwordStrength.label}
-                            </span>
-                          </div>
-                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${passwordStrength.color} transition-all duration-300`}
-                              style={{ width: `${passwordStrength.strength}%` }}
-                            />
-                          </div>
+                          >
+                            {passwordStrength.label}
+                          </span>
                         </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <Input
-                        label="Confirm Password"
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          handleInputChange("confirmPassword", e.target.value)
-                        }
-                        onBlur={() => handleFieldBlur("confirmPassword")}
-                        type={showPasswords ? "text" : "password"}
-                        required
-                        placeholder="Confirm your password"
-                        leftIcon={<FaLock className="text-gray-400" />}
-                        errorText={
-                          touchedFields.has("confirmPassword")
-                            ? fieldErrors.confirmPassword
-                            : undefined
-                        }
-                      />
-                    </div>
-
-                    {/* Password Requirements */}
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                      <h4 className="text-sm font-semibold text-gray-900">
-                        Password Requirements:
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {[
-                          { key: "length", label: "At least 8 characters" },
-                          { key: "uppercase", label: "One uppercase letter" },
-                          { key: "lowercase", label: "One lowercase letter" },
-                          { key: "number", label: "One number" },
-                        ].map(({ key, label }) => (
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
-                            key={key}
-                            className={`flex items-center text-sm transition-colors ${
-                              passwordValidation[
-                                key as keyof PasswordValidation
-                              ]
-                                ? "text-green-700"
-                                : "text-gray-500"
-                            }`}
-                          >
-                            <div
-                              className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                                passwordValidation[
-                                  key as keyof PasswordValidation
-                                ]
-                                  ? "bg-green-100"
-                                  : "bg-gray-200"
-                              }`}
-                            >
-                              <FaCheckCircle
-                                className={`w-3 h-3 ${
-                                  passwordValidation[
-                                    key as keyof PasswordValidation
-                                  ]
-                                    ? "text-green-600"
-                                    : "text-gray-400"
-                                }`}
-                              />
-                            </div>
-                            {label}
-                          </div>
-                        ))}
+                            className={`h-full ${passwordStrength.color} transition-all duration-300`}
+                            style={{ width: `${passwordStrength.strength}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <Input
+                      label="Confirm Password"
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        handleInputChange("confirmPassword", e.target.value)
+                      }
+                      onBlur={() => handleFieldBlur("confirmPassword")}
+                      type={showPasswords ? "text" : "password"}
+                      required
+                      placeholder="Confirm your password"
+                      leftIcon={<FaLock className="text-gray-400" />}
+                      errorText={
+                        touchedFields.has("confirmPassword")
+                          ? fieldErrors.confirmPassword
+                          : undefined
+                      }
+                    />
+                  </div>
+
+                  {/* Password Requirements */}
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      Password Requirements:
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {[
+                        { key: "length", label: "At least 8 characters" },
+                        { key: "uppercase", label: "One uppercase letter" },
+                        { key: "lowercase", label: "One lowercase letter" },
+                        { key: "number", label: "One number" },
+                      ].map(({ key, label }) => (
                         <div
-                          className={`flex items-center text-sm transition-colors sm:col-span-2 ${
-                            passwordValidation.match
-                              ? "text-green-700"
-                              : "text-gray-500"
-                          }`}
+                          key={key}
+                          className={`flex items-center text-sm transition-colors ${passwordValidation[
+                            key as keyof PasswordValidation
+                          ]
+                            ? "text-green-700"
+                            : "text-gray-500"
+                            }`}
                         >
                           <div
-                            className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                              passwordValidation.match
-                                ? "bg-green-100"
-                                : "bg-gray-200"
-                            }`}
+                            className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${passwordValidation[
+                              key as keyof PasswordValidation
+                            ]
+                              ? "bg-green-100"
+                              : "bg-gray-200"
+                              }`}
                           >
                             <FaCheckCircle
-                              className={`w-3 h-3 ${
-                                passwordValidation.match
-                                  ? "text-green-600"
-                                  : "text-gray-400"
-                              }`}
+                              className={`w-3 h-3 ${passwordValidation[
+                                key as keyof PasswordValidation
+                              ]
+                                ? "text-green-600"
+                                : "text-gray-400"
+                                }`}
                             />
                           </div>
-                          Passwords match
+                          {label}
                         </div>
+                      ))}
+                      <div
+                        className={`flex items-center text-sm transition-colors sm:col-span-2 ${passwordValidation.match
+                          ? "text-green-700"
+                          : "text-gray-500"
+                          }`}
+                      >
+                        <div
+                          className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${passwordValidation.match
+                            ? "bg-green-100"
+                            : "bg-gray-200"
+                            }`}
+                        >
+                          <FaCheckCircle
+                            className={`w-3 h-3 ${passwordValidation.match
+                              ? "text-green-600"
+                              : "text-gray-400"
+                              }`}
+                          />
+                        </div>
+                        Passwords match
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Navigation Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
+              {/* Navigation Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className="flex items-center justify-center sm:flex-1 order-2 sm:order-1"
+                >
+                  <FaArrowLeft className="mr-2" />
+                  Back
+                </Button>
+
+                {currentStep < totalSteps ? (
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                    className="flex items-center justify-center sm:flex-1 order-2 sm:order-1"
+                    variant="primary"
+                    onClick={nextStep}
+                    disabled={!validateCurrentStep()}
+                    className="flex items-center justify-center sm:flex-1 order-1 sm:order-2"
                   >
-                    <FaArrowLeft className="mr-2" />
-                    Back
+                    Next
+                    <FaArrowRight className="ml-2" />
                   </Button>
-
-                  {currentStep < totalSteps ? (
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={nextStep}
-                      disabled={!validateCurrentStep()}
-                      className="flex items-center justify-center sm:flex-1 order-1 sm:order-2"
-                    >
-                      Next
-                      <FaArrowRight className="ml-2" />
-                    </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      disabled={
-                        !validateCurrentStep() ||
-                        isSubmitting ||
-                        siteStatusLoading
-                      }
-                      className="flex items-center justify-center sm:flex-1 order-1 sm:order-2"
-                    >
-                      {siteStatusLoading ? (
-                        <>
-                          <FaSpinner className="mr-2 animate-spin" />
-                          Loading...
-                        </>
-                      ) : isSubmitting ? (
-                        <>
-                          <FaSpinner className="mr-2 animate-spin" />
-                          Creating Account...
-                        </>
-                      ) : (
-                        <>
-                          <FaStore className="mr-2" />
-                          Create Account
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </form>
-
-              {/* Login Link */}
-              <div className="text-center mt-6 pt-6 border-t border-gray-100">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{" "}
-                  <Link
-                    to="/login"
-                    className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-all"
+                ) : (
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={
+                      !validateCurrentStep() ||
+                      isSubmitting ||
+                      siteStatusLoading
+                    }
+                    className="flex items-center justify-center sm:flex-1 order-1 sm:order-2"
                   >
-                    Sign in here
-                  </Link>
-                </p>
+                    {siteStatusLoading ? (
+                      <>
+                        <FaSpinner className="mr-2 animate-spin" />
+                        Loading...
+                      </>
+                    ) : isSubmitting ? (
+                      <>
+                        <FaSpinner className="mr-2 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      <>
+                        <FaStore className="mr-2" />
+                        Create Account
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
-            </CardBody>
-          </Card>
-        </div>
-      </main>
+            </form>
+
+            {/* Login Link */}
+            <div className="text-center mt-8 pt-6 border-t border-gray-100">
+              <p className="text-xs font-semibold text-gray-500">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="text-primary-600 hover:text-primary-700 font-bold hover:underline transition-all"
+                >
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Mobile background spacer */}
+      <div className="fixed inset-0 sm:hidden bg-slate-900 -z-10"></div>
 
       {/* Success Dialog */}
       <Dialog
@@ -888,4 +865,3 @@ export const RegisterPage = () => {
     </div>
   );
 };
-

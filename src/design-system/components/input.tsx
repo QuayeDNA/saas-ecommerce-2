@@ -64,19 +64,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     // Focus state for enhanced focus styles
     const [isFocused, setIsFocused] = useState(false);
 
-    // Size classes for different elements
+    // Size classes for different elements (Mobile First sizes)
     const sizeClasses = {
       input: {
-        xs: "text-xs h-7 px-2",
-        sm: "text-sm h-8 px-3",
-        md: "text-sm h-10 px-4",
-        lg: "text-base h-12 px-4",
+        xs: "text-base h-8 px-2",
+        sm: "text-base h-10 px-3",
+        md: "text-base h-12 px-4", // 48px hit area, 16px text base
+        lg: "text-base h-14 px-4",
       },
       label: {
-        xs: "text-xs",
-        sm: "text-xs",
-        md: "text-sm",
-        lg: "text-sm",
+        xs: "text-xs font-medium",
+        sm: "text-sm font-medium",
+        md: "text-sm font-medium",
+        lg: "text-base font-medium",
       },
       helperText: {
         xs: "text-xs",
@@ -106,9 +106,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Variant specific styles
     const variantClasses = {
-      outline: "border border-gray-300 bg-white rounded-lg",
-      filled: "border border-transparent bg-gray-100 rounded-lg",
-      flushed: "border-b-2 border-gray-300 rounded-none px-0",
+      outline: "border border-gray-300 bg-white rounded-lg transition-all duration-200 hover:border-gray-400 focus:ring-[3px]",
+      filled: "border border-transparent bg-gray-100 rounded-lg transition-all duration-200 hover:bg-gray-200 focus:bg-white focus:ring-[3px]",
+      flushed: "border-b-2 border-gray-300 rounded-none px-0 transition-all duration-200 hover:border-gray-400 focus:border-primary-500",
     };
 
     // Get theme color classes based on the current primary color from the theme
@@ -117,9 +117,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         case "blue":
         case "default":
           return {
-            border: "border-blue-500",
-            ring: "ring ring-blue-200",
-            focus: "focus:border-blue-500 focus:ring-blue-100",
+            border: "border-primary-500",
+            ring: "ring-primary-100",
+            focus: "focus:border-primary-500 focus:ring-primary-100",
           };
         case "black":
           return {

@@ -134,18 +134,16 @@ const ToastItem = forwardRef<HTMLDivElement, ToastItemProps>(
     return (
       <div
         ref={ref}
-        className={`max-w-xs w-full sm:max-w-md border-l-8 rounded-xl shadow-2xl p-4 mb-4 flex items-center font-semibold text-base sm:text-lg border pointer-events-auto ${
-          styles.container
-        } 
-          ${
-            visible && !isClosing
-              ? "translate-x-0 opacity-100"
-              : "translate-x-full opacity-0"
+        className={`w-full sm:max-w-md rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-4 sm:p-5 flex items-center font-semibold text-sm sm:text-base border pointer-events-auto ${styles.container
           } 
-          transition-all duration-300 ease-in-out
+          ${visible && !isClosing
+            ? "translate-y-2 sm:translate-y-0 sm:-translate-x-0 opacity-100"
+            : "-translate-y-full sm:translate-y-0 sm:translate-x-full opacity-0"
+          } 
+          transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1)
         `}
         role="alert"
-        style={{ minWidth: 240 }}
+        style={{ minWidth: "100%" }}
       >
         <div className="flex-shrink-0 mr-4">{styles.icon}</div>
         <div className="flex-1">
@@ -188,7 +186,7 @@ const ToastContainer = () => {
 
   // Create a portal for the toast container
   return createPortal(
-    <div className="fixed top-4 right-2 sm:right-4 z-1000 flex flex-col items-end space-y-2 px-2 w-full max-w-full pointer-events-none">
+    <div className="fixed top-safe-area sm:top-auto sm:bottom-4 right-2 sm:right-4 left-2 sm:left-auto z-[9999] flex flex-col items-center sm:items-end space-y-2 px-2 w-[calc(100%-1rem)] sm:w-auto sm:max-w-md pointer-events-none transition-all duration-300">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}

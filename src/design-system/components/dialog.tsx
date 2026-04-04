@@ -5,6 +5,7 @@ interface DialogProps {
   onClose: () => void;
   children: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "full";
+  mode?: "dialog" | "bottom-sheet";
   closeOnOverlay?: boolean;
   className?: string;
   overlayClassName?: string;
@@ -17,6 +18,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
       onClose,
       children,
       size = "md",
+      mode = "dialog",
       closeOnOverlay = true,
       className = "",
       overlayClassName = "bg-black/50",
@@ -28,8 +30,10 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
       md: "max-w-lg",
       lg: "max-w-2xl",
       xl: "max-w-4xl",
-      full: "max-w-full mx-4",
+      full: mode === "bottom-sheet" ? "w-full" : "max-w-full mx-4",
     };
+
+    const isBottomSheet = mode === "bottom-sheet";
 
     useEffect(() => {
       const handleEscape = (event: KeyboardEvent) => {
@@ -55,7 +59,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className={`fixed inset-0 z-[100] flex ${isBottomSheet ? 'items-end' : 'items-center'} justify-center`}>
         <div
           className={[
             "absolute inset-0 transition-opacity",
@@ -66,15 +70,19 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
         <div
           ref={ref}
           className={[
-            "relative w-full bg-white rounded-lg shadow-xl",
-            "max-h-[90vh] flex flex-col overflow-hidden",
-            "transform transition-all",
+            `relative w-full bg-white shadow-xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all pb-safe-area animate-slide-in-from-bottom`,
+            isBottomSheet ? 'rounded-t-[32px] rounded-b-none' : 'rounded-lg',
             sizeClasses[size],
             className,
           ].join(" ")}
           role="dialog"
           aria-modal="true"
         >
+          {isBottomSheet && (
+            <div className="w-full flex items-center justify-center pt-4 pb-2" aria-hidden="true" onClick={onClose} style={{ cursor: 'pointer' }}>
+              <div className="w-12 h-1.5 bg-gray-200 rounded-[10px]" />
+            </div>
+          )}
           {children}
         </div>
       </div>

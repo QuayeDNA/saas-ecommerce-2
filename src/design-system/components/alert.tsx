@@ -195,11 +195,11 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
     const getVariantStyles = () => {
       switch (variant) {
         case "solid":
-          return `${statusStyles.bg} ${statusStyles.textColor}`;
+          return `${statusStyles.bg} ${statusStyles.textColor} shadow-[0_4px_14px_rgb(0,0,0,0.08)]`;
         case "subtle":
           return `${statusStyles.subtleBg} ${statusStyles.subtleTextColor}`;
         case "outline":
-          return `bg-transparent border ${statusStyles.borderColor} ${statusStyles.subtleTextColor}`;
+          return `bg-transparent border-2 border-solid ${statusStyles.borderColor} ${statusStyles.subtleTextColor}`;
         case "left-accent":
           return `${statusStyles.subtleBg} ${statusStyles.subtleTextColor} border-l-4 ${statusStyles.borderColor}`;
         case "top-accent":
@@ -210,7 +210,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
     };
 
     const alertClasses = [
-      "rounded-md p-4",
+      "rounded-[16px] p-4",
       "relative",
       getVariantStyles(),
       className,
@@ -234,11 +234,10 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
             <div className="ml-3 flex-shrink-0">
               <button
                 type="button"
-                className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  variant === "solid"
+                className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${variant === "solid"
                     ? "bg-transparent text-white hover:bg-white hover:bg-opacity-10 focus:ring-white"
                     : `bg-transparent hover:${statusStyles.bg} hover:bg-opacity-10 focus:ring-${statusStyles.borderColor}`
-                }`}
+                  }`}
                 aria-label="Close"
                 onClick={onClose}
               >

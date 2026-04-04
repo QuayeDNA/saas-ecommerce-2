@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import type { ReactNode, HTMLAttributes } from 'react';
 
 // Card variants
-type CardVariant = 'elevated' | 'outlined' | 'flat' | 'interactive';
+type CardVariant = 'elevated' | 'outlined' | 'flat' | 'interactive' | 'bottom-sheet';
 
 // Card sizes
 type CardSize = 'sm' | 'md' | 'lg';
@@ -42,21 +42,22 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       md: 'p-3 sm:p-4',
       lg: 'p-4 sm:p-5',
     };
-    
+
     // Variant styles
     const variantClasses = {
       elevated: 'shadow-md rounded-lg border border-gray-100',
       outlined: 'border border-gray-200 rounded-lg',
       flat: 'rounded-lg',
       interactive: 'shadow-sm hover:shadow-md rounded-lg border border-gray-100 transition-shadow duration-200',
+      'bottom-sheet': 'rounded-t-[32px] sm:rounded-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] sm:shadow-xl border-0 relative bg-white pb-safe-area',
     };
-    
+
     // Check if a custom background is provided
     const hasCustomBackground = className.includes('bg-');
-    
+
     // Check if custom padding is provided (p-* classes)
     const hasCustomPadding = className.includes('p-');
-    
+
     // Combine all classes
     const cardClasses = [
       // Only add default background if no custom background is provided
@@ -73,7 +74,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       'border-b border-gray-100 bg-gray-50 font-medium',
       size === 'sm' ? 'text-sm' : 'text-base',
     ].join(' ');
-    
+
     const footerClasses = [
       'border-t border-gray-100 bg-gray-50',
       size === 'sm' ? 'text-sm' : 'text-base',
