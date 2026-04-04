@@ -1,0 +1,688 @@
+// src/components/orders/UnifiedOrderCard.tsx
+import React, { useState } from "react";
+import {
+  FaWifi,
+  FaChevronDown,
+  FaTimes,
+  FaUser,
+  FaPhone,
+  FaDatabase,
+  FaMoneyBillWave,
+  FaExclamationTriangle,
+  FaLock,
+  FaTag,
+} from "react-icons/fa";
+import { Button } from "../../design-system";
+import { Select } from "../../design-system/components/select";
+import { ReportModal } from "./ReportModal";
+import type { Order } from "../../types/order";
+import { apiClient } from "../../utils/api-client";
+import { isOrderLocked } from "../../utils/order-lock";
+
+interface UnifiedOrderCardProps {
+  order: Order;
+  isAdmin: boolean;
+  currentUserId?: string;
+  onUpdateStatus: (orderId: string, status: string, notes?: string) => void;
+  onCancel: (orderId: string) => void;
+  onSelect?: (orderId: string) => void;
+  isSelected?: boolean;
+  onRefresh?: () => void;
+  onUpdateReceptionStatus?: (orderId: string, status: string) => Promise<void>;
+}
+
+export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
+  order,
+  isAdmin,
+  currentUserId,
+  onUpdateStatus,
+  onCancel,
+  onSelect,
+  isSelected = false,
+  onRefresh,
+  onUpdateReceptionStatus,
+}) => {
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+
+  const handleReportClick = () => {
+    if (order.reported) {
+      // Show alert for already reported orders
+      alert("This order has already been reported for data delivery issues.");
+      return;
+    }
+    setReportModalOpen(true);
+  };
+
+  const handleReceptionStatusUpdate = async (newStatus: string) => {
+    if (!onUpdateReceptionStatus) return;
+
+    try {
+      await onUpdateReceptionStatus(order._id!, newStatus);
+      // Refresh the list to show updated status
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error("Error updating reception status:", error);
+    }
+  };
+
+  // Click outside handler to close dropdown
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (statusDropdownOpen && !target.closest(".status-dropdown")) {
+        setStatusDropdownOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && statusDropdownOpen) {
+        setStatusDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [statusDropdownOpen]);
+
+  // Available status options (excluding 'failed' as it's system-controlled)
+  const statusOptions = [
+    {
+      value: "pending",
+      label: "Pending",
+      color: "bg-yellow-100 text-yellow-800",
+    },
+    {
+      value: "confirmed",
+      label: "Confirmed",
+      color: "bg-purple-100 text-purple-800",
+    },
+    {
+      value: "processing",
+      label: "Processing",
+      color: "bg-blue-100 text-blue-800",
+    },
+    {
+      value: "completed",
+      label: "Completed",
+      color: "bg-green-100 text-green-800",
+    },
+    {
+      value: "cancelled",
+      label: "Cancelled",
+      color: "bg-gray-100 text-gray-800",
+    },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-600 text-white";
+      case "processing":
+        return "bg-blue-600 text-white";
+      case "failed":
+        return "bg-red-600 text-white";
+      case "cancelled":
+        return "bg-gray-500 text-white";
+      case "pending":
+        return "bg-yellow-500 text-white";
+      case "confirmed":
+        return "bg-purple-600 text-white";
+      case "draft":
+        return "bg-slate-400 text-white";
+      default:
+        return "bg-gray-600 text-white";
+    }
+  };
+
+  const getStatusBorderColor = (status: string) => {
+    switch (status) {
+      case "completed": return "border-l-green-500";
+      case "processing": return "border-l-blue-500";
+      case "failed": return "border-l-red-500";
+      case "cancelled": return "border-l-gray-400";
+      case "pending": return "border-l-yellow-400";
+      case "confirmed": return "border-l-purple-500";
+      case "draft": return "border-l-slate-400";
+      default: return "border-l-gray-300";
+    }
+  };
+
+  const getPaymentStatusStyle = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "paid": return "bg-green-100 text-green-700";
+      case "failed": return "bg-red-100 text-red-700";
+      case "pending": return "bg-yellow-100 text-yellow-700";
+      default: return "bg-gray-100 text-gray-600";
+    }
+  };
+
+  const getReceptionStatusColor = (receptionStatus: string) => {
+    switch (receptionStatus) {
+      case "received":
+        return "bg-green-600/90 text-white";
+      case "not_received":
+        return "bg-red-500 text-white";
+      case "checking":
+        return "bg-blue-400 text-white";
+      case "resolved":
+        return "bg-blue-500 text-white";
+      default:
+        return "bg-gray-500 text-gray-800";
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      onUpdateStatus(order._id!, newStatus);
+      setStatusDropdownOpen(false);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
+  };
+
+  // Check if order is AFA
+  const isAfaOrder = (order: Order) => {
+    return (
+      order.items &&
+      order.items.length > 0 &&
+      order.items[0].packageDetails?.provider === "AFA"
+    );
+  };
+
+  // Extract Ghana Card number from notes
+  const extractGhanaCardFromNotes = (notes: string | undefined) => {
+    if (!notes) return null;
+    const match = notes.match(/Ghana Card:\s*([A-Z0-9-]+)/i);
+    return match ? match[1] : null;
+  };
+
+  // Get display info for AFA orders
+  const getAfaOrderInfo = (order: Order) => {
+    const ghanaCardNumber =
+      order.customerInfo?.ghanaCardNumber ||
+      extractGhanaCardFromNotes(order.notes);
+    return {
+      label: ghanaCardNumber ? "Ghana Card:" : "Service:",
+      value: ghanaCardNumber || "AFA Registration Service",
+    };
+  };
+
+  // Get customer name for AFA orders
+  const getAfaCustomerName = (order: Order) => {
+    return order.customerInfo?.name || "N/A";
+  };
+
+  // Get provider from order items
+  const getOrderProvider = (order: Order) => {
+    if (order.items && order.items.length > 0) {
+      return order.items[0].packageDetails?.provider || "Unknown";
+    }
+    return "Unknown";
+  };
+
+  // Get recipient info (phone number for single orders, count for bulk)
+  const getOrderRecipient = (order: Order) => {
+    if (order.orderType === "bulk") {
+      return `${order.items.length} recipients`;
+    }
+    if (order.items && order.items.length > 0) {
+      return order.items[0].customerPhone || "N/A";
+    }
+    return "N/A";
+  };
+
+  // Get total volume
+  const getOrderVolume = (order: Order) => {
+    if (!order.items || order.items.length === 0) return "N/A";
+
+    const totalVolume = order.items.reduce((sum, item) => {
+      const volume =
+        item.bundleSize?.value || item.packageDetails?.dataVolume || 0;
+      return sum + volume;
+    }, 0);
+
+    if (totalVolume >= 1) {
+      return `${totalVolume.toFixed(1)} GB`;
+    } else {
+      return `${(totalVolume * 1000).toFixed(0)} MB`;
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-GH", {
+      style: "currency",
+      currency: "GHS",
+    }).format(amount);
+  };
+
+  const formatDate = (date: Date | string) => {
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(date));
+  };
+
+  const canCancel = (status: string) =>
+    ["pending", "confirmed", "processing", "draft"].includes(status);
+
+  const canUserCancelOrder = (order: Order) => {
+    if (isOrderLocked(order)) return false;
+    if (!canCancel(order.status)) return false;
+
+    // Admins can cancel any order
+    if (isAdmin) return true;
+
+    // Agents can cancel their own draft or pending orders
+    if (
+      (order.status === "draft" || order.status === "pending") &&
+      currentUserId
+    ) {
+      const createdById =
+        typeof order.createdBy === "string"
+          ? order.createdBy
+          : (order.createdBy as { _id: string })?._id;
+      if (createdById === currentUserId) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Check if the admin can change status (not locked)
+  const canAdminChangeStatus = (order: Order) => {
+    return isAdmin && !isOrderLocked(order);
+  };
+
+  const canUserReportOrder = (order: Order) => {
+    // Only completed orders can be reported
+    if (order.status !== "completed") return false;
+
+    // Check if order is already reported
+    if (order.reported) return false;
+
+    // Check if order is older than 2 hours
+    const orderDate = new Date(order.createdAt);
+    const twoHoursAgo = new Date();
+    twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
+
+    if (orderDate < twoHoursAgo) return false;
+
+    // Business users can only report their own orders
+    if (currentUserId) {
+      const createdById =
+        typeof order.createdBy === "string"
+          ? order.createdBy
+          : (order.createdBy as { _id: string })?._id;
+      return createdById === currentUserId;
+    }
+
+    return false;
+  };
+
+  const shouldShowReceptionStatusEditor = (order: Order) => {
+    // Only show reception status editor for reported orders
+    if (!order.reported) return false;
+
+    // If the order is not resolved, check if it's been more than 24 hours since reporting
+    if (order.receptionStatus !== "resolved") {
+      // For not_received/checking status, hide after 24 hours
+      if (order.reportedAt) {
+        const reportedDate = new Date(order.reportedAt);
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+        return reportedDate >= twentyFourHoursAgo;
+      }
+      return true; // Show if no reportedAt (legacy)
+    }
+
+    // If the order is resolved, check if it's been more than 10 minutes since resolution
+    // Use resolvedAt if available, otherwise fall back to updatedAt
+    const resolvedDate = new Date(
+      order.resolvedAt || order.updatedAt || order.createdAt
+    );
+    const tenMinutesAgo = new Date();
+    tenMinutesAgo.setMinutes(tenMinutesAgo.getMinutes() - 10);
+
+    // Hide the editor if it's been more than 10 minutes since resolution
+    return resolvedDate >= tenMinutesAgo;
+  };
+
+  const shouldShowReceptionStatusDisplay = (order: Order) => {
+    // Only show reception status display for completed orders with reception status
+    if (order.status !== "completed" || !order.receptionStatus) return false;
+
+    // If the order is not resolved, check if it's been more than 24 hours since reporting
+    if (order.receptionStatus !== "resolved") {
+      // For not_received/checking status, hide after 24 hours
+      if (order.reportedAt) {
+        const reportedDate = new Date(order.reportedAt);
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+        return reportedDate >= twentyFourHoursAgo;
+      }
+      return true; // Show if no reportedAt (legacy)
+    }
+
+    // If the order is resolved, check if it's been more than 10 minutes since resolution
+    const resolvedDate = new Date(
+      order.resolvedAt || order.updatedAt || order.createdAt
+    );
+    const tenMinutesAgo = new Date();
+    tenMinutesAgo.setMinutes(tenMinutesAgo.getMinutes() - 10);
+
+    // Hide the display if it's been more than 10 minutes since resolution
+    return resolvedDate >= tenMinutesAgo;
+  };
+
+  const handleReportSubmit = async () => {
+    setIsReporting(true);
+    try {
+      await apiClient.post(`/api/orders/${order._id}/report`, {});
+
+      setReportModalOpen(false);
+      // Refresh the order list after successful reporting
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      // You might want to show an error toast here
+      throw error; // Re-throw so the modal can handle it
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
+  return (
+    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 ${getStatusBorderColor(order.status)} hover:shadow-md transition-shadow`}>
+      <div className="p-4">
+        {/* Header - Order Number, Date, Status, Payment */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {isAdmin && onSelect && (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onSelect(order._id!)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 h-4 w-4"
+                aria-label={`Select order ${order.orderNumber}`}
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 leading-tight">
+                {order.orderNumber}
+              </h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {formatDate(order.createdAt)}
+              </p>
+            </div>
+          </div>
+
+          {/* Status Badge + Lock */}
+          <div className="flex-shrink-0 ml-2 flex flex-col items-end gap-1">
+            <div className="relative">
+              {canAdminChangeStatus(order) ? (
+                <button
+                  onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                    order.status
+                  )} hover:opacity-90 transition-opacity status-dropdown`}
+                  aria-label={`Change status, currently ${order.status}`}
+                >
+                  <span className="capitalize">{order.status}</span>
+                  <FaChevronDown className="text-[10px] ml-0.5" />
+                </button>
+              ) : (
+                <div
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                    order.status
+                  )}`}
+                >
+                  {isOrderLocked(order) && <FaLock className="text-[10px]" />}
+                  <span className="capitalize">{order.status}</span>
+                </div>
+              )}
+
+              {canAdminChangeStatus(order) && statusDropdownOpen && (
+                <div className="absolute z-20 mt-1 right-0 bg-white rounded-lg shadow-xl border border-gray-200 status-dropdown min-w-36">
+                  <div className="py-1 flex flex-col">
+                    {statusOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleStatusChange(option.value)}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center gap-2 ${option.value === order.status
+                            ? "bg-blue-50 text-blue-700 font-medium"
+                            : "text-gray-700"
+                          }`}
+                      >
+                        <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${option.color}`} />
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Payment status pill */}
+            {order.paymentStatus && (
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusStyle(order.paymentStatus)}`}>
+                {order.paymentStatus === "paid" ? "Paid" : order.paymentStatus === "failed" ? "Payment Failed" : "Unpaid"}
+              </span>
+            )}
+
+            {/* Locked indicator chip (mobile-visible) */}
+            {isOrderLocked(order) && !canAdminChangeStatus(order) && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                <FaLock className="text-[9px]" />
+                Locked
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Order Details - Vertical List Format */}
+        <div className="space-y-2 mb-3">
+          {/* Network */}
+          <div className="flex items-center gap-2 text-sm">
+            <FaWifi className="text-gray-400 w-4 h-4 flex-shrink-0" />
+            <span className="text-gray-700 font-medium min-w-0 w-16">
+              Network:
+            </span>
+            <span className="text-gray-900 truncate">
+              {getOrderProvider(order)}
+            </span>
+          </div>
+
+          {/* Recipient */}
+          <div className="flex items-center gap-2 text-sm">
+            <FaPhone className="text-gray-400 w-4 h-4 flex-shrink-0" />
+            <span className="text-gray-700 font-medium min-w-0 w-16">
+              Recipient:
+            </span>
+            <span className="text-gray-900 truncate">
+              {getOrderRecipient(order)}
+            </span>
+          </div>
+
+          {/* Customer Name (for AFA orders) */}
+          {isAfaOrder(order) && (
+            <div className="flex items-center gap-2 text-sm">
+              <FaUser className="text-gray-400 w-4 h-4 flex-shrink-0" />
+              <span className="text-gray-700 font-medium min-w-0 w-16">
+                Name:
+              </span>
+              <span className="text-gray-900 truncate">
+                {getAfaCustomerName(order)}
+              </span>
+            </div>
+          )}
+
+          {/* Volume or AFA Service Info */}
+          <div className="flex items-center gap-2 text-sm">
+            <FaDatabase className="text-gray-400 w-4 h-4 flex-shrink-0" />
+            <span className="text-gray-700 font-medium min-w-0 w-16">
+              {isAfaOrder(order) ? getAfaOrderInfo(order).label : "Volume:"}
+            </span>
+            <span className="text-gray-900">
+              {isAfaOrder(order)
+                ? getAfaOrderInfo(order).value
+                : getOrderVolume(order)}
+            </span>
+          </div>
+
+          {/* Total — for storefront orders show the tier cost (agent's cost to fulfil),
+               not the customer-facing charge amount stored in order.total */}
+          <div className="flex items-center gap-2 text-sm">
+            <FaMoneyBillWave className="text-gray-400 w-4 h-4 flex-shrink-0" />
+            <span className="text-gray-700 font-medium min-w-0 w-16">
+              Total:
+            </span>
+            <span className="text-gray-900 font-semibold">
+              {formatCurrency(
+                order.orderType === 'storefront' && order.storefrontData?.totalTierCost != null
+                  ? order.storefrontData.totalTierCost
+                  : order.total
+              )}
+            </span>
+          </div>
+
+          {/* Type */}
+          <div className="flex items-center gap-2 text-sm">
+            <FaTag className="text-gray-400 w-4 h-4 flex-shrink-0" />
+            <span className="text-gray-700 font-medium min-w-0 w-16">
+              Type:
+            </span>
+            <span className="text-gray-900">
+              {order.orderType === "storefront"
+                ? "Storefront Sale"
+                : order.orderType === "bulk"
+                  ? "Bulk"
+                  : "Regular"}{" "}
+              <span className="text-gray-500 text-xs">• {order.items?.length || 0} item{order.items?.length !== 1 ? "s" : ""}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Action row */}
+        {(canUserCancelOrder(order) || canUserReportOrder(order) || (order.reported && !isAdmin)) && (
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {canUserCancelOrder(order) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onCancel(order._id!)}
+                className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400 px-3 py-1 text-xs"
+              >
+                <FaTimes className="w-3 h-3 mr-1" />
+                {order.status === "draft" ? "Delete Draft" : "Cancel Order"}
+              </Button>
+            )}
+
+            {canUserReportOrder(order) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleReportClick}
+                className="text-orange-600 hover:text-orange-700 border-orange-300 hover:border-orange-400 px-3 py-1 text-xs"
+              >
+                <FaExclamationTriangle className="w-3 h-3 mr-1" />
+                Report Issue
+              </Button>
+            )}
+
+            {order.reported && !isAdmin && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                <FaExclamationTriangle className="w-3 h-3" />
+                Issue Reported
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Super Admin Reception Status Editor */}
+        {order.reported &&
+          isAdmin &&
+          shouldShowReceptionStatusEditor(order) && (
+            <div className="flex justify-start mt-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700">
+                  Reception Status:
+                </span>
+                <Select
+                  value={order.receptionStatus || "not_received"}
+                  onChange={handleReceptionStatusUpdate}
+                  options={[
+                    { value: "not_received", label: "Not Received" },
+                    { value: "received", label: "Received" },
+                    { value: "checking", label: "Checking" },
+                    { value: "resolved", label: "Resolved" },
+                  ]}
+                  size="sm"
+                  className="w-40"
+                />
+              </div>
+            </div>
+          )}
+
+        {/* Reception Status Badge - Bottom Right */}
+        {order.status === "completed" &&
+          order.receptionStatus &&
+          shouldShowReceptionStatusDisplay(order) && (
+            <div className="flex justify-end mt-3">
+              <div
+                className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-sm font-medium ${getReceptionStatusColor(
+                  order.receptionStatus
+                )}`}
+              >
+                <span>{order.receptionStatus.replace("_", " ")}</span>
+              </div>
+            </div>
+          )}
+      </div>
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        onSubmit={handleReportSubmit}
+        isSubmitting={isReporting}
+        orderNumber={order.orderNumber}
+        phoneNumber={order.items?.[0]?.customerPhone || "N/A"}
+        packageVolume={
+          order.items?.[0]?.bundleSize
+            ? `${order.items[0].bundleSize.value} ${order.items[0].bundleSize.unit}`
+            : order.items?.[0]?.packageDetails?.dataVolume
+              ? `${order.items[0].packageDetails.dataVolume} GB`
+              : undefined
+        }
+        provider={order.items?.[0]?.packageDetails?.provider || undefined}
+        orderDate={
+          order.createdAt
+            ? new Date(order.createdAt).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+            : undefined
+        }
+      />
+    </div>
+  );
+};

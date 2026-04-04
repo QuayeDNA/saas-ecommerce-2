@@ -1,0 +1,537 @@
+// src/routes/index.tsx
+import { lazy, Suspense } from "react";
+import { Navigate } from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
+import { DashboardLayout } from "../layouts/dashboard-layout";
+import { PageLoader } from "../components/page-loader";
+import { ProtectedRoute } from "../components/protected-route";
+import { StorefrontRouteGuard } from "../contexts/storefront-session-context";
+import superadminRoutes from "./superadmin-routes";
+
+// =============================================================================
+// LAZY LOADED COMPONENTS - PUBLIC PAGES
+// =============================================================================
+const LandingPage = lazy(() =>
+  import("../pages/landing-page").then((module) => ({
+    default: module.LandingPage,
+  }))
+);
+
+const LogoPage = lazy(() =>
+  import("../components/common/DirectDataLogoShowcase").then((module) => ({
+    default: module.DirectDataLogoShowcase,
+  }))
+);
+const LoginPage = lazy(() =>
+  import("../pages/login-page").then((module) => ({
+    default: module.LoginPage,
+  }))
+);
+const RegisterPage = lazy(() =>
+  import("../pages/register-page").then((module) => ({
+    default: module.RegisterPage,
+  }))
+);
+const ForgotPasswordPage = lazy(() =>
+  import("../pages/forgot-password-page").then((module) => ({
+    default: module.ForgotPasswordPage,
+  }))
+);
+const ResetPasswordPage = lazy(() =>
+  import("../pages/reset-password-page").then((module) => ({
+    default: module.ResetPasswordPage,
+  }))
+);
+const VerifyAccountPage = lazy(() =>
+  import("../pages/verify-account-page").then((module) => ({
+    default: module.VerifyAccountPage,
+  }))
+);
+const NotFoundPage = lazy(() =>
+  import("../pages/not-found-page").then((module) => ({
+    default: module.NotFoundPage,
+  }))
+);
+const ForbiddenPage = lazy(() =>
+  import("../pages/forbidden-page").then((module) => ({
+    default: module.ForbiddenPage,
+  }))
+);
+const PrivacyPolicyPage = lazy(() =>
+  import("../pages/privacy-policy-page").then((module) => ({
+    default: module.PrivacyPolicyPage,
+  }))
+);
+const PublicStorePage = lazy(() =>
+  import("../pages/public/public-store").then((module) => ({
+    default: module.PublicStorePage,
+  }))
+);
+const StoreLandingPage = lazy(
+  () => import("../pages/public/store-landing-page")
+);
+
+// =============================================================================
+// LAZY LOADED COMPONENTS - DASHBOARD PAGES
+// =============================================================================
+const DashboardPage = lazy(() =>
+  import("../pages/dashboard-page").then((module) => ({
+    default: module.DashboardPage,
+  }))
+);
+const ProfilePage = lazy(() =>
+  import("../pages/profile-page").then((module) => ({
+    default: module.ProfilePage,
+  }))
+);
+
+// =============================================================================
+// LAZY LOADED COMPONENTS - AGENT SPECIFIC PAGES
+// =============================================================================
+const PackageManagementPage = lazy(() =>
+  import("../pages/packages-page").then((module) => ({
+    default: module.default,
+  }))
+);
+const OrderManagementPage = lazy(() =>
+  import("../pages/orders-page").then((module) => ({
+    default: module.OrderManagementPage,
+  }))
+);
+const AfaRegistrationPage = lazy(() =>
+  import("../pages/afa-registration-page").then((module) => ({
+    default: module.AfaRegistrationPage,
+  }))
+);
+const WalletPage = lazy(() =>
+  import("../pages/wallet-page").then((module) => ({
+    default: module.WalletPage,
+  }))
+);
+const WalletTopupCallbackPage = lazy(() =>
+  import("../pages/wallet-topup-callback").then((module) => ({
+    default: module.WalletTopupCallbackPage,
+  }))
+);
+const StorefrontCallbackPage = lazy(() =>
+  import("../pages/storefront-callback").then((m) => ({
+    default: m.StorefrontCallbackPage,
+  }))
+);
+const StorefrontDashboardPage = lazy(() =>
+  import("../pages/agent/storefront-dashboard").then((module) => ({
+    default: module.StorefrontDashboardPage,
+  }))
+);
+
+// =============================================================================
+// LAZY LOADED COMPONENTS - PACKAGE SPECIFIC PAGES
+// =============================================================================
+const MtnPackagesPage = lazy(() =>
+  import("../pages/mtn-packages-page").then((module) => ({
+    default: module.MtnPackagesPage,
+  }))
+);
+const TelecelPackagesPage = lazy(() =>
+  import("../pages/telecel-packages-page").then((module) => ({
+    default: module.TelecelPackagesPage,
+  }))
+);
+const AtBigTimePackagesPage = lazy(() =>
+  import("../pages/at-bigtime-packages").then((module) => ({
+    default: module.AtBigTimePackagesPage,
+  }))
+);
+const AtISharePremiumPackagesPage = lazy(() =>
+  import("../pages/at-ishare-packages").then((module) => ({
+    default: module.AtISharePremiumPackagesPage,
+  }))
+);
+
+// =============================================================================
+// ROUTE GUARD WRAPPER
+// Renders children only if the visitor is NOT in a storefront session.
+// Storefront visitors who manually type /login, /register, etc. are redirected
+// back to their store. This is the security guard the client requested.
+// =============================================================================
+
+function SystemRouteElement({ element }: { element: React.ReactNode }) {
+  return (
+    <StorefrontRouteGuard allowedPrefixes={["/store", "/privacy-policy"]}>
+      {element}
+    </StorefrontRouteGuard>
+  );
+}
+
+// =============================================================================
+// PUBLIC ROUTES
+// Routes under /store/* are NOT wrapped in SystemRouteElement — they are the
+// storefront and must always be accessible.
+// Everything else (/, /login, /register, /forgot-password …) IS wrapped so a
+// storefront visitor can't sneak into the agent registration flow.
+// =============================================================================
+
+const publicRoutes: RouteObject[] = [
+  // ── Root: redirect to login (wrapped — storefront visitors bounce back) ──
+  {
+    path: "/",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <LoginPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+
+  // ── Wallet / storefront callbacks (not system-access-sensitive) ───────────
+  {
+    path: "/wallet/topup/callback",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <WalletTopupCallbackPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/storefront/:storefrontId/callback",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <StorefrontCallbackPage />
+      </Suspense>
+    ),
+  },
+
+  // ── Marketing landing page ────────────────────────────────────────────────
+  {
+    path: "/home",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <LandingPage />
+      </Suspense>
+    ),
+  },
+
+  // ── Auth routes — ALL wrapped with SystemRouteElement ────────────────────
+  {
+    path: "/login",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <LoginPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+  {
+    path: "/register",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <RegisterPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <ForgotPasswordPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+  {
+    path: "/reset-password/:token",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <ResetPasswordPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+  {
+    path: "/verify-account",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <VerifyAccountPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+
+  // ── Misc public pages ─────────────────────────────────────────────────────
+  {
+    path: "/forbidden",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <ForbiddenPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/privacy-policy",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <PrivacyPolicyPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/logo",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <LogoPage />
+      </Suspense>
+    ),
+  },
+
+  // ── STOREFRONT ROUTES — never wrapped in SystemRouteElement ───────────────
+  // directdata.shop/store           → discovery / landing page
+  // directdata.shop/store/:name     → individual agent store
+  {
+    path: "/store",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <StoreLandingPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/store/:businessName",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <PublicStorePage />
+      </Suspense>
+    ),
+  },
+
+  // Dev-only convenience route
+  ...(import.meta.env.DEV
+    ? ([
+        {
+          path: "/dev/store-landing",
+          element: (
+            <Suspense fallback={<PageLoader />}>
+              <StoreLandingPage />
+            </Suspense>
+          ),
+        },
+      ] as RouteObject[])
+    : []),
+
+  {
+    path: "/404",
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <NotFoundPage />
+      </Suspense>
+    ),
+  },
+];
+
+// =============================================================================
+// AGENT ROUTES — also wrapped so storefront visitors can't reach them
+// =============================================================================
+
+const agentRoutes: RouteObject[] = [
+  {
+    path: "/agent",
+    element: (
+      <SystemRouteElement
+        element={
+          <ProtectedRoute
+            allowedUserTypes={[
+              "agent",
+              "super_agent",
+              "dealer",
+              "super_dealer",
+            ]}
+          />
+        }
+      />
+    ),
+    children: [
+      {
+        path: "dashboard",
+        element: <DashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <DashboardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "packages",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PackageManagementPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "packages/mtn",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <MtnPackagesPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "packages/telecel",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <TelecelPackagesPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "packages/at-big-time",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <AtBigTimePackagesPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "packages/at-ishare-premium",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <AtISharePremiumPackagesPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "orders",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <OrderManagementPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "profile",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ProfilePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "afa-registration",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <AfaRegistrationPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "wallet",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <WalletPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "storefront",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <StorefrontDashboardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "privacy-policy",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PrivacyPolicyPage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// =============================================================================
+// ADMIN ROUTES — also guarded
+// =============================================================================
+
+const adminRoutes: RouteObject[] = [
+  {
+    path: "/admin",
+    element: (
+      <SystemRouteElement
+        element={<ProtectedRoute allowedUserTypes={["super_admin"]} />}
+      />
+    ),
+    children: [
+      {
+        path: "dashboard",
+        element: <DashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <DashboardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "packages",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PackageManagementPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "profile",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ProfilePage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+    ],
+  },
+];
+
+// =============================================================================
+// MAIN ROUTES CONFIGURATION
+// =============================================================================
+export const routes: RouteObject[] = [
+  ...publicRoutes,
+  ...agentRoutes,
+  ...adminRoutes,
+  superadminRoutes,
+  {
+    path: "*",
+    element: <Navigate to="/404" replace />,
+  },
+];
+

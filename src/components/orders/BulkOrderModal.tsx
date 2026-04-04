@@ -1,0 +1,884 @@
+// src/components/orders/BulkOrderModal.tsx
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaTimes,
+  FaWifi,
+  FaClock,
+  FaCheckCircle,
+  FaFileUpload,
+  FaDownload,
+  FaPlus,
+  FaBox,
+  FaExclamationCircle,
+  FaDatabase,
+  FaMoneyBillWave,
+} from "react-icons/fa";
+import { useOrder } from "../../contexts/OrderContext";
+import { useSiteStatus } from "../../contexts/site-status-context";
+import { useAuth } from "../../hooks/use-auth";
+import { bundleService } from "../../services/bundle.service";
+import { getProviderColors } from "../../utils/provider-colors";
+import {
+  getPriceForUserType,
+  formatCurrency,
+} from "../../utils/pricingHelpers";
+import { DuplicateOrderWarningModal } from "./DuplicateOrderWarningModal";
+import {
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Button,
+  Card,
+  CardBody,
+  Badge,
+  Alert,
+  Spinner,
+  CardHeader,
+  useToast,
+} from "../../design-system";
+import type { Bundle } from "../../types/package";
+import type { DuplicateCheckResult } from "../../types/order";
+
+interface BulkOrderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  packageId: string;
+  provider: string; // provider code for validation
+  providerName: string; // provider name for display
+}
+
+interface BulkOrderItem {
+  customerPhone: string;
+  dataVolume: number;
+  dataUnit: "MB" | "GB";
+  bundle?: Bundle;
+  phoneError?: string;
+  dataError?: string;
+}
+
+export const BulkOrderModal: React.FC<BulkOrderModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  packageId,
+  provider,
+  providerName,
+}) => {
+  const { loading, createBulkOrder } = useOrder();
+  const { siteStatus } = useSiteStatus();
+  const { authState } = useAuth();
+  const { addToast } = useToast();
+  const userType = authState.user?.userType;
+  const [bundles, setBundles] = useState<Bundle[]>([]);
+  const navigate = useNavigate();
+  const [bulkText, setBulkText] = useState("");
+  const [orderItems, setOrderItems] = useState<BulkOrderItem[]>([]);
+  const [showSummary, setShowSummary] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [importMethod, setImportMethod] = useState<"file" | "manual">("manual");
+  const [duplicateCheckResult, setDuplicateCheckResult] =
+    useState<DuplicateCheckResult | null>(null);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+
+  // Get provider colors for branding
+  const providerColors = getProviderColors(provider);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setBulkText("");
+      setOrderItems([]);
+      setShowSummary(false);
+      setError(null);
+      setImportMethod("manual");
+      setDuplicateCheckResult(null);
+      setShowDuplicateWarning(false);
+    }
+  }, [isOpen]);
+
+  // Fetch bundles for the selected packageId - get all bundles without pagination
+  useEffect(() => {
+    if (isOpen && packageId) {
+      bundleService
+        .getBundlesByPackage(packageId, { limit: 1000 })
+        .then((resp) => setBundles(resp.bundles || []))
+        .catch(() => setBundles([]));
+    }
+  }, [isOpen, packageId]);
+
+  // Get available bundles for this package
+  const availableBundles: Bundle[] = Array.isArray(bundles)
+    ? bundles.filter((bundle: Bundle) => bundle.isActive)
+    : [];
+
+  // Validate phone number (expects already-normalized 10-digit string)
+  const validatePhone = (phone: string): string | null => {
+    if (!/^\d{10}$/.test(phone)) {
+      return "Phone number must be exactly 10 digits starting with 0";
+    }
+    if (!phone.startsWith("0")) {
+      return "Phone number must start with 0";
+    }
+    return null;
+  };
+
+  // Only accept numbers (assume GB) in the textarea input
+  const parseBulkText = (text: string): BulkOrderItem[] => {
+    const lines = text.trim().split("\n");
+    const items: BulkOrderItem[] = [];
+    for (const element of lines) {
+      const line = element.trim();
+      if (!line) continue;
+      // Parse format: "Number 10" (assume GB)
+      // Last token is the GB value; everything before it joined = phone (handles spaces within phone)
+      const parts = line.split(/\s+/);
+      if (parts.length < 2) continue;
+      const gbValue = parts[parts.length - 1];
+      // Normalize phone: join all non-GB tokens, strip spaces, convert +233/233 to 0
+      const phoneNum = parts
+        .slice(0, -1)
+        .join("")
+        .replace(/^\+?233/, "0");
+      // Check for non-numeric characters (other than .) in gbValue
+      if (/[^0-9.]/.test(gbValue)) {
+        items.push({
+          customerPhone: phoneNum,
+          dataVolume: 0,
+          dataUnit: "GB",
+          bundle: undefined,
+          dataError: "Do not include GB or MB, just enter the number (e.g. 10)",
+        });
+        continue;
+      }
+      const gbVolume = parseFloat(gbValue);
+      if (isNaN(gbVolume)) continue;
+      // Find matching bundle (always in GB) - skip AFA bundles which don't have dataVolume
+      const foundBundle = availableBundles.find(
+        (bundle) =>
+          bundle.dataVolume === gbVolume &&
+          bundle.dataUnit?.toUpperCase() === "GB"
+      );
+      items.push({
+        customerPhone: phoneNum,
+        dataVolume: gbVolume,
+        dataUnit: "GB",
+        bundle: foundBundle,
+      });
+    }
+    return items;
+  };
+
+  // Validate all order items, but allow continue even if some are invalid
+  const validateOrderItems = (): {
+    valid: BulkOrderItem[];
+    invalid: BulkOrderItem[];
+  } => {
+    const validatedItems = orderItems.map((item) => {
+      const phoneError = validatePhone(item.customerPhone);
+      const dataError = !item.bundle
+        ? "Data volume not available in this package"
+        : undefined;
+      return { ...item, phoneError: phoneError ?? undefined, dataError };
+    });
+    const valid = validatedItems.filter(
+      (item) => !item.phoneError && !item.dataError
+    );
+    const invalid = validatedItems.filter(
+      (item) => item.phoneError || item.dataError
+    );
+    setOrderItems(validatedItems);
+    return { valid, invalid };
+  };
+
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const csv = e.target?.result as string;
+        const items = parseBulkText(csv);
+        setOrderItems(items);
+        setError(null);
+        addToast(
+          `Successfully parsed ${items.length} orders from CSV file`,
+          "success"
+        );
+      } catch {
+        setError("Failed to parse CSV file. Please check the format.");
+        addToast("Failed to parse CSV file. Please check the format.", "error");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Handle bulk text change
+  const handleBulkTextChange = (text: string) => {
+    setBulkText(text);
+    const items = parseBulkText(text);
+    setOrderItems(items);
+  };
+
+  // Handle continue to summary (always allow)
+  const [validOrders, setValidOrders] = useState<BulkOrderItem[]>([]);
+  const [invalidOrders, setInvalidOrders] = useState<BulkOrderItem[]>([]);
+  const handleContinue = () => {
+    const { valid, invalid } = validateOrderItems();
+    setValidOrders(valid);
+    setInvalidOrders(invalid);
+    setShowSummary(true);
+  };
+
+  // Handle confirm order (only send valid orders)
+  const handleConfirmOrder = async (forceOverride = false) => {
+    try {
+      setError(null);
+
+      // Check if site is closed
+      if (siteStatus?.isSiteOpen === false) {
+        setError(
+          `Site is currently under maintenance: ${siteStatus.customMessage}`
+        );
+        addToast("Site is currently under maintenance", "error");
+        return;
+      }
+
+      const items = validOrders.map(
+        (item) => `${item.customerPhone},${item.dataVolume}GB`
+      );
+      const orderData = { items, packageId, forceOverride };
+      await createBulkOrder(orderData);
+      addToast(
+        "Bulk order created successfully! Amount deducted from wallet. Automatic refund if order fails or is cancelled.",
+        "success"
+      );
+      onSuccess();
+      onClose();
+      navigate("/agent/dashboard/orders");
+    } catch (err: unknown) {
+      // Check if this is a duplicate order error
+      if (
+        err &&
+        typeof err === "object" &&
+        "code" in err &&
+        err.code === "DUPLICATE_ORDER_DETECTED" &&
+        "duplicateInfo" in err
+      ) {
+        setDuplicateCheckResult(err.duplicateInfo as DuplicateCheckResult);
+        setShowDuplicateWarning(true);
+        addToast(
+          "Duplicate orders detected. Please review and confirm.",
+          "warning"
+        );
+        return;
+      }
+
+      if (err instanceof Error) {
+        const errorMessage = err.message;
+
+        // Check if site is closed
+        if (
+          errorMessage.includes("maintenance") ||
+          errorMessage.includes("Site is currently under maintenance")
+        ) {
+          setError(errorMessage);
+          addToast("Site is currently under maintenance", "error");
+          return;
+        }
+
+        setError(errorMessage || "Failed to create bulk order");
+        addToast(
+          errorMessage || "Failed to create bulk order. Please try again.",
+          "error"
+        );
+      } else {
+        setError("Failed to create bulk order");
+        addToast("Failed to create bulk order. Please try again.", "error");
+      }
+    }
+  };
+
+  // Handle duplicate warning modal actions
+  const handleDuplicateProceed = () => {
+    setShowDuplicateWarning(false);
+    setDuplicateCheckResult(null);
+    handleConfirmOrder(true); // Force override duplicates
+  };
+
+  const handleDuplicateCancel = () => {
+    setShowDuplicateWarning(false);
+    setDuplicateCheckResult(null);
+  };
+
+  // Handle back to form
+  const handleBack = () => {
+    setShowSummary(false);
+  };
+
+  // Download CSV template
+  const downloadTemplate = () => {
+    const template = "0241234567 5GB\n0201234567 2GB\n0271234567 1GB";
+    const blob = new Blob([template], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bulk_order_template.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  // Helper to get currency symbol
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case "GHS":
+        return "GH₵";
+      case "NGN":
+        return "₦";
+      case "USD":
+        return "$";
+      default:
+        return currency + " ";
+    }
+  };
+
+  // Aggregate total GB and currency
+  const totalGB = validOrders.reduce(
+    (sum, item) => sum + (item.dataVolume || 0),
+    0
+  );
+  const totalPrice = validOrders.reduce(
+    (sum, item) =>
+      sum + (item.bundle ? getPriceForUserType(item.bundle, userType) : 0),
+    0
+  );
+  const currency =
+    validOrders.length > 0 && validOrders[0].bundle
+      ? validOrders[0].bundle.currency
+      : "GHS";
+
+  if (!isOpen) return null;
+
+  return (
+    <Dialog isOpen={isOpen} onClose={onClose} size="lg">
+      <DialogHeader className="flex items-start justify-between">
+        <h2 className="text-lg font-semibold text-gray-900 truncate">
+          {showSummary
+            ? "Bulk Order Summary"
+            : `Bulk Order for ${providerName}`}
+        </h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          <FaTimes size={18} />
+        </Button>
+      </DialogHeader>
+
+      <DialogBody>
+        {!showSummary ? (
+          // Order Form
+          <div className="space-y-4">
+            {/* Package Info */}
+            <Card variant="outlined">
+              <CardBody>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">
+                      {providerName} Package
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Available active bundles in this package (
+                      {availableBundles.length} available)
+                    </p>
+                  </div>
+                </div>
+                {/* Make available bundles scrollable */}
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {Array.isArray(availableBundles) &&
+                    availableBundles.length > 0 &&
+                    availableBundles.map((bundle: Bundle) => (
+                      <div
+                        key={bundle._id}
+                        className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <FaWifi className="text-blue-500 flex-shrink-0" />
+                          <span className="truncate">
+                            {bundle.dataVolume} {bundle.dataUnit}
+                          </span>
+                          <span className="text-gray-500 hidden sm:inline">
+                            •
+                          </span>
+                          <FaClock className="text-green-500 flex-shrink-0" />
+                          <span className="truncate">
+                            {bundle.validityUnit === "unlimited"
+                              ? "Unlimited"
+                              : `${bundle.validity} ${bundle.validityUnit}`}
+                          </span>
+                        </div>
+                        <div
+                          className="font-bold text-sm flex-shrink-0 ml-2"
+                          style={{ color: providerColors.primary }}
+                        >
+                          {formatCurrency(
+                            getPriceForUserType(bundle, userType),
+                            bundle.currency
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Import Method Selection */}
+            <Card>
+              <CardBody>
+                <h3 className="font-medium text-gray-900 mb-4">
+                  Import Method
+                </h3>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant={importMethod === "file" ? "primary" : "secondary"}
+                    onClick={() => setImportMethod("file")}
+                    className="flex-1"
+                    style={
+                      importMethod === "file"
+                        ? {
+                          backgroundColor: providerColors.primary,
+                          color: providerColors.text,
+                        }
+                        : {}
+                    }
+                  >
+                    <FaFileUpload className="flex-shrink-0" />
+                    <span className="truncate">Import CSV/Excel</span>
+                  </Button>
+                  <Button
+                    variant={
+                      importMethod === "manual" ? "primary" : "secondary"
+                    }
+                    onClick={() => setImportMethod("manual")}
+                    className="flex-1"
+                    style={
+                      importMethod === "manual"
+                        ? {
+                          backgroundColor: providerColors.primary,
+                          color: providerColors.text,
+                        }
+                        : {}
+                    }
+                  >
+                    <FaPlus className="flex-shrink-0" />
+                    <span className="truncate">Manual Entry</span>
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* File Upload */}
+            {importMethod === "file" && (
+              <Card>
+                <CardBody>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                    <h3 className="font-medium text-gray-900">Upload File</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={downloadTemplate}
+                      className="text-blue-600 hover:text-blue-700 self-start sm:self-center"
+                    >
+                      <FaDownload className="flex-shrink-0" />
+                      <span className="truncate">Download Template</span>
+                    </Button>
+                  </div>
+                  <input
+                    type="file"
+                    accept=".csv,.xlsx,.xls"
+                    onChange={handleFileUpload}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Supported formats: CSV, Excel. Format: PhoneNumber
+                    DataVolume
+                  </p>
+                </CardBody>
+              </Card>
+            )}
+
+            {/* Manual Entry */}
+            {importMethod === "manual" && (
+              <Card>
+                <CardBody>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-gray-900">
+                      Bulk Order Input
+                    </h3>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Enter orders (one per line)
+                    </label>
+                    <textarea
+                      value={bulkText}
+                      onChange={(e) => handleBulkTextChange(e.target.value)}
+                      placeholder={`0241234567 5\n0201234567 2\n0271234567 1`}
+                      className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      Format: PhoneNumber DataVolume (e.g., 0241234567 5). All
+                      values are in GB.
+                      <br />
+                      <span className="text-red-500 font-semibold">
+                        Do not type GB or MB, just the number.
+                      </span>
+                    </p>
+                  </div>
+                </CardBody>
+              </Card>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <Alert status="error" title="Error">
+                {error}
+              </Alert>
+            )}
+
+            {/* Continue Button */}
+            <Button
+              onClick={handleContinue}
+              disabled={
+                orderItems.length === 0 ||
+                loading ||
+                siteStatus?.isSiteOpen === false
+              }
+              className="w-full"
+              style={{
+                backgroundColor: providerColors.primary,
+                color: providerColors.text,
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" />
+                  Processing...
+                </>
+              ) : siteStatus?.isSiteOpen === false ? (
+                "Service Unavailable"
+              ) : (
+                `Continue (${orderItems.length} items)`
+              )}
+            </Button>
+          </div>
+        ) : (
+          // Order Summary
+          <div className="space-y-4">
+            {/* Package Summary Mini Card */}
+            <Card
+              noPadding
+              className="rounded-lg mb-4"
+              style={{
+                backgroundColor: providerColors.background,
+                border: `1.5px solid ${providerColors.primary}`,
+              }}
+            >
+              <CardBody className="p-4">
+                <div>
+                  {/* Header Row */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: providerColors.primary }}
+                      >
+                        <FaWifi
+                          className="text-lg sm:text-2xl"
+                          style={{ color: providerColors.text }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <h3
+                          className="text-lg sm:text-xl font-bold truncate"
+                          style={{ color: providerColors.primary }}
+                        >
+                          {providerName}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                          Package Summary
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status Badges */}
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                      <Badge
+                        colorScheme="success"
+                        size="sm"
+                        className="whitespace-nowrap"
+                      >
+                        <FaCheckCircle className="flex-shrink-0" />
+                        <span className="ml-1">{validOrders.length} Valid</span>
+                      </Badge>
+                      <Badge
+                        colorScheme="error"
+                        size="sm"
+                        className="whitespace-nowrap"
+                      >
+                        <FaExclamationCircle className="text-red-500 flex-shrink-0" />
+                        <span className="ml-1">
+                          {invalidOrders.length} Invalid
+                        </span>
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-white/50 rounded-lg">
+                      <FaDatabase className="text-blue-500 flex-shrink-0 text-sm sm:text-base" />
+                      <div className="min-w-0">
+                        <div className="text-xs text-gray-600">Total Data</div>
+                        <div className="font-semibold text-sm sm:text-base">
+                          {totalGB} GB
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-white/50 rounded-lg">
+                      <FaBox className="text-yellow-500 flex-shrink-0 text-sm sm:text-base" />
+                      <div className="min-w-0">
+                        <div className="text-xs text-gray-600">
+                          Total Orders
+                        </div>
+                        <div className="font-semibold text-sm sm:text-base">
+                          {orderItems.length}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-white/50 rounded-lg">
+                      <FaMoneyBillWave className="text-green-500 flex-shrink-0 text-sm sm:text-base" />
+                      <div className="min-w-0">
+                        <div className="text-xs text-gray-600">
+                          Total Amount
+                        </div>
+                        <div className="font-semibold text-sm sm:text-base">
+                          {getCurrencySymbol(currency)}
+                          {totalPrice.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Valid Orders */}
+            <div className="mb-4">
+              <h3 className="font-medium text-green-600 mb-2 text-base sm:text-lg">
+                Valid Orders ({validOrders.length})
+              </h3>
+
+              <Card noPadding>
+                {validOrders.length > 0 ? (
+                  <>
+                    <CardHeader className="bg-[#142850] text-white p-3 sm:p-4">
+                      <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                        <div className="font-medium">Recipient</div>
+                        <div className="font-medium">Data (GB)</div>
+                        <div className="font-medium text-right">Price</div>
+                      </div>
+                    </CardHeader>
+                    <CardBody className="p-0">
+                      <div className="divide-y divide-gray-100">
+                        {validOrders.map((item, index) => (
+                          <div
+                            key={`${item.customerPhone}-${item.dataVolume}-${index}`}
+                            className="p-3 sm:p-4 hover:bg-gray-50"
+                          >
+                            <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                              <div className="font-medium truncate">
+                                {item.customerPhone}
+                              </div>
+                              <div className="text-gray-600">
+                                {item.dataVolume}
+                              </div>
+                              <div className="text-right font-medium">
+                                {item.bundle && (
+                                  <span
+                                    style={{ color: providerColors.primary }}
+                                  >
+                                    {formatCurrency(
+                                      getPriceForUserType(
+                                        item.bundle,
+                                        userType
+                                      ),
+                                      item.bundle.currency
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardBody>
+                  </>
+                ) : (
+                  <CardBody className="p-6 text-center">
+                    <div className="text-gray-500 text-sm sm:text-base">
+                      No valid orders found
+                    </div>
+                  </CardBody>
+                )}
+              </Card>
+            </div>
+
+            {/* Invalid Orders */}
+            {invalidOrders.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-medium text-red-600 mb-2 text-base sm:text-lg">
+                  Invalid Orders ({invalidOrders.length})
+                </h3>
+
+                <Card noPadding>
+                  <CardHeader className="bg-[#142850] text-white p-3 sm:p-4">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                      <div className="font-medium">Recipient</div>
+                      <div className="font-medium">Data (GB)</div>
+                      <div className="font-medium">Error</div>
+                    </div>
+                  </CardHeader>
+                  <CardBody className="p-0">
+                    <div className="divide-y divide-gray-100">
+                      {invalidOrders.map((item, index) => (
+                        <div
+                          key={`${item.customerPhone}-${item.dataVolume}-${index}`}
+                          className="p-3 sm:p-4 hover:bg-gray-50"
+                        >
+                          <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                            <div className="font-medium truncate">
+                              {item.customerPhone}
+                            </div>
+                            <div className="text-gray-600">
+                              {item.dataVolume}
+                            </div>
+                            <div className="text-red-600">
+                              {item.phoneError && (
+                                <div
+                                  className="truncate"
+                                  title={item.phoneError}
+                                >
+                                  {item.phoneError}
+                                </div>
+                              )}
+                              {item.dataError && (
+                                <div
+                                  className="truncate"
+                                  title={item.dataError}
+                                >
+                                  {item.dataError}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
+            )}
+
+            {/* Total */}
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center text-lg font-bold">
+                <span>Total Amount:</span>
+                <span style={{ color: providerColors.primary }}>
+                  GHS{" "}
+                  {validOrders
+                    .reduce(
+                      (sum, item) =>
+                        sum +
+                        (item.bundle
+                          ? getPriceForUserType(item.bundle, userType)
+                          : 0),
+                      0
+                    )
+                    .toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <Alert status="error" title="Error">
+                {error}
+              </Alert>
+            )}
+          </div>
+        )}
+      </DialogBody>
+
+      {showSummary && (
+        <DialogFooter>
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
+            <Button variant="secondary" onClick={handleBack} className="flex-1">
+              Back
+            </Button>
+            <Button
+              onClick={() => handleConfirmOrder()}
+              disabled={
+                loading ||
+                validOrders.length === 0 ||
+                siteStatus?.isSiteOpen === false
+              }
+              className="flex-1"
+              style={{
+                backgroundColor: providerColors.primary,
+                color: providerColors.text,
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Processing...
+                </>
+              ) : siteStatus?.isSiteOpen === false ? (
+                <>
+                  <FaTimes className="flex-shrink-0 mr-2" />
+                  Site Under Maintenance
+                </>
+              ) : (
+                <>
+                  <FaCheckCircle className="flex-shrink-0 mr-2" />
+                  Confirm Bulk Order
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogFooter>
+      )}
+
+      {/* Duplicate Order Warning Modal */}
+      {duplicateCheckResult && (
+        <DuplicateOrderWarningModal
+          isOpen={showDuplicateWarning}
+          onClose={handleDuplicateCancel}
+          onProceed={handleDuplicateProceed}
+          onCancel={handleDuplicateCancel}
+          duplicateInfo={duplicateCheckResult}
+          orderType="bulk"
+        />
+      )}
+    </Dialog>
+  );
+};
