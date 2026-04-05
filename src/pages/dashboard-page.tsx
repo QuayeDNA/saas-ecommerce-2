@@ -5,7 +5,8 @@ import { useOrder } from "../contexts/OrderContext";
 import { useProvider } from "../hooks/use-provider";
 import { useSiteStatus } from "../contexts/site-status-context";
 import { orderService } from "../services/order.service";
-import { Card, CardHeader, CardBody, Badge, Spinner } from "../design-system";
+import { Card, CardHeader, CardBody, Badge } from "../design-system";
+import { Skeleton } from "../design-system/components/loading";
 import {
   FaPhone,
   FaWallet,
@@ -592,13 +593,82 @@ export const DashboardPage = () => {
         </div>
       )}
 
+      {/* Quick Actions */}
+      <div className="quick-actions">
+        <div className="mb-3 px-2 sm:px-0">
+          <h2 className="text-lg font-medium text-gray-800">Quick Actions</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Tap a network to start a data or airtime order instantly.</p>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {loading || providersLoading ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <Card key={`quick-action-skeleton-${idx}`} size="sm" className="overflow-hidden">
+                <CardBody className="text-center">
+                  <Skeleton variant="circular" width={48} height={48} className="mx-auto mb-2" />
+                  <Skeleton height="0.95rem" width="65%" className="mx-auto mb-1" />
+                  <Skeleton height="0.75rem" width="45%" className="mx-auto" />
+                </CardBody>
+              </Card>
+            ))
+          ) : getPackagesWithLogos().length === 0 ? (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">
+                No providers found
+              </h3>
+              <p className="text-sm text-gray-500">
+                Please contact your admin for assistance.
+              </p>
+            </div>
+          ) : (
+            getPackagesWithLogos().map((packageItem) => (
+              <Card
+                key={packageItem.code}
+                variant="interactive"
+                size="sm"
+                className="cursor-pointer"
+                onClick={() => handleQuickLinkClick(packageItem.code)}
+              >
+                <CardBody className="text-center">
+                  <div
+                    className={`${packageItem.color} text-white rounded-full mx-auto mb-2 w-12 h-12 flex items-center justify-center overflow-hidden`}
+                  >
+                    {packageItem.logo?.url &&
+                      !failedLogos.has(packageItem.code) ? (
+                      <img
+                        src={packageItem.logo.url}
+                        alt={packageItem.logo.alt || packageItem.name}
+                        className="w-12 h-12 object-cover rounded-full"
+                        onError={() => {
+                          setFailedLogos((prev) =>
+                            new Set(prev).add(packageItem.code)
+                          );
+                        }}
+                      />
+                    ) : (
+                      <FaPhone className="w-6 h-6" />
+                    )}
+                  </div>
+                  <div className="font-semibold text-sm">
+                    {packageItem.name}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Order data</div>
+                </CardBody>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+
       {/* Active Orders - Show pending/processing/confirmed */}
       <div className="active-orders">
         <div className="flex items-center justify-between mb-3 px-2 sm:px-0">
-          <h2 className="text-lg font-medium text-gray-800 flex items-center gap-2">
-            <FaClock className="text-orange-500" />
-            Active Orders
-          </h2>
+          <div>
+            <h2 className="text-lg font-medium text-gray-800 flex items-center gap-2">
+              <FaClock className="text-orange-500" />
+              Active Orders
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">Track pending orders at a glance.</p>
+          </div>
           <Link
             to="./orders"
             className="text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all duration-200"
@@ -611,8 +681,18 @@ export const DashboardPage = () => {
         {activeOrdersLoading ? (
           <Card>
             <CardBody>
-              <div className="flex justify-center items-center h-24">
-                <Spinner />
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={`active-order-skeleton-${idx}`} className="rounded-lg border border-slate-100 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <Skeleton height="0.95rem" width="40%" className="mb-1" />
+                        <Skeleton height="0.75rem" width="60%" />
+                      </div>
+                      <Skeleton height="1.25rem" width={64} className="rounded-full" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardBody>
           </Card>
@@ -625,7 +705,7 @@ export const DashboardPage = () => {
             </CardBody>
           </Card>
         ) : (
-          <div className="max-h-[136px] overflow-y-auto pr-1 scrollbar-thin">
+          <div className="max-h-[184px] overflow-y-auto pr-1 scrollbar-thin">
             <div className="space-y-2">
               {activeOrders.map((order) => (
                 <Link
@@ -671,78 +751,12 @@ export const DashboardPage = () => {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="quick-actions">
-        <h2 className="text-lg font-medium text-gray-800 mb-3 px-2 sm:px-0">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {loading ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-8">
-              <Spinner />
-              <p className="text-gray-500 text-sm mt-2">Loading providers...</p>
-            </div>
-          ) : providersLoading ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-8">
-              <Spinner />
-              <p className="text-sm text-gray-500 mt-2">
-                Loading provider data...
-              </p>
-            </div>
-          ) : getPackagesWithLogos().length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">
-                No providers found
-              </h3>
-              <p className="text-sm text-gray-500">
-                Please add providers in the settings to see quick links.
-              </p>
-            </div>
-          ) : (
-            getPackagesWithLogos().map((packageItem) => (
-              <Card
-                key={packageItem.code}
-                variant="interactive"
-                size="sm"
-                className="cursor-pointer"
-                onClick={() => handleQuickLinkClick(packageItem.code)}
-              >
-                <CardBody className="text-center">
-                  <div
-                    className={`${packageItem.color} text-white rounded-full mx-auto mb-2 w-12 h-12 flex items-center justify-center overflow-hidden`}
-                  >
-                    {packageItem.logo?.url &&
-                      !failedLogos.has(packageItem.code) ? (
-                      <img
-                        src={packageItem.logo.url}
-                        alt={packageItem.logo.alt || packageItem.name}
-                        className="w-12 h-12 object-cover rounded-full"
-                        onError={() => {
-                          setFailedLogos((prev) =>
-                            new Set(prev).add(packageItem.code)
-                          );
-                        }}
-                      />
-                    ) : (
-                      <FaPhone className="w-6 h-6" />
-                    )}
-                  </div>
-                  <div className="font-semibold text-sm">
-                    {packageItem.name}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">Order data</div>
-                </CardBody>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
-
       {/* Stats */}
       <div className="account-overview">
-        <h2 className="text-lg font-medium text-gray-800 mb-3 px-2 sm:px-0">
-          Account Overview
-        </h2>
+        <div className="mb-3 px-2 sm:px-0">
+          <h2 className="text-lg font-medium text-gray-800">Account Overview</h2>
+          <p className="text-xs text-slate-500 mt-0.5">A quick summary of your performance and spending.</p>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Card
             size="sm"
@@ -834,8 +848,12 @@ export const DashboardPage = () => {
         </CardHeader>
         <CardBody>
           {loading ? (
-            <div className="flex justify-center items-center h-40 sm:h-48">
-              <Spinner />
+            <div className="h-40 sm:h-48 rounded-lg border border-slate-100 p-3">
+              <div className="h-full grid grid-cols-3 gap-3 items-end">
+                <Skeleton height="60%" className="rounded-md" />
+                <Skeleton height="85%" className="rounded-md" />
+                <Skeleton height="45%" className="rounded-md" />
+              </div>
             </div>
           ) : analyticsData.orders.total === 0 ? (
             <div className="bg-gray-50 h-40 sm:h-48 flex items-center justify-center rounded">
@@ -872,8 +890,17 @@ export const DashboardPage = () => {
         </CardHeader>
         <CardBody>
           {loading ? (
-            <div className="flex justify-center items-center h-32">
-              <Spinner />
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <div key={`tx-skeleton-${idx}`} className="flex items-center justify-between rounded-lg border border-slate-100 p-3">
+                  <div className="min-w-0 flex-1">
+                    <Skeleton height="0.95rem" width="36%" className="mb-1" />
+                    <Skeleton height="0.75rem" width="68%" className="mb-1" />
+                    <Skeleton height="0.7rem" width="28%" />
+                  </div>
+                  <Skeleton height="1rem" width={76} />
+                </div>
+              ))}
             </div>
           ) : recentTransactions.length === 0 ? (
             <div className="text-center py-8 text-gray-500">

@@ -292,7 +292,7 @@ export const ProviderPackageDisplay: React.FC<ProviderPackageDisplayProps> = ({
     <Container padding="none">
       <div className="space-y-6">
         {/* Header */}
-        <Section padding="none" background="gray">
+        <Section background="none" padding="none">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div
@@ -315,7 +315,7 @@ export const ProviderPackageDisplay: React.FC<ProviderPackageDisplayProps> = ({
                 )}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900">
                   {providerData?.name || provider} Data Packages
                 </h2>
                 <p className="text-gray-600">Browse and order data bundles</p>
