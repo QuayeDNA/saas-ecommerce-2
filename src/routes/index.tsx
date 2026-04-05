@@ -7,15 +7,17 @@ import { PageLoader } from "../components/page-loader";
 import { ProtectedRoute } from "../components/protected-route";
 import { StorefrontRouteGuard } from "../contexts/storefront-session-context";
 import superadminRoutes from "./superadmin-routes";
+import { SplashPage } from "../pages/splash-page";
 
 // =============================================================================
 // LAZY LOADED COMPONENTS - PUBLIC PAGES
 // =============================================================================
-const SplashPage = lazy(() =>
-  import("../pages/splash-page").then((module) => ({
-    default: module.SplashPage,
+
+const DirectDataLogoShowcase = lazy(() =>
+  import("../components/common/DirectDataLogoShowcase").then((module) => ({
+    default: module.DirectDataLogoShowcase,
   }))
-);
+)
 
 const WelcomePage = lazy(() =>
   import("../pages/welcome-page").then((module) => ({
@@ -178,17 +180,28 @@ function SystemRouteElement({ element }: { element: React.ReactNode }) {
 // =============================================================================
 
 const publicRoutes: RouteObject[] = [
+
+  /// ── DEV ONLY: LOGO SHOWCASE ───────────────────────────────────────────────
+  ...(import.meta.env.DEV
+    ? ([
+      {
+        path: "/logo",
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <DirectDataLogoShowcase />
+          </Suspense>
+        ),
+      },
+    ])
+    : []
+  ),
+
+
   // ── Root: Splash Screen ──────────────────────────────────────────────────
   {
     path: "/",
     element: (
-      <SystemRouteElement
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <SplashPage />
-          </Suspense>
-        }
-      />
+      <SystemRouteElement element={<SplashPage />} />
     ),
   },
 

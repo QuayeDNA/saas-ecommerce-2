@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Button,
   Alert,
@@ -13,7 +14,7 @@ import {
 import { AuthLayout } from "../layouts/auth-layout";
 
 export const VerifyAccountPage = () => {
-  const { authState, verifyEmail } = useAuth();
+  const { authState, verifyAccount } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -40,7 +41,7 @@ export const VerifyAccountPage = () => {
     setErrorMessage(null);
 
     try {
-      await verifyEmail(token);
+      await verifyAccount(token);
       setVerificationStatus("success");
 
       // Optional: Auto redirect after few seconds
@@ -61,16 +62,21 @@ export const VerifyAccountPage = () => {
       subtitle="We are confirming your email address."
       showLogo={true}
     >
-      <div className="py-4">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="py-4"
+      >
         {verificationStatus === "loading" && (
           <div className="text-center py-6">
-            <div className="mx-auto p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-              <FaSpinner className="text-primary-500 text-4xl animate-spin" />
+            <div className="mx-auto p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6 bg-primary-50">
+              <FaSpinner className="text-primary-600 text-4xl animate-spin" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-slate-900 mb-2">
               Verifying your email
             </h3>
-            <p className="text-gray-500 text-[15px] mb-4 leading-relaxed">
+            <p className="text-slate-500 text-[15px] mb-4 leading-relaxed">
               Please wait while we confirm your account details...
             </p>
           </div>
@@ -78,13 +84,13 @@ export const VerifyAccountPage = () => {
 
         {verificationStatus === "success" && (
           <div className="text-center py-6">
-            <div className="mx-auto bg-green-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-              <FaCheck className="text-green-600 text-3xl" />
+            <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+              <FaCheck className="text-primary-600 text-3xl" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-slate-900 mb-2">
               Account Verified!
             </h3>
-            <p className="text-gray-500 text-[15px] mb-8 leading-relaxed">
+            <p className="text-slate-500 text-[15px] mb-8 leading-relaxed">
               Your email has been successfully verified. You can now access all features.
             </p>
             <div>
@@ -104,10 +110,10 @@ export const VerifyAccountPage = () => {
 
         {verificationStatus === "error" && (
           <div className="text-center py-6">
-            <div className="mx-auto bg-red-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-              <FaExclamationTriangle className="text-red-500 text-3xl" />
+            <div className="mx-auto bg-primary-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+              <FaExclamationTriangle className="text-primary-600 text-3xl" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-slate-900 mb-2">
               Verification Failed
             </h3>
             <Alert
@@ -117,7 +123,7 @@ export const VerifyAccountPage = () => {
             >
               <span>{errorMessage || authState.error}</span>
             </Alert>
-            <p className="text-gray-500 text-[14px] mb-8 leading-relaxed">
+            <p className="text-slate-500 text-[14px] mb-8 leading-relaxed">
               If your link has expired, you can request a new one from the
               login page.
             </p>
@@ -135,7 +141,7 @@ export const VerifyAccountPage = () => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </AuthLayout>
   );
 };

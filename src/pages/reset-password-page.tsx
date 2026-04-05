@@ -1,6 +1,7 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Button, Input, Alert } from '../design-system';
 import { FaLock, FaEye, FaEyeSlash, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { AuthLayout } from '../layouts/auth-layout';
@@ -65,12 +66,17 @@ export const ResetPasswordPage = () => {
       showLogo={true}
     >
       {isSuccess ? (
-        <div className="text-center py-6">
-          <div className="mx-auto bg-green-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-            <FaCheck className="text-green-600 text-3xl" />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="text-center py-6"
+        >
+          <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+            <FaCheck className="text-primary-600 text-3xl" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Password reset</h3>
-          <p className="text-gray-500 text-[15px] mb-8 leading-relaxed">
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Password reset</h3>
+          <p className="text-slate-500 text-[15px] mb-8 leading-relaxed">
             Your password has been successfully reset. You can now log in with your new password.
           </p>
           <div>
@@ -80,9 +86,15 @@ export const ResetPasswordPage = () => {
               </Button>
             </Link>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <motion.form
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="space-y-6"
+          onSubmit={handleSubmit}
+        >
           {(authState.error || passwordError) && (
             <Alert status="error" variant="solid" className="flex items-start text-sm font-semibold mb-2">
               <FaExclamationTriangle className="mt-0.5 mr-2.5 flex-shrink-0" />
@@ -92,7 +104,7 @@ export const ResetPasswordPage = () => {
 
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">New Password</label>
+              <label className="block text-sm font-semibold text-slate-700">New Password</label>
               <div className="relative">
                 <Input
                   id="password"
@@ -102,21 +114,21 @@ export const ResetPasswordPage = () => {
                   required
                   placeholder="••••••••"
                   className="w-full h-12 pr-12"
-                  leftIcon={<FaLock className="text-gray-400" />}
+                  leftIcon={<FaLock className="text-slate-400" />}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-gray-400 hover:text-primary-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-400 hover:text-primary-600 transition-colors"
                 >
                   {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1 pl-1">Min 6 chars with uppercase, lowercase, and number</p>
+              <p className="text-xs text-slate-500 mt-1 pl-1">Min 6 chars with uppercase, lowercase, and number</p>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Confirm New Password</label>
+              <label className="block text-sm font-semibold text-slate-700">Confirm New Password</label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -126,12 +138,12 @@ export const ResetPasswordPage = () => {
                   required
                   placeholder="••••••••"
                   className="w-full h-12 pr-12"
-                  leftIcon={<FaLock className="text-gray-400" />}
+                  leftIcon={<FaLock className="text-slate-400" />}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-gray-400 hover:text-primary-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-400 hover:text-primary-600 transition-colors"
                 >
                   {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                 </button>
@@ -152,8 +164,8 @@ export const ResetPasswordPage = () => {
               {authState.isLoading ? 'Resetting...' : 'Reset password'}
             </Button>
           </div>
-          
-          <div className="mt-6 pt-6 text-center text-sm text-gray-500 font-medium border-t border-gray-100">
+
+          <div className="mt-6 pt-6 text-center text-sm text-slate-500 font-medium border-t border-[var(--color-border)]">
             <Link
               to="/login"
               className="text-primary-600 hover:text-primary-700 font-bold hover:underline transition-all"
@@ -161,7 +173,7 @@ export const ResetPasswordPage = () => {
               Back to Login
             </Link>
           </div>
-        </form>
+        </motion.form>
       )}
     </AuthLayout>
   );

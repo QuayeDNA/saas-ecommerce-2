@@ -84,20 +84,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Size styles for regular buttons
     const sizeClasses = {
-      xs: "text-xs px-3 py-1.5 h-8",
-      sm: "text-sm px-4 py-2 h-10",
-      md: "text-base px-5 py-3 h-12 font-medium", // 48px hit area standard
-      lg: "text-lg px-6 py-4 h-14 font-semibold",
-      xl: "text-xl px-8 py-5 h-16 font-bold",
+      xs: "text-sm px-3 h-[48px] font-medium",
+      sm: "text-sm px-4 h-[48px] font-medium",
+      md: "text-base px-5 h-[52px] font-medium",
+      lg: "text-base px-6 h-[52px] font-semibold",
+      xl: "text-lg px-8 h-[56px] font-bold",
     };
 
     // Size styles for icon-only buttons (equal width and height)
     const iconOnlySizeClasses = {
-      xs: "p-1.5 h-8 w-8",
-      sm: "p-2 h-10 w-10",
-      md: "p-3 h-12 w-12",
-      lg: "p-4 h-14 w-14",
-      xl: "p-5 h-16 w-16",
+      xs: "p-1.5 h-[48px] w-[48px]",
+      sm: "p-2 h-[48px] w-[48px]",
+      md: "p-3 h-[52px] w-[52px]",
+      lg: "p-4 h-[52px] w-[52px]",
+      xl: "p-5 h-[56px] w-[56px]",
     };
 
     // Helper function to get theme-based color classes
@@ -111,13 +111,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         case "default":
           return {
             solid:
-              "bg-blue-950 text-white hover:bg-blue-900 active:bg-blue-950 shadow-sm",
+              "bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-950 shadow-sm",
             outline:
-              "bg-transparent border border-blue-900 text-blue-900 hover:bg-blue-50 active:bg-blue-100",
+              "bg-transparent border border-primary-600 text-primary-700 hover:bg-primary-50 active:bg-primary-100",
             ghost:
-              "bg-transparent text-blue-900 hover:bg-blue-50 active:bg-blue-100",
-            link: "bg-transparent text-blue-900 hover:text-blue-800 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-blue-900",
+              "bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100",
+            link: "bg-transparent text-primary-700 hover:text-primary-600 hover:underline p-0 h-auto",
+            focusRing: "focus:ring-primary-500",
           };
         case "black":
           return {
@@ -189,13 +189,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           // For any unrecognized theme, use the same blue/default classes
           return {
             solid:
-              "bg-blue-950 text-white hover:bg-blue-900 active:bg-blue-950 shadow-sm",
+              "bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-950 shadow-sm",
             outline:
-              "bg-transparent border border-blue-900 text-blue-900 hover:bg-blue-50 active:bg-blue-100",
+              "bg-transparent border border-primary-600 text-primary-700 hover:bg-primary-50 active:bg-primary-100",
             ghost:
-              "bg-transparent text-blue-900 hover:bg-blue-50 active:bg-blue-100",
-            link: "bg-transparent text-blue-900 hover:text-blue-800 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-blue-900",
+              "bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100",
+            link: "bg-transparent text-primary-700 hover:text-primary-600 hover:underline p-0 h-auto",
+            focusRing: "focus:ring-primary-500",
           };
       }
     };
@@ -247,13 +247,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         case "info":
           return {
             solid:
-              "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm",
+              "bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm",
             outline:
-              "bg-transparent border border-blue-500 text-blue-700 hover:bg-blue-50 active:bg-blue-100",
+              "bg-transparent border border-primary-500 text-primary-700 hover:bg-primary-50 active:bg-primary-100",
             ghost:
-              "bg-transparent text-blue-700 hover:bg-blue-50 active:bg-blue-100",
-            link: "bg-transparent text-[#0ea5e9] hover:text-[#0284c7] hover:underline p-0 h-auto",
-            focusRing: "focus:ring-[#0ea5e9]",
+              "bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100",
+            link: "bg-transparent text-primary-600 hover:text-primary-700 hover:underline p-0 h-auto",
+            focusRing: "focus:ring-primary-500",
           };
         case "default":
         default:
@@ -314,7 +314,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     // Combine all classes
     const buttonClasses = [
       "inline-flex items-center justify-center",
-      rounded ? "rounded-full" : "rounded-md",
+      rounded ? "rounded-full" : "rounded-[14px]",
       getFocusRingClass(),
       "transition-all duration-200",
       iconOnly ? iconOnlySizeClasses[size] : sizeClasses[size],

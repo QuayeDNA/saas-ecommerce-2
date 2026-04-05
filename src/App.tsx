@@ -3,7 +3,6 @@ import { routes } from "./routes";
 import { ThemeProvider, Button } from "./design-system";
 import { ToastProvider } from "./design-system/components/toast";
 import "./App.css";
-import "./design-system/theme.css";
 import { AppProvider } from "./providers/app-provider";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { CommissionProvider } from "./contexts/CommissionContext";
@@ -72,9 +71,8 @@ function App() {
                   <AnnouncementProvider>
                     <PushNotificationInitializer />
                     <div
-                      className={`min-h-screen flex flex-col ${
-                        isImpersonating && isAuthenticatedRoute ? "pt-0" : ""
-                      }`}
+                      className={`min-h-screen flex flex-col ${isImpersonating && isAuthenticatedRoute ? "pt-0" : ""
+                        }`}
                     >
                       <MaintenanceBanner />
                       <div className="flex-1">{routeElement}</div>

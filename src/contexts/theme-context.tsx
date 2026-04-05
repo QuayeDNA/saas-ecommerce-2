@@ -8,8 +8,8 @@ interface ThemeProviderProps {
 
 // Map theme colors to their hex values for PWA
 const THEME_COLORS: Record<ThemeColor, string> = {
-  default: "#142850", // Default blue
-  blue: "#142850",
+  default: "#0057FF",
+  blue: "#0057FF",
   black: "#000000",
   teal: "#14b8a6",
   purple: "#8b5cf6",

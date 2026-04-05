@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   FaEye,
   FaEyeSlash,
@@ -97,7 +98,13 @@ export const LoginPage = () => {
       footerLinkText="Sign up for free"
       footerLinkTo="/register"
     >
-      <form className="space-y-5" onSubmit={handleSubmit}>
+      <motion.form
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="space-y-5"
+        onSubmit={handleSubmit}
+      >
         {/* Error Alert */}
         {(localError || authState.error) && (
           <Alert
@@ -123,7 +130,7 @@ export const LoginPage = () => {
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="block text-[15px] font-bold text-gray-700"
+            className="block text-[15px] font-bold text-slate-700"
           >
             Email address
           </label>
@@ -143,7 +150,7 @@ export const LoginPage = () => {
         <div className="space-y-2">
           <label
             htmlFor="password"
-            className="block text-[15px] font-bold text-gray-700"
+            className="block text-[15px] font-bold text-slate-700"
           >
             Password
           </label>
@@ -160,7 +167,7 @@ export const LoginPage = () => {
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-gray-400 hover:text-primary-600 transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-400 hover:text-primary-600 transition-colors"
               onClick={() => setShowPassword(!showPassword)}
               disabled={isSubmitting || authState.isLoading}
             >
@@ -180,10 +187,10 @@ export const LoginPage = () => {
               id="remember_me"
               name="remember_me"
               type="checkbox"
-              className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
+              className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-primary-200 rounded cursor-pointer"
               disabled={isSubmitting || authState.isLoading}
             />
-            <span className="ml-2.5 block text-sm text-gray-700 font-medium">
+            <span className="ml-2.5 block text-sm text-slate-700 font-medium">
               Remember me
             </span>
           </label>
@@ -218,8 +225,8 @@ export const LoginPage = () => {
         </div>
 
         {/* Additional Help */}
-        <div className="text-center pt-5 mt-2 border-t border-gray-100">
-          <p className="text-xs text-gray-500 mb-3 font-medium">
+        <div className="text-center pt-5 mt-2 border-t border-[var(--color-border)]">
+          <p className="text-xs text-slate-500 mb-3 font-medium">
             Need help? Contact our support team
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
@@ -227,13 +234,13 @@ export const LoginPage = () => {
               href="https://wa.me/+233548983019"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-green-600 hover:text-green-700 font-semibold px-3 py-1.5 rounded-full bg-green-50 transition-colors"
+              className="flex items-center text-primary-700 hover:text-primary-800 font-semibold px-3 py-1.5 rounded-full bg-primary-50 transition-colors"
             >
               📞 +233 54 898 3019
             </a>
           </div>
         </div>
-      </form>
+      </motion.form>
     </AuthLayout>
   );
 };

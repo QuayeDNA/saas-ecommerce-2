@@ -4,108 +4,107 @@
  * They will eventually be overridable by user preferences
  */
 
-// Base color palette - updated with new primary color #142850
+// Base color palette for the SaaS Telecom application
 export const colors = {
   brand: {
-    primary: '#142850', // New primary color - deep navy blue
-    primaryLight: '#1e3a5f', // Lighter variant for hover states
-    primaryDark: '#0f1f3a', // Darker variant for active states
-    background: '#ffffff', // White
-    accent: '#f8fafc', // Very light gray for subtle backgrounds
-    secondary: '#f1f5f9', // Light gray for backgrounds
-    text: '#1e293b', // Dark text for good contrast
-    textLight: '#64748b', // Light text for secondary content
-    white: '#ffffff',
+    primary: '#0057FF',
+    primaryLight: '#EEF2FF',
+    darkBase: '#1A1A2E',
+    background: '#F2F4F8',
+    surface: '#FFFFFF',
+    mutedText: '#8891A7',
+    secondaryText: '#4A5270',
+    border: '#E4E8F0',
+    white: '#FFFFFF',
   },
-  
-  // Primary color palette based on #142850
+
+  // Primary color palette matched to brand blue
   primary: {
-    50: '#f0f4f8', // Very light blue-gray
-    100: '#d9e2ec', // Light blue-gray
-    200: '#bcccdc', // Medium light blue-gray
-    300: '#9fb3c8', // Medium blue-gray
-    400: '#829ab1', // Medium dark blue-gray
-    500: '#142850', // Main primary color
-    600: '#0f1f3a', // Darker variant
-    700: '#0a1628', // Even darker
-    800: '#061016', // Very dark
-    900: '#030a0c', // Darkest
-    950: '#020608', // Almost black
+    50: '#EEF5FF',
+    100: '#EEF2FF',
+    200: '#D8E4FF',
+    300: '#B0C7FF',
+    400: '#7F99FF',
+    500: '#0057FF',
+    600: '#0046E6',
+    700: '#0036B8',
+    800: '#002B8E',
+    900: '#00216A',
+    950: '#091437',
   },
-  
-  // Secondary colors - complementary to primary
+
+  // Semantic palettes
+  success: {
+    50: '#E8FAF3',
+    100: '#D1F3E7',
+    200: '#A7E7CF',
+    300: '#6FD4AD',
+    400: '#34B785',
+    500: '#059669',
+    600: '#047857',
+    700: '#04644B',
+    800: '#05543C',
+    900: '#054F33',
+  },
+  pending: {
+    50: '#FFF8E6',
+    100: '#FFF1CC',
+    200: '#FFE3A6',
+    300: '#FFD77D',
+    400: '#FECF4F',
+    500: '#F59E0B',
+    600: '#D97706',
+    700: '#B45309',
+    800: '#92400E',
+    900: '#78350F',
+  },
+  failed: {
+    50: '#FFF1F2',
+    100: '#FFE3E6',
+    200: '#FFC8D0',
+    300: '#FFA5B3',
+    400: '#FB7185',
+    500: '#E11D48',
+    600: '#C02743',
+    700: '#A11C3C',
+    800: '#861A33',
+    900: '#6F1A2C',
+  },
+
+  // Secondary and neutral colors
   secondary: {
-    50: '#f0f9ff', // Very light blue
-    100: '#e0f2fe', // Light blue
-    200: '#bae6fd', // Medium light blue
-    300: '#7dd3fc', // Medium blue
-    400: '#38bdf8', // Medium dark blue
-    500: '#0ea5e9', // Main secondary
-    600: '#0284c7', // Darker secondary
-    700: '#0369a1', // Even darker
-    800: '#075985', // Very dark
-    900: '#0c4a6e', // Darkest
-    950: '#082f49', // Almost black
+    50: '#F0F9FF',
+    100: '#E0F2FE',
+    200: '#BAE6FD',
+    300: '#7DD3FC',
+    400: '#38BDF8',
+    500: '#0EA5E9',
+    600: '#0284C7',
+    700: '#0369A1',
+    800: '#075985',
+    900: '#0C4A6E',
+    950: '#082F49',
   },
-  
-  // Accent colors - teal/green for success states
-  accent: {
-    50: '#f0fdfa', // Very light teal
-    100: '#ccfbf1', // Light teal
-    200: '#99f6e4', // Medium light teal
-    300: '#5eead4', // Medium teal
-    400: '#2dd4bf', // Medium dark teal
-    500: '#14b8a6', // Main accent
-    600: '#0d9488', // Darker accent
-    700: '#0f766e', // Even darker
-    800: '#115e59', // Very dark
-    900: '#134e4a', // Darkest
-    950: '#042f2e', // Almost black
-  },
-  
-  // Network-specific colors (fixed for brand recognition)
-  network: {
-    mtn: {
-      bg: '#FEF9C3', // Light yellow background
-      text: '#854D0E', // Dark yellow text
-      border: '#FCD34D', // Yellow border
-      icon: '#F59E0B', // Yellow icon
-    },
-    vodafone: {
-      bg: '#FEE2E2', // Light red background
-      text: '#991B1B', // Dark red text
-      border: '#FCA5A5', // Red border
-      icon: '#EF4444', // Red icon
-    },
-    airtelTigo: {
-      bg: '#DBEAFE', // Light blue background
-      text: '#1E40AF', // Dark blue text
-      border: '#93C5FD', // Blue border
-      icon: '#3B82F6', // Blue icon
-    },
-  },
-  
-  // Neutrals - updated for better contrast with primary
+
   gray: {
-    50: '#f8fafc', // Very light gray
-    100: '#f1f5f9', // Light gray
-    200: '#e2e8f0', // Medium light gray
-    300: '#cbd5e1', // Medium gray
-    400: '#94a3b8', // Medium dark gray
-    500: '#64748b', // Main gray
-    600: '#475569', // Darker gray
-    700: '#334155', // Even darker
-    800: '#1e293b', // Very dark
-    900: '#0f172a', // Darkest
-    950: '#020617', // Almost black
+    50: '#F8FAFC',
+    100: '#F1F5F9',
+    200: '#E2E8F0',
+    300: '#CBD5E1',
+    400: '#94A3B8',
+    500: '#64748B',
+    600: '#475569',
+    700: '#334155',
+    800: '#1E293B',
+    900: '#0F172A',
+    950: '#020617',
   },
-  
-  // System colors (fixed)
+
   system: {
-    success: '#10b981', // Green 500
-    warning: '#f59e0b', // Amber 500
-    error: '#ef4444', // Red 500
-    info: '#3b82f6', // Blue 500
+    success: '#059669',
+    pending: '#D97706',
+    failed: '#E11D48',
+    info: '#0057FF',
   },
 };
 

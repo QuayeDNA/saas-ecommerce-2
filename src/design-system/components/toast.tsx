@@ -111,7 +111,7 @@ const ToastItem = forwardRef<HTMLDivElement, ToastItemProps>(
         case "info":
         default:
           return {
-            container: "bg-[#142850] border-[#0f1f3a] text-white",
+            container: "bg-primary-600 border-primary-700 text-white",
             icon: (
               <svg
                 className="w-6 h-6 text-white"

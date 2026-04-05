@@ -45,11 +45,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
     // Variant styles
     const variantClasses = {
-      elevated: 'shadow-md rounded-lg border border-gray-100',
-      outlined: 'border border-gray-200 rounded-lg',
-      flat: 'rounded-lg',
-      interactive: 'shadow-sm hover:shadow-md rounded-lg border border-gray-100 transition-shadow duration-200',
-      'bottom-sheet': 'rounded-t-[32px] sm:rounded-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] sm:shadow-xl border-0 relative bg-white pb-safe-area',
+      elevated: 'shadow-[0_2px_12px_rgba(0,0,0,0.06)] rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)]',
+      outlined: 'border border-[var(--color-border)] rounded-[20px] bg-[var(--color-surface)]',
+      flat: 'rounded-[20px]',
+      interactive: 'shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)] rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] transition-shadow duration-200',
+      'bottom-sheet': 'rounded-t-[24px] sm:rounded-[24px] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] sm:shadow-xl border-0 relative bg-[var(--color-surface)] pb-safe-area',
     };
 
     // Check if a custom background is provided
@@ -61,7 +61,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     // Combine all classes
     const cardClasses = [
       // Only add default background if no custom background is provided
-      !hasCustomBackground ? 'bg-white' : '',
+      !hasCustomBackground ? 'bg-[var(--color-surface)]' : '',
       variantClasses[variant],
       // Only add default padding if explicitly not disabled and no custom padding is provided
       !noPadding && !hasCustomPadding ? sizeClasses[size] : '',
@@ -71,12 +71,12 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
     // Header and footer styles without padding (handled by parent)
     const headerClasses = [
-      'border-b border-gray-100 bg-gray-50 font-medium',
+      'border-b border-[var(--color-border)] bg-[var(--color-primary-50)] font-medium text-[var(--color-darkBase)]',
       size === 'sm' ? 'text-sm' : 'text-base',
     ].join(' ');
 
     const footerClasses = [
-      'border-t border-gray-100 bg-gray-50',
+      'border-t border-[var(--color-border)] bg-[var(--color-primary-50)]',
       size === 'sm' ? 'text-sm' : 'text-base',
     ].join(' ');
 
@@ -108,7 +108,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
     return (
       <div
         ref={ref}
-        className={`border-b border-gray-100 font-medium ${className}`}
+        className={`border-b border-[var(--color-border)] font-medium ${className}`}
         {...props}
       >
         {children}
@@ -148,7 +148,7 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
     return (
       <div
         ref={ref}
-        className={`border-t border-gray-100 bg-gray-50 ${className}`}
+        className={`border-t border-[var(--color-border)] bg-[var(--color-primary-50)] ${className}`}
         {...props}
       >
         {children}

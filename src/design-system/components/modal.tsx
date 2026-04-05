@@ -15,7 +15,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
   return (
     <div className={`fixed inset-0 z-50 flex ${isBottomSheet ? 'items-end' : 'items-center'} justify-center bg-black/50`}>
       <div
-        className={`bg-white ${isBottomSheet ? 'rounded-t-[32px] rounded-b-none pb-safe-area animate-slide-in-from-bottom' : 'rounded-lg animate-fade-in mx-2'} shadow-lg max-w-md w-full p-6 relative`}
+        className={`bg-white ${isBottomSheet ? 'rounded-t-[24px] rounded-b-none pb-safe-area animate-slide-in-from-bottom' : 'rounded-lg animate-fade-in mx-2'} shadow-lg max-w-md w-full p-6 relative`}
       >
         {isBottomSheet && (
           <div className="absolute top-0 left-0 right-0 h-8 flex justify-center items-center cursor-pointer" onClick={onClose} aria-hidden="true" >

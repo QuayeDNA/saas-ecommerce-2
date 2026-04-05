@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoaderCircle } from "lucide-react";
 import { DirectDataLogo } from "../components/common/DirectDataLogo";
 import { useAuth } from "../hooks";
 
@@ -20,15 +21,32 @@ export const SplashPage = () => {
     }, [authState, navigate]);
 
     return (
-        <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-slate-900 text-white relative overflow-hidden">
-            <div className="z-10 animate-pulse transition-transform duration-1000 transform scale-110">
-                <DirectDataLogo width={140} height={160} />
-            </div>
+        <div className="min-h-[100dvh] relative overflow-hidden bg-primary-900 text-white">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-primary-800 to-slate-950" />
+            <div className="absolute -top-24 -left-24 h-[32rem] w-[32rem] rounded-full bg-primary-500/20 blur-[90px]" />
+            <div className="absolute top-16 right-[-6rem] h-[28rem] w-[28rem] rounded-full bg-primary-200/15 blur-[90px]" />
+            <div className="absolute bottom-0 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-slate-950/20 blur-[100px]" />
 
-            {/* Decorative blurred backgrounds matching the theme */}
-            <div className="absolute top-[20%] left-[10%] w-[50vw] h-[50vw] sm:w-[30vw] sm:h-[30vw] bg-primary-500 rounded-full mix-blend-screen blur-[100px] opacity-30 animate-blob"></div>
-            <div className="absolute top-[20%] right-[10%] w-[50vw] h-[50vw] sm:w-[30vw] sm:h-[30vw] bg-secondary-500 rounded-full mix-blend-screen blur-[100px] opacity-30 animate-blob animation-delay-2000"></div>
-            <div className="absolute bottom-[20%] left-[20%] w-[60vw] h-[60vw] sm:w-[40vw] sm:h-[40vw] bg-blue-500 rounded-full mix-blend-screen blur-[100px] opacity-30 animate-blob animation-delay-4000"></div>
+            <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-12 sm:px-10">
+                <div className="flex items-center justify-center rounded-[2rem] bg-white/10 border border-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
+                    <DirectDataLogo width={140} height={160} className="text-white" />
+                </div>
+
+                <div className="mt-10 max-w-2xl text-center">
+                    <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
+                        Instant mobile data for every connection.
+                    </h1>
+                    <p className="mt-4 text-base text-primary-100/90 sm:text-lg">
+                        Fast, secure bundles from trusted Ghana agents.
+                    </p>
+                </div>
+
+                <div className="mt-10 flex flex-col items-center gap-3">
+                    <div className="inline-flex items-center justify-center rounded-full bg-white/10 p-3 text-white/90 shadow-lg shadow-slate-950/20">
+                        <LoaderCircle className="h-6 w-6 animate-spin" aria-hidden="true" />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

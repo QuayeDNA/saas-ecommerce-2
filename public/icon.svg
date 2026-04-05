@@ -1,29 +1,8 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Dark blue background with border -->
-  <rect width="512" height="512" rx="80" fill="#142850" stroke="#0f1f3a" stroke-width="8"/>
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
+  <!-- Minimalist D-pillar -->
+  <rect x="18" y="16" width="16" height="68" rx="8" fill="#1A1A2E" />
   
-  <!-- Gold coin circle -->
-  <circle cx="256" cy="256" r="180" fill="#FFD700" stroke="#DAA520" stroke-width="8"/>
-  
-  <!-- Inner coin circle for depth -->
-  <circle cx="256" cy="256" r="160" fill="#FFD700" stroke="#DAA520" stroke-width="3"/>
-  
-  <!-- Cedi sign (₵) - simplified for better visibility -->
-  <g fill="#142850">
-    <!-- Vertical line of the cedi sign -->
-    <rect x="240" y="180" width="32" height="152" rx="6"/>
-    
-    <!-- Top horizontal line -->
-    <rect x="200" y="180" width="112" height="20" rx="10"/>
-    
-    <!-- Bottom horizontal line -->
-    <rect x="200" y="312" width="112" height="20" rx="10"/>
-    
-    <!-- Decorative dots on the coin -->
-    <circle cx="200" cy="256" r="10" fill="#DAA520"/>
-    <circle cx="312" cy="256" r="10" fill="#DAA520"/>
-  </g>
-  
-  <!-- Coin shine effect -->
-  <ellipse cx="220" cy="220" rx="50" ry="25" fill="rgba(255,255,255,0.4)" transform="rotate(-30 220 220)"/>
-</svg> 
+  <!-- Network Waves -->
+  <path d="M 42 32 A 18 18 0 0 1 42 68" stroke="#0057FF" stroke-width="12" stroke-linecap="round" opacity="0.4" />
+  <path d="M 42 16 A 34 34 0 0 1 42 84" stroke="#0057FF" stroke-width="12" stroke-linecap="round" />
+</svg>

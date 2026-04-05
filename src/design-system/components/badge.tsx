@@ -36,7 +36,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       size = "sm",
       colorScheme = "default",
       className = "",
-      rounded = false,
+      rounded = true,
       useThemeColor = true,
       ...props
     },
@@ -59,15 +59,15 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       switch (primaryColor) {
         case "blue":
           return {
-            solid: "bg-blue-500 text-white",
-            subtle: "bg-blue-100 text-blue-800",
-            outline: "bg-transparent border border-blue-500 text-blue-700",
+            solid: "bg-primary-500 text-white",
+            subtle: "bg-primary-100 text-primary-800",
+            outline: "bg-transparent border border-primary-500 text-primary-700",
           };
         case "black":
           return {
-            solid: "bg-black text-white",
-            subtle: "bg-gray-100 text-gray-900",
-            outline: "bg-transparent border border-black text-black",
+            solid: "bg-primary-500 text-white",
+            subtle: "bg-primary-100 text-primary-800",
+            outline: "bg-transparent border border-primary-500 text-primary-700",
           };
         case "teal":
           return {
@@ -159,7 +159,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     const badgeClasses = [
       "inline-flex items-center justify-center",
       "font-medium",
-      rounded ? "rounded-full" : "rounded-md",
+      rounded ? "rounded-full" : "rounded-[14px]",
       sizeClasses[size],
       getColorClasses(),
       className,

@@ -20,31 +20,33 @@ export const DirectDataLogo: React.FC<DirectDataLogoProps> = ({
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Rounded square background */}
-      <rect width="100" height="100" rx="28" fill="#0057FF" />
-
-      {/* Wifi arc — top */}
-      <path
-        d="M 26 52 Q 50 26 74 52"
-        stroke="white"
-        strokeWidth="7"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.45"
+      {/* Main vertical pillar (The spine of the 'D') */}
+      <rect
+        x="18"
+        y="16"
+        width="16"
+        height="68"
+        rx="8"
+        fill="currentColor"
+        className="text-slate-900 dark:text-white"
       />
 
-      {/* Wifi arc — middle */}
+      {/* Inner data signal wave */}
       <path
-        d="M 34 60 Q 50 42 66 60"
-        stroke="white"
-        strokeWidth="7"
+        d="M 42 32 A 18 18 0 0 1 42 68"
+        stroke="#0057FF"
+        strokeWidth="12"
         strokeLinecap="round"
-        fill="none"
-        opacity="0.72"
+        opacity="0.4"
       />
 
-      {/* Wifi dot — bottom */}
-      <circle cx="50" cy="70" r="5.5" fill="white" />
+      {/* Outer data signal wave */}
+      <path
+        d="M 42 16 A 34 34 0 0 1 42 84"
+        stroke="#0057FF"
+        strokeWidth="12"
+        strokeLinecap="round"
+      />
     </svg>
   );
 };
@@ -55,19 +57,15 @@ export const DirectDataLogoCompact: React.FC<DirectDataLogoProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex items-center gap-3 ${className}`} style={{ width }}>
+    <div className={`flex items-center gap-2.5 ${className}`} style={{ width }}>
       <DirectDataLogo width={height} height={height} />
-      <span
-        style={{
-          fontSize: height * 0.5,
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          color: 'white',
-          lineHeight: 1,
-        }}
+      <div
+        className="flex items-center tracking-tight leading-none"
+        style={{ fontSize: height * 0.45 }}
       >
-        DirectData
-      </span>
+        <span className="text-slate-900 dark:text-white font-extrabold">Direct</span>
+        <span className="text-[#0057FF] font-semibold">Data</span>
+      </div>
     </div>
   );
 };

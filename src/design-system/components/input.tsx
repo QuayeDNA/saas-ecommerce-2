@@ -64,51 +64,51 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     // Focus state for enhanced focus styles
     const [isFocused, setIsFocused] = useState(false);
 
-    // Size classes for different elements (Mobile First sizes)
+    // Size classes for different elements (Mobile-first sizes)
     const sizeClasses = {
       input: {
-        xs: "text-base h-8 px-2",
-        sm: "text-base h-10 px-3",
-        md: "text-base h-12 px-4", // 48px hit area, 16px text base
-        lg: "text-base h-14 px-4",
+        xs: "text-base h-[52px] px-3",
+        sm: "text-base h-[52px] px-4",
+        md: "text-base h-[52px] px-4",
+        lg: "text-base h-[52px] px-4",
       },
       label: {
-        xs: "text-xs font-medium",
+        xs: "text-sm font-medium",
         sm: "text-sm font-medium",
         md: "text-sm font-medium",
-        lg: "text-base font-medium",
+        lg: "text-sm font-medium",
       },
       helperText: {
-        xs: "text-xs",
-        sm: "text-xs",
-        md: "text-xs",
+        xs: "text-sm",
+        sm: "text-sm",
+        md: "text-sm",
         lg: "text-sm",
       },
       iconSize: {
-        xs: "w-3.5 h-3.5",
-        sm: "w-4 h-4",
+        xs: "w-5 h-5",
+        sm: "w-5 h-5",
         md: "w-5 h-5",
         lg: "w-5 h-5",
       },
       iconPadding: {
-        xs: leftIcon ? "pl-7" : "pl-2",
-        sm: leftIcon ? "pl-9" : "pl-3",
+        xs: leftIcon ? "pl-11" : "pl-4",
+        sm: leftIcon ? "pl-11" : "pl-4",
         md: leftIcon ? "pl-11" : "pl-4",
-        lg: leftIcon ? "pl-12" : "pl-4",
+        lg: leftIcon ? "pl-11" : "pl-4",
       },
       rightIconPadding: {
-        xs: rightIcon ? "pr-7" : "pr-2",
-        sm: rightIcon ? "pr-9" : "pr-3",
+        xs: rightIcon ? "pr-11" : "pr-4",
+        sm: rightIcon ? "pr-11" : "pr-4",
         md: rightIcon ? "pr-11" : "pr-4",
-        lg: rightIcon ? "pr-12" : "pr-4",
+        lg: rightIcon ? "pr-11" : "pr-4",
       },
     };
 
     // Variant specific styles
     const variantClasses = {
-      outline: "border border-gray-300 bg-white rounded-lg transition-all duration-200 hover:border-gray-400 focus:ring-[3px]",
-      filled: "border border-transparent bg-gray-100 rounded-lg transition-all duration-200 hover:bg-gray-200 focus:bg-white focus:ring-[3px]",
-      flushed: "border-b-2 border-gray-300 rounded-none px-0 transition-all duration-200 hover:border-gray-400 focus:border-primary-500",
+      outline: "border border-primary-200 bg-white rounded-[14px] transition-all duration-200 hover:border-primary-300 focus:ring-[3px]",
+      filled: "border border-transparent bg-primary-50 rounded-[14px] transition-all duration-200 hover:bg-primary-100 focus:bg-white focus:ring-[3px]",
+      flushed: "border-b-2 border-primary-300 rounded-none px-0 transition-all duration-200 hover:border-primary-400 focus:border-primary-500",
     };
 
     // Get theme color classes based on the current primary color from the theme
@@ -159,9 +159,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           };
         default:
           return {
-            border: "border-blue-500",
-            ring: "ring ring-blue-200",
-            focus: "focus:border-blue-500 focus:ring-blue-100",
+            border: "border-primary-500",
+            ring: "ring ring-primary-200",
+            focus: "focus:border-primary-500 focus:ring-primary-100",
           };
       }
     };
@@ -190,9 +190,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           };
         case "info":
           return {
-            border: "border-blue-500",
-            ring: "ring ring-blue-200",
-            focus: "focus:border-blue-500 focus:ring-blue-100",
+            border: "border-primary-500",
+            ring: "ring ring-primary-200",
+            focus: "focus:border-primary-500 focus:ring-primary-100",
           };
         case "gray":
           return {
@@ -256,7 +256,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Add disabled state classes
     if (isDisabled) {
-      inputClasses.push("bg-gray-100 text-gray-400 cursor-not-allowed");
+      inputClasses.push("bg-primary-50 text-slate-400 cursor-not-allowed");
     }
 
     // Add custom classes
@@ -274,7 +274,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       }
 
       if (helperText) {
-        return <p className="text-gray-500">{helperText}</p>;
+        return <p className="text-slate-500">{helperText}</p>;
       }
 
       return null;
@@ -286,7 +286,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={uniqueId}
-            className={`block ${sizeClasses.label[size]} font-medium text-gray-700 mb-1`}
+            className={`block ${sizeClasses.label[size]} font-medium text-slate-700 mb-1`}
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
@@ -298,7 +298,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {/* Left icon */}
           {leftIcon && (
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <div className={`text-gray-400 ${sizeClasses.iconSize[size]}`}>
+              <div className={`text-slate-400 ${sizeClasses.iconSize[size]}`}>
                 {leftIcon}
               </div>
             </div>

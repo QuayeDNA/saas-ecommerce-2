@@ -15,6 +15,7 @@ import React from 'react';
  */
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   FaUser,
@@ -289,11 +290,11 @@ export const RegisterPage = () => {
     const strength = (validCount / 5) * 100;
 
     if (strength === 100)
-      return { strength, label: "Strong", color: "bg-green-500" };
+      return { strength, label: "Strong", color: "bg-primary-600" };
     if (strength >= 60)
-      return { strength, label: "Medium", color: "bg-yellow-500" };
-    if (strength > 0) return { strength, label: "Weak", color: "bg-red-500" };
-    return { strength: 0, label: "Very Weak", color: "bg-gray-300" };
+      return { strength, label: "Medium", color: "bg-primary-400" };
+    if (strength > 0) return { strength, label: "Weak", color: "bg-primary-300" };
+    return { strength: 0, label: "Very Weak", color: "bg-slate-300" };
   };
 
   const passwordStrength = getPasswordStrength();
@@ -310,7 +311,7 @@ export const RegisterPage = () => {
     >
       {/* Progress Indicator - Matched to TopUpRequestModal */}
       <div className="flex items-center gap-1.5 mb-8 w-full max-w-md mx-auto">
-        {steps.map((label, idx) => {
+        {steps.map((_, idx) => {
           const stepNum = idx + 1;
           const isCompleted = stepNum < currentStep;
 
@@ -320,14 +321,14 @@ export const RegisterPage = () => {
                 className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-black transition-all duration-300"
                 style={stepNum <= currentStep
                   ? { backgroundColor: 'var(--color-primary-500)', color: '#fff' }
-                  : { backgroundColor: '#e2e8f0', color: '#64748b' }}
+                  : { backgroundColor: 'var(--color-primary-50)', color: 'var(--color-secondaryText)' }}
               >
                 {isCompleted ? <FaCheck className="w-3.5 h-3.5" /> : stepNum}
               </div>
               {stepNum < steps.length && (
                 <div
                   className="flex-1 h-1 rounded-full transition-all duration-300"
-                  style={{ backgroundColor: stepNum < currentStep ? 'var(--color-primary-500)' : '#e2e8f0' }}
+                  style={{ backgroundColor: stepNum < currentStep ? 'var(--color-primary-500)' : 'var(--color-border)' }}
                 />
               )}
             </React.Fragment>
@@ -339,7 +340,7 @@ export const RegisterPage = () => {
       </div>
 
       <div className="text-center sm:hidden mb-6">
-        <p className="text-base font-bold text-gray-900">
+        <p className="text-base font-bold text-slate-900">
           {steps[currentStep - 1]}
         </p>
         <p className="text-xs font-semibold text-primary-600 mt-1">
@@ -366,7 +367,12 @@ export const RegisterPage = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Step 1: Personal Information */}
         {currentStep === 1 && (
-          <div className="space-y-5 animate-fadeIn">
+          <motion.div
+            className="space-y-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
             <Input
               label="Full Name"
               value={formData.fullName}
@@ -406,17 +412,22 @@ export const RegisterPage = () => {
             />
 
             <div className="bg-blue-50 rounded-lg p-4 mt-6">
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-primary-800">
                 <strong>Note:</strong> Your email will be used for
                 account notifications and communication.
               </p>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 2: Business Information */}
         {currentStep === 2 && (
-          <div className="space-y-5 animate-fadeIn">
+          <motion.div
+            className="space-y-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
             <Input
               label="Business Name"
               value={formData.businessName}
@@ -455,18 +466,23 @@ export const RegisterPage = () => {
               className="transition-all"
             />
 
-            <div className="bg-blue-50 rounded-lg p-4 mt-6">
-              <p className="text-sm text-blue-800">
+            <div className="bg-primary-50 rounded-lg p-4 mt-6">
+              <p className="text-sm text-primary-800">
                 <strong>Business verification:</strong> Ensure your
                 business details are accurate for faster approval.
               </p>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 3: Security */}
         {currentStep === 3 && (
-          <div className="space-y-5 animate-fadeIn">
+          <motion.div
+            className="space-y-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
             <div>
               <Input
                 label="Password"
@@ -483,7 +499,7 @@ export const RegisterPage = () => {
                   <button
                     type="button"
                     onClick={() => setShowPasswords(!showPasswords)}
-                    className="absolute bottom-0.5 right-1 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    className="absolute bottom-0.5 right-1 text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-md hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
                     aria-label={
                       showPasswords ? "Hide passwords" : "Show passwords"
                     }
@@ -506,7 +522,7 @@ export const RegisterPage = () => {
               {formData.password && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs text-slate-600">
                       Password Strength:
                     </span>
                     <span
@@ -520,7 +536,7 @@ export const RegisterPage = () => {
                       {passwordStrength.label}
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
                     <div
                       className={`h-full ${passwordStrength.color} transition-all duration-300`}
                       style={{ width: `${passwordStrength.strength}%` }}
@@ -551,8 +567,8 @@ export const RegisterPage = () => {
             </div>
 
             {/* Password Requirements */}
-            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-              <h4 className="text-sm font-semibold text-gray-900">
+            <div className="bg-primary-50 rounded-lg p-4 space-y-3">
+              <h4 className="text-sm font-semibold text-slate-900">
                 Password Requirements:
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -567,24 +583,24 @@ export const RegisterPage = () => {
                     className={`flex items-center text-sm transition-colors ${passwordValidation[
                       key as keyof PasswordValidation
                     ]
-                      ? "text-green-700"
-                      : "text-gray-500"
+                      ? "text-primary-700"
+                      : "text-slate-500"
                       }`}
                   >
                     <div
                       className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${passwordValidation[
                         key as keyof PasswordValidation
                       ]
-                        ? "bg-green-100"
-                        : "bg-gray-200"
+                        ? "bg-primary-100"
+                        : "bg-[var(--color-border)]"
                         }`}
                     >
                       <FaCheckCircle
                         className={`w-3 h-3 ${passwordValidation[
                           key as keyof PasswordValidation
                         ]
-                          ? "text-green-600"
-                          : "text-gray-400"
+                          ? "text-primary-600"
+                          : "text-slate-400"
                           }`}
                       />
                     </div>
@@ -594,19 +610,19 @@ export const RegisterPage = () => {
                 <div
                   className={`flex items-center text-sm transition-colors sm:col-span-2 ${passwordValidation.match
                     ? "text-green-700"
-                    : "text-gray-500"
+                    : "text-slate-500"
                     }`}
                 >
                   <div
                     className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${passwordValidation.match
-                      ? "bg-green-100"
-                      : "bg-gray-200"
+                      ? "bg-primary-100"
+                      : "bg-[var(--color-border)]"
                       }`}
                   >
                     <FaCheckCircle
                       className={`w-3 h-3 ${passwordValidation.match
-                        ? "text-green-600"
-                        : "text-gray-400"
+                        ? "text-primary-600"
+                        : "text-slate-400"
                         }`}
                     />
                   </div>
@@ -614,11 +630,11 @@ export const RegisterPage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100">
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[var(--color-border)]">
           <Button
             type="button"
             variant="outline"
@@ -681,10 +697,10 @@ export const RegisterPage = () => {
       >
         <DialogHeader>
           <div className="flex items-center">
-            <div className="bg-green-100 p-2 rounded-full mr-3">
-              <FaCheckCircle className="text-green-600 text-xl" />
+            <div className="bg-primary-100 p-2 rounded-full mr-3">
+              <FaCheckCircle className="text-primary-600 text-xl" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-slate-900">
               Registration Successful!
             </h2>
           </div>
@@ -692,24 +708,24 @@ export const RegisterPage = () => {
         <DialogBody>
           <div className="space-y-4">
             <div className="text-center py-4">
-              <div className="mx-auto bg-green-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-4">
-                <FaCheckCircle className="text-green-600 text-4xl" />
+              <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-4">
+                <FaCheckCircle className="text-primary-600 text-4xl" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
                 Your Agent Account Has Been Created
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-slate-600 text-sm">
                 Your account is pending approval by our admin team. We'll notify
                 you once approved.
               </p>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+            <div className="bg-primary-50 rounded-lg p-4">
+              <h4 className="font-semibold text-primary-900 mb-3 flex items-center">
                 <FaClock className="mr-2" />
                 What happens next?
               </h4>
-              <ul className="text-sm text-blue-800 space-y-2">
+              <ul className="text-sm text-primary-800 space-y-2">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
                   <span>Review within 24-48 hours</span>
@@ -748,33 +764,6 @@ export const RegisterPage = () => {
           </div>
         </DialogFooter>
       </Dialog>
-
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-
-        .animate-shake {
-          animation: shake 0.3s ease-in-out;
-        }
-      `}</style>
     </AuthLayout>
   );
 };
