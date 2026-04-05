@@ -40,10 +40,10 @@ export const LoginPage = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (authState.isAuthenticated && authState.dashboardUrl) {
-      navigate(authState.dashboardUrl);
+    if (authState.isAuthenticated && authState.dashboardUrl && !isSubmitting) {
+      navigate(authState.dashboardUrl, { replace: true });
     }
-  }, [authState, navigate]);
+  }, [authState, navigate, isSubmitting]);
 
   // Set page title
   useEffect(() => {

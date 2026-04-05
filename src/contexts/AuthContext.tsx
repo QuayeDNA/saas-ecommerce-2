@@ -35,7 +35,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import type { User } from "../types";
 import { authService, type RegisterAgentData } from "../services/auth.service";
 import { tokenRefreshService } from "../utils/token-refresh";
-import { useToast } from "../design-system/components/toast";
+import { useToast, queueToast } from "../design-system/components/toast";
 
 /**
  * Enhanced Authentication State Interface
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // Only show toast and navigate if not already on login page
       if (location.pathname !== "/login") {
-        addToast("Session expired. Please log in again.", "warning");
+        queueToast("Session expired. Please log in again.", "warning", 5000);
         navigate("/login", { replace: true, state: { from: location } });
       }
     };
@@ -297,8 +297,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         setAuthenticatedState(resp.user, resp.token);
 
-        // Show success toast
-        addToast(`Welcome back, ${resp.user.fullName}!`, "success");
+        // Queue success toast so it remains reliable across immediate route transitions.
+        queueToast(`Welcome back, ${resp.user.fullName}!`, "success", 4500);
 
         // Navigate to dashboard or intended page
         const locationState = location.state as {
@@ -452,7 +452,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // Always clear state regardless of logout API success
       setUnauthenticatedState();
-      addToast("Logged out successfully", "success");
+      queueToast("Logged out successfully", "success", 4000);
 
       // Clear any redirect state and go to login
       navigate("/login", { replace: true });

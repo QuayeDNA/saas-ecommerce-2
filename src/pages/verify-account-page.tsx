@@ -6,6 +6,7 @@ import {
   Button,
   Alert,
 } from "../design-system";
+import { queueToast } from "../design-system/components/toast";
 import {
   FaCheck,
   FaExclamationTriangle,
@@ -42,6 +43,7 @@ export const VerifyAccountPage = () => {
 
     try {
       await verifyAccount(token);
+      queueToast("Account verified successfully! You can now log in.", "success", 5000);
       setVerificationStatus("success");
 
       // Optional: Auto redirect after few seconds

@@ -7,6 +7,7 @@ import {
   Input,
   Alert,
 } from "../design-system";
+import { queueToast } from "../design-system/components/toast";
 import {
   FaEnvelope,
   FaExclamationTriangle,
@@ -25,6 +26,7 @@ export const ForgotPasswordPage = () => {
 
     try {
       await forgotPassword(email);
+      queueToast("Password reset email sent successfully!", "success", 4500);
       setIsSubmitted(true);
     } catch (error) {
       console.error("Password reset request failed:", error);

@@ -30,7 +30,7 @@ import { ChevronDown } from "lucide-react";
 import { NotificationDropdown } from "./notifications/NotificationDropdown";
 import { ImpersonationService } from "../utils/impersonation";
 import { canHaveWallet, isAdminUser } from "../utils/userTypeHelpers";
-import { DirectDataLogo } from "./common/DirectDataLogo";
+import { Badge } from "../design-system/components/badge";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -165,7 +165,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
         className="flex items-center justify-between px-4"
         style={{ height: "56px" }}
       >
-        {/* Left: hamburger + greeting + logo */}
+        {/* Left: hamburger */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
             onClick={onMenuClick}
@@ -175,54 +175,6 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
           >
             <FaBars className="w-5 h-5" />
           </button>
-
-          {/* Phrase sequence: greeting enters, holds, exits; logo enters and holds */}
-          <div className="header-phrase-sequence min-w-0">
-            <div
-              className="header-phrase header-phrase-1 animate-slide-up"
-              style={{
-                fontSize: "14px",
-                color: headerTextColor,
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 500,
-              }}
-            >
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="text-base">{getGreeting().emoji}</span>
-                <span>{firstName ? `${getGreeting().text}, ${firstName}` : getGreeting().text}</span>
-              </div>
-            </div>
-
-            <div className="header-phrase header-phrase-2 animate-slide-up">
-              <div className="flex items-center gap-1 whitespace-nowrap">
-                <DirectDataLogo width={20} height={20} />
-                <span
-                  style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 800,
-                    fontSize: "14px",
-                    color: headerTextColor,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  DirectData
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <span
-            className="sr-only"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: "14px",
-              color: headerTextColor,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            DirectData
-          </span>
         </div>
 
         {/* Right: notifications + avatar */}
@@ -276,21 +228,48 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
           >
             {/* User info */}
             <div className="px-4 py-3" style={{ borderBottom: `1px solid ${borderColor}` }}>
-              <div
-                className="font-semibold text-sm truncate"
-                style={{ color: "#1a1a2e", fontFamily: "'DM Sans', sans-serif" }}
-              >
-                {authState.user?.fullName}
+              <div className="flex items-center gap-2">
+                <div
+                  className="min-w-0 font-semibold text-sm truncate"
+                  style={{ color: "#1a1a2e", fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {authState.user?.fullName}
+                </div>
+                {authState.user?.agentCode && (
+                  <Badge
+                    variant="subtle"
+                    size="xs"
+                    colorScheme="default"
+                    className="shrink-0 !rounded-full !px-1.5 !py-0.5 text-[10px] md:text-[11px]"
+                    useThemeColor
+                  >
+                    {authState.user.agentCode}
+                  </Badge>
+                )}
               </div>
               <div className="text-xs truncate mt-0.5" style={{ color: "#8891a7" }}>
                 {authState.user?.email}
               </div>
-              {authState.user?.agentCode && (
-                <div
-                  className="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold"
-                  style={{ backgroundColor: "var(--color-primary-50)", color: "var(--color-primary-600)" }}
-                >
-                  {authState.user.agentCode}
+              {canShowWallet && (
+                <div className="mt-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs font-light uppercase tracking-wide text-slate-500">
+                        Wallet Balance
+                      </div>
+                      <div className="mt-0.5 text-sm font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {isLoading ? "—" : formatAmount(walletBalance)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-light uppercase tracking-wide text-slate-500">
+                        Spent Today
+                      </div>
+                      <div className="mt-0.5 text-sm font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {dailySpendingLoading || isLoading ? "—" : formatAmount(dailySpending)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -488,25 +467,47 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                     }}
                   >
                     <div className="px-4 py-3" style={{ borderBottom: `1px solid ${borderColor}` }}>
-                      <div className="font-semibold text-sm" style={{ color: "#1a1a2e" }}>
-                        {authState.user?.fullName}
+                      <div className="flex items-center gap-2 font-semibold text-sm" style={{ color: "#1a1a2e" }}>
+                        <span className="truncate">{authState.user?.fullName}</span>
+                        {authState.user?.agentCode && (
+                          <Badge
+                            variant="subtle"
+                            size="xs"
+                            colorScheme="default"
+                            className="shrink-0 !rounded-full !px-1.5 !py-0.5 text-[10px]"
+                            useThemeColor
+                          >
+                            {authState.user.agentCode}
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-xs mt-0.5" style={{ color: "#8891a7" }}>
                         {authState.user?.email}
                       </div>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span
-                          className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                          style={{ backgroundColor: "var(--color-primary-50)", color: "var(--color-primary-600)" }}
+                      {canShowWallet && (
+                        <div
+                          className="mt-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2"
                         >
-                          {authState.user?.userType?.replace("_", " ")}
-                        </span>
-                        {authState.user?.agentCode && (
-                          <span className="text-xs font-mono font-bold" style={{ color: "#4a5270" }}>
-                            {authState.user.agentCode}
-                          </span>
-                        )}
-                      </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                                Wallet Balance
+                              </div>
+                              <div className="mt-0.5 text-sm font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                {isLoading ? "—" : formatAmount(walletBalance)}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                                Spent Today
+                              </div>
+                              <div className="mt-0.5 text-sm font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                {dailySpendingLoading || isLoading ? "—" : formatAmount(dailySpending)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {canShowWallet && (

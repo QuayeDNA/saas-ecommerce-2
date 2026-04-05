@@ -1,5 +1,22 @@
+/**
+ * Toast — DirectData design system
+ *
+ * Visual spec:
+ *   • Dark #1a1a2e pill, border-radius 14px
+ *   • Left: semantic icon (lucide) in brand color
+ *   • Center: white 13px DM Sans 500 message
+ *   • Right: × close button
+ *   • Bottom edge: progress drain bar (Framer Motion width 100%→0%)
+ *   • Slides down from top safe area on mobile, top-right on desktop
+ *
+ * FIX: Framer Motion transition.duration expects SECONDS.
+ *      The duration prop is stored in milliseconds (e.g. 5000).
+ *      The progress bar transition now uses `duration / 1000`.
+ */
+
+/* eslint-disable react-refresh/only-export-components */
+
 import {
-  forwardRef,
   useState,
   useEffect,
   createContext,
@@ -8,12 +25,14 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { CircleCheckBig, CircleAlert, TriangleAlert, Info, X } from "lucide-react";
 import { createPortal } from "react-dom";
 
-// Toast types for different visual styles
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export type ToastType = "success" | "error" | "warning" | "info";
 
-// Individual toast data structure
 export interface Toast {
   id: string;
   message: string;
@@ -21,7 +40,12 @@ export interface Toast {
   duration?: number;
 }
 
-// Context for the toast system
+interface QueuedToast {
+  message: string;
+  type: ToastType;
+  duration?: number;
+}
+
 interface ToastContextType {
   addToast: (message: string, type: ToastType, duration?: number) => void;
   removeToast: (id: string) => void;
@@ -29,179 +53,193 @@ interface ToastContextType {
   showToast: (message: string, type: ToastType, duration?: number) => void;
 }
 
+// ─── Context ──────────────────────────────────────────────────────────────────
+
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-// Toast item component
+// ─── Design tokens ────────────────────────────────────────────────────────────
+
+const TOAST_ICON_COLOR: Record<ToastType, string> = {
+  success: "var(--color-success-icon)",
+  error:   "var(--color-error)",
+  warning: "var(--color-warning)",
+  info:    "var(--color-info)",
+};
+
+const TOAST_BAR_COLOR: Record<ToastType, string> = {
+  success: "var(--color-success-icon)",
+  error:   "var(--color-error)",
+  warning: "var(--color-warning)",
+  info:    "var(--color-info)",
+};
+
+const TOAST_ICON: Record<ToastType, typeof CircleCheckBig> = {
+  success: CircleCheckBig,
+  error:   CircleAlert,
+  warning: TriangleAlert,
+  info:    Info,
+};
+
+// ─── Session queue (for toasts fired before the provider mounts) ──────────────
+
+const QUEUED_TOASTS_KEY   = "__dd_queued_toasts__";
+const QUEUED_TOASTS_EVENT = "toast:flush-queued";
+
+const readQueuedToasts = (): QueuedToast[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = sessionStorage.getItem(QUEUED_TOASTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as QueuedToast[];
+    sessionStorage.removeItem(QUEUED_TOASTS_KEY);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    sessionStorage.removeItem(QUEUED_TOASTS_KEY);
+    return [];
+  }
+};
+
+export const queueToast = (message: string, type: ToastType, duration = 5000) => {
+  if (typeof window === "undefined") return;
+  try {
+    const raw      = sessionStorage.getItem(QUEUED_TOASTS_KEY);
+    const existing = raw ? (JSON.parse(raw) as QueuedToast[]) : [];
+    sessionStorage.setItem(
+      QUEUED_TOASTS_KEY,
+      JSON.stringify([...(Array.isArray(existing) ? existing : []), { message, type, duration }]),
+    );
+    window.dispatchEvent(new CustomEvent(QUEUED_TOASTS_EVENT));
+  } catch { /* silently ignore */ }
+};
+
+// ─── Container responsive styles ─────────────────────────────────────────────
+
+const CONTAINER_CSS = `
+  ._dd_tc {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 64px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: calc(100% - 32px);
+    max-width: 400px;
+    pointer-events: none;
+  }
+  @media (min-width: 768px) {
+    ._dd_tc {
+      left: auto;
+      right: 16px;
+      top: 16px;
+      transform: none;
+      align-items: flex-end;
+    }
+  }
+`;
+
+// ─── ToastItem ────────────────────────────────────────────────────────────────
+
 interface ToastItemProps extends Toast {
   onClose: (id: string) => void;
 }
 
-const ToastItem = forwardRef<HTMLDivElement, ToastItemProps>(
-  ({ id, message, type, onClose }, ref) => {
-    // Animation state
-    const [visible, setVisible] = useState(false);
-    const [isClosing, setIsClosing] = useState(false);
+const ToastItem = ({ id, message, type, duration = 5000, onClose }: ToastItemProps) => {
+  const Icon = TOAST_ICON[type];
 
-    useEffect(() => {
-      // Trigger entrance animation
-      const timer = setTimeout(() => setVisible(true), 10);
-      return () => clearTimeout(timer);
-    }, []);
+  const handleClose = useCallback(() => onClose(id), [id, onClose]);
 
-    // Handle close with animation
-    const handleClose = () => {
-      setIsClosing(true);
-      setTimeout(() => onClose(id), 300); // Wait for exit animation
-    };
+  // Auto-dismiss — duration is in ms, setTimeout is in ms ✓
+  useEffect(() => {
+    const t = window.setTimeout(handleClose, duration);
+    return () => window.clearTimeout(t);
+  }, [duration, handleClose]);
 
-    // Get appropriate styling based on toast type
-    const getToastStyles = () => {
-      switch (type) {
-        case "success":
-          return {
-            container: "bg-green-600 border-green-700 text-white",
-            icon: (
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ),
-          };
-        case "error":
-          return {
-            container: "bg-red-600 border-red-700 text-white",
-            icon: (
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ),
-          };
-        case "warning":
-          return {
-            container: "bg-yellow-500 border-yellow-700 text-white",
-            icon: (
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ),
-          };
-        case "info":
-        default:
-          return {
-            container: "bg-primary-600 border-primary-700 text-white",
-            icon: (
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 01-1-1v-4a1 1 0 112 0v4a1 1 0 01-1 1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ),
-          };
-      }
-    };
+  return (
+    <motion.div
+      role="alert"
+      aria-live="assertive"
+      layout
+      initial={{ opacity: 0, y: -14, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0,   scale: 1    }}
+      exit={{    opacity: 0, y: -10,  scale: 0.98 }}
+      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      className="relative flex w-full items-center gap-3 overflow-hidden rounded-[14px] border border-white/10 bg-[#1a1a2e] px-3.5 py-3 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.12)]"
+      style={{ pointerEvents: "auto" }}
+    >
+      {/* Icon */}
+      <Icon
+        className="mt-0.5 h-4 w-4 shrink-0"
+        style={{ color: TOAST_ICON_COLOR[type] }}
+        strokeWidth={2.25}
+      />
 
-    const styles = getToastStyles();
+      {/* Message */}
+      <span className="min-w-0 flex-1 break-words text-[13px] font-medium leading-5 text-white/95">
+        {message}
+      </span>
 
-    return (
-      <div
-        ref={ref}
-        className={`w-full sm:max-w-md rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-4 sm:p-5 flex items-center font-semibold text-sm sm:text-base border pointer-events-auto ${styles.container
-          } 
-          ${visible && !isClosing
-            ? "translate-y-2 sm:translate-y-0 sm:-translate-x-0 opacity-100"
-            : "-translate-y-full sm:translate-y-0 sm:translate-x-full opacity-0"
-          } 
-          transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1)
-        `}
-        role="alert"
-        style={{ minWidth: "100%" }}
+      {/* Close button */}
+      <button
+        onClick={handleClose}
+        type="button"
+        aria-label="Dismiss"
+        className="ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
       >
-        <div className="flex-shrink-0 mr-4">{styles.icon}</div>
-        <div className="flex-1">
-          <p className="break-words leading-snug">{message}</p>
-        </div>
-        <button
-          onClick={handleClose}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            handleClose();
-          }}
-          className="ml-2 text-white/70 hover:text-white focus:outline-none active:scale-90 transition-transform touch-manipulation flex-shrink-0"
-          aria-label="Close"
-          type="button"
-        >
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
-    );
-  },
-);
+        <X className="h-4 w-4" strokeWidth={2.5} />
+      </button>
 
-ToastItem.displayName = "ToastItem";
+      {/*
+       * Progress drain bar
+       *
+       * BUG FIXED: Framer Motion's transition.duration is in SECONDS.
+       * The duration prop is in MILLISECONDS (e.g. 5000 ms = 5 s).
+       * Previously this was `duration: duration` which told Framer to
+       * animate over 5000 seconds — making the bar appear completely frozen.
+       *
+       * Fix: divide by 1000 → `duration: duration / 1000`
+       */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 h-0.5 rounded-b-[14px]"
+        style={{ backgroundColor: TOAST_BAR_COLOR[type], opacity: 0.72 }}
+        initial={{ width: "100%" }}
+        animate={{ width: "0%"   }}
+        transition={{
+          duration: duration / 1000, // ← ms → seconds
+          ease: "linear",
+        }}
+      />
+    </motion.div>
+  );
+};
 
-// Toast container component
+// ─── ToastContainer ───────────────────────────────────────────────────────────
+
 const ToastContainer = () => {
   const context = useContext(ToastContext);
-
-  if (!context) {
-    throw new Error("useToast must be used within a ToastProvider");
-  }
-
+  if (!context) throw new Error("useToast must be used within a ToastProvider");
   const { toasts, removeToast } = context;
 
-  // Create a portal for the toast container
   return createPortal(
-    <div className="fixed top-safe-area sm:top-auto sm:bottom-4 right-2 sm:right-4 left-2 sm:left-auto z-[9999] flex flex-col items-center sm:items-end space-y-2 px-2 w-[calc(100%-1rem)] sm:w-auto sm:max-w-md pointer-events-none transition-all duration-300">
-      {toasts.map((toast) => (
-        <ToastItem
-          key={toast.id}
-          id={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={removeToast}
-        />
-      ))}
-    </div>,
+    <>
+      <style>{CONTAINER_CSS}</style>
+      <div className="_dd_tc" aria-label="Notifications">
+        <AnimatePresence initial={false} mode="popLayout">
+          {toasts.map((toast) => (
+            <ToastItem key={toast.id} {...toast} onClose={removeToast} />
+          ))}
+        </AnimatePresence>
+      </div>
+    </>,
     document.body,
   );
 };
 
-// Toast provider component
+// ─── ToastProvider ────────────────────────────────────────────────────────────
+
 interface ToastProviderProps {
   children: ReactNode;
 }
@@ -209,36 +247,44 @@ interface ToastProviderProps {
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Remove a toast by ID
   const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Add a new toast
   const addToast = useCallback(
     (message: string, type: ToastType, duration = 5000) => {
       const id = Math.random().toString(36).substring(2);
-
       setToasts((prev) => [...prev, { id, message, type, duration }]);
-
-      // Auto-remove after duration
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
+      // Safety net — item's own timer fires first in practice
+      setTimeout(() => removeToast(id), duration + 500);
     },
     [removeToast],
   );
 
-  // Memoize context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => {
-    const showToast = (
-      message: string,
-      type: ToastType = "info",
-      duration?: number,
-    ) => {
-      addToast(message, type, duration);
+  // Flush any toasts queued before the provider mounted (e.g. during auth redirect)
+  useEffect(() => {
+    const flush = () => {
+      const queued = readQueuedToasts();
+      if (!queued.length) return;
+      setToasts((prev) => [
+        ...prev,
+        ...queued.map((t) => ({
+          id: Math.random().toString(36).substring(2),
+          message:  t.message,
+          type:     t.type,
+          duration: t.duration,
+        })),
+      ]);
     };
 
+    flush();
+    window.addEventListener(QUEUED_TOASTS_EVENT, flush);
+    return () => window.removeEventListener(QUEUED_TOASTS_EVENT, flush);
+  }, []);
+
+  const contextValue = useMemo(() => {
+    const showToast = (message: string, type: ToastType = "info", duration?: number) =>
+      addToast(message, type, duration);
     return { toasts, addToast, removeToast, showToast };
   }, [toasts, addToast, removeToast]);
 
@@ -250,13 +296,10 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   );
 };
 
-// Custom hook to use the toast context
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+
 export const useToast = () => {
   const context = useContext(ToastContext);
-
-  if (context === undefined) {
-    throw new Error("useToast must be used within a ToastProvider");
-  }
-
+  if (context === undefined) throw new Error("useToast must be used within a ToastProvider");
   return context;
 };

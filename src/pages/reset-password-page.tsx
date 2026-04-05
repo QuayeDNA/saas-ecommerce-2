@@ -3,6 +3,7 @@ import { useAuth } from '../hooks';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button, Input, Alert } from '../design-system';
+import { queueToast } from '../design-system/components/toast';
 import { FaLock, FaEye, FaEyeSlash, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { AuthLayout } from '../layouts/auth-layout';
 
@@ -52,6 +53,7 @@ export const ResetPasswordPage = () => {
     if (token) {
       try {
         await resetPassword(token, password);
+        queueToast("Password reset successfully!", "success", 4500);
         setIsSuccess(true);
       } catch (error) {
         console.error('Password reset failed:', error);
