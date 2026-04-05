@@ -34,9 +34,10 @@ import { DirectDataLogo } from "./common/DirectDataLogo";
 
 interface HeaderProps {
   onMenuClick: () => void;
+  isScrolled?: boolean;
 }
 
-export const Header = ({ onMenuClick }: HeaderProps) => {
+export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
   const { authState, logout, refreshAuth } = useAuth();
   const { walletBalance, refreshWallet, isLoading, connectionStatus } = useWallet();
   const { dailySpending, isLoading: dailySpendingLoading } = useDailySpending();
@@ -49,6 +50,12 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const canShowWallet = canHaveWallet(authState.user?.userType || "");
   const isAdmin = isAdminUser(authState.user?.userType || "");
   const isImpersonating = ImpersonationService.isImpersonating();
+  const surfaceColor = "var(--color-surface)";
+  const borderColor = "var(--color-border)";
+  const headerTextColor = isScrolled ? "#0f172a" : "#334155";
+  const mutedHeaderTextColor = isScrolled ? "#475569" : "#64748b";
+  const headerControlBg = isScrolled ? "var(--color-primary-50)" : "rgba(255,255,255,0.65)";
+  const headerControlBorder = isScrolled ? "var(--color-primary-200)" : "rgba(255,255,255,0.5)";
 
   const firstName = authState.user?.fullName.split(" ")[0] ?? "";
   const initials =
@@ -129,8 +136,13 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   // ─────────────────────────────────────────────────────────────
   const MobileHeader = () => (
     <header
-      className="md:hidden sticky top-0 z-20"
-      style={{ backgroundColor: "#0057FF" }}
+      className="md:hidden sticky top-0 z-20 transition-all duration-300"
+      style={{
+        backgroundColor: isScrolled ? surfaceColor : "transparent",
+        borderBottom: isScrolled ? `1px solid ${borderColor}` : "1px solid transparent",
+        boxShadow: isScrolled ? "0 8px 24px rgba(15,23,42,0.08)" : "none",
+        backdropFilter: isScrolled ? "blur(8px)" : "none",
+      }}
     >
       {/* Impersonation ribbon */}
       {isImpersonating && (
@@ -153,32 +165,64 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         className="flex items-center justify-between px-4"
         style={{ height: "56px" }}
       >
-        {/* Left: hamburger (desktop sidebar trigger, hidden on mobile but keep for layout) + logo */}
-        <div className="flex items-center gap-3">
+        {/* Left: hamburger + greeting + logo */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
             onClick={onMenuClick}
-            className="flex items-center justify-center rounded-xl"
-            style={{ width: "36px", height: "36px", color: "rgba(255,255,255,0.8)" }}
+            className="flex items-center justify-center rounded-xl transition-colors duration-300 flex-shrink-0"
+            style={{ width: "36px", height: "36px", color: mutedHeaderTextColor }}
             aria-label="Open menu"
           >
             <FaBars className="w-5 h-5" />
           </button>
 
-          {/* Logo mark + wordmark */}
-          <div className="flex items-center gap-2">
-            <DirectDataLogo width={28} height={28} />
-            <span
+          {/* Phrase sequence: greeting enters, holds, exits; logo enters and holds */}
+          <div className="header-phrase-sequence min-w-0">
+            <div
+              className="header-phrase header-phrase-1 animate-slide-up"
               style={{
-                fontFamily: "'Syne', sans-serif",
-                fontWeight: 800,
-                fontSize: "18px",
-                color: "#ffffff",
-                letterSpacing: "-0.02em",
+                fontSize: "14px",
+                color: headerTextColor,
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 500,
               }}
             >
-              DirectData
-            </span>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <span className="text-base">{getGreeting().emoji}</span>
+                <span>{firstName ? `${getGreeting().text}, ${firstName}` : getGreeting().text}</span>
+              </div>
+            </div>
+
+            <div className="header-phrase header-phrase-2 animate-slide-up">
+              <div className="flex items-center gap-1 whitespace-nowrap">
+                <DirectDataLogo width={20} height={20} />
+                <span
+                  style={{
+                    fontFamily: "'Syne', sans-serif",
+                    fontWeight: 800,
+                    fontSize: "14px",
+                    color: headerTextColor,
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  DirectData
+                </span>
+              </div>
+            </div>
           </div>
+
+          <span
+            className="sr-only"
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontWeight: 800,
+              fontSize: "14px",
+              color: headerTextColor,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            DirectData
+          </span>
         </div>
 
         {/* Right: notifications + avatar */}
@@ -189,13 +233,13 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
           {/* Avatar */}
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="relative flex items-center justify-center rounded-full font-bold text-sm"
+            className="relative flex items-center justify-center rounded-full font-bold text-sm transition-all duration-300"
             style={{
               width: "36px",
               height: "36px",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              border: "2px solid rgba(255,255,255,0.35)",
-              color: "#ffffff",
+              backgroundColor: headerControlBg,
+              border: `2px solid ${headerControlBorder}`,
+              color: headerTextColor,
               fontFamily: "'DM Sans', sans-serif",
             }}
             aria-label="User menu"
@@ -224,14 +268,14 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             style={{
               top: "64px",
               width: "260px",
-              backgroundColor: "#ffffff",
+              backgroundColor: surfaceColor,
               borderRadius: "16px",
               boxShadow: "0 8px 32px rgba(0,0,0,0.16)",
-              border: "1px solid #e4e8f0",
+              border: `1px solid ${borderColor}`,
             }}
           >
             {/* User info */}
-            <div className="px-4 py-3" style={{ borderBottom: "1px solid #f2f4f8" }}>
+            <div className="px-4 py-3" style={{ borderBottom: `1px solid ${borderColor}` }}>
               <div
                 className="font-semibold text-sm truncate"
                 style={{ color: "#1a1a2e", fontFamily: "'DM Sans', sans-serif" }}
@@ -244,7 +288,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
               {authState.user?.agentCode && (
                 <div
                   className="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold"
-                  style={{ backgroundColor: "#eef2ff", color: "#0057FF" }}
+                  style={{ backgroundColor: "var(--color-primary-50)", color: "var(--color-primary-600)" }}
                 >
                   {authState.user.agentCode}
                 </div>
@@ -266,7 +310,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 <Link
                   to="/agent/dashboard/wallet"
                   className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-gray-50"
-                  style={{ color: "#4a5270", borderBottom: "1px solid #f2f4f8" }}
+                  style={{ color: "#4a5270", borderBottom: `1px solid ${borderColor}` }}
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   <FaWallet className="w-4 h-4" style={{ color: "#8891a7" }} />
@@ -282,7 +326,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 style={{
                   backgroundColor: "#fff8e6",
                   color: "#d97706",
-                  borderBottom: "1px solid #f2f4f8",
+                  borderBottom: `1px solid ${borderColor}`,
                 }}
               >
                 <FaSignOutAlt className="w-4 h-4" />
@@ -311,11 +355,13 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   // ─────────────────────────────────────────────────────────────
   const DesktopHeader = () => (
     <header
-      className="hidden md:block sticky top-0 z-10 shadow-sm"
+      className="hidden md:block sticky top-0 z-10 transition-all duration-300"
       style={{
-        backgroundColor: "#0057FF",
-        borderBottom: "1px solid rgba(255,255,255,0.15)",
+        backgroundColor: isScrolled ? surfaceColor : "transparent",
+        borderBottom: isScrolled ? `1px solid ${borderColor}` : "1px solid transparent",
         borderRadius: "0 0 16px 16px",
+        boxShadow: isScrolled ? "0 10px 28px rgba(15,23,42,0.08)" : "none",
+        backdropFilter: isScrolled ? "blur(8px)" : "none",
       }}
     >
       {/* Impersonation ribbon */}
@@ -340,11 +386,11 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             <div className="min-w-0">
               <div
                 className="font-semibold truncate"
-                style={{ fontSize: "16px", color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
+                style={{ fontSize: "16px", color: headerTextColor, fontFamily: "'DM Sans', sans-serif" }}
               >
                 {getGreeting().text}, {firstName}
               </div>
-              <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+              <div className="text-xs" style={{ color: mutedHeaderTextColor }}>
                 Welcome back! 👋
               </div>
             </div>
@@ -384,8 +430,11 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-150"
-                style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
+                className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-300"
+                style={{
+                  backgroundColor: headerControlBg,
+                  border: `1px solid ${headerControlBorder}`,
+                }}
                 aria-label="User menu"
               >
                 <div
@@ -393,8 +442,8 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   style={{
                     width: "34px",
                     height: "34px",
-                    backgroundColor: "rgba(255,255,255,0.25)",
-                    color: "#ffffff",
+                    backgroundColor: isScrolled ? "var(--color-primary-100)" : "rgba(255,255,255,0.8)",
+                    color: headerTextColor,
                     fontFamily: "'DM Sans', sans-serif",
                   }}
                 >
@@ -408,14 +457,14 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 </div>
                 <span
                   className="text-sm font-medium max-w-[120px] truncate"
-                  style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
+                  style={{ color: headerTextColor, fontFamily: "'DM Sans', sans-serif" }}
                 >
                   {firstName}
                 </span>
                 <ChevronDown
                   className="w-4 h-4 transition-transform duration-200"
                   style={{
-                    color: "rgba(255,255,255,0.7)",
+                    color: mutedHeaderTextColor,
                     transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0)",
                   }}
                 />
@@ -432,13 +481,13 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                     className="absolute right-0 mt-2 z-20 overflow-hidden"
                     style={{
                       width: "272px",
-                      backgroundColor: "#ffffff",
+                      backgroundColor: surfaceColor,
                       borderRadius: "16px",
                       boxShadow: "0 12px 40px rgba(0,0,0,0.14)",
-                      border: "1px solid #e4e8f0",
+                      border: `1px solid ${borderColor}`,
                     }}
                   >
-                    <div className="px-4 py-3" style={{ borderBottom: "1px solid #f2f4f8" }}>
+                    <div className="px-4 py-3" style={{ borderBottom: `1px solid ${borderColor}` }}>
                       <div className="font-semibold text-sm" style={{ color: "#1a1a2e" }}>
                         {authState.user?.fullName}
                       </div>
@@ -448,7 +497,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                       <div className="flex items-center gap-2 mt-1.5">
                         <span
                           className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                          style={{ backgroundColor: "#eef2ff", color: "#0057FF" }}
+                          style={{ backgroundColor: "var(--color-primary-50)", color: "var(--color-primary-600)" }}
                         >
                           {authState.user?.userType?.replace("_", " ")}
                         </span>
@@ -476,7 +525,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                         <Link
                           to="/agent/dashboard/afa-registration"
                           className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                          style={{ color: "#4a5270", borderBottom: "1px solid #f2f4f8" }}
+                          style={{ color: "#4a5270", borderBottom: `1px solid ${borderColor}` }}
                           onClick={() => setIsDropdownOpen(false)}
                         >
                           <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "#f2f4f8" }}>
@@ -494,7 +543,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                         style={{
                           color: "#d97706",
                           backgroundColor: "#fff8e6",
-                          borderBottom: "1px solid #f2f4f8",
+                          borderBottom: `1px solid ${borderColor}`,
                         }}
                       >
                         <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "#fef3c7" }}>
@@ -525,10 +574,11 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         {canShowWallet && (
           <button
             onClick={refreshWallet}
-            className="mt-3 w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 hover:brightness-110 active:scale-[0.99]"
+            className="mt-3 w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 hover:brightness-95 active:scale-[0.99]"
             style={{
-              backgroundColor: "rgba(255,255,255,0.12)",
-              border: "1px solid rgba(255,255,255,0.2)",
+              backgroundColor: "var(--color-surface)",
+              border: `1px solid ${borderColor}`,
+              boxShadow: "0 4px 14px rgba(15,23,42,0.06)",
             }}
             aria-label="Refresh wallet"
           >
@@ -539,38 +589,38 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 style={{
                   width: "36px",
                   height: "36px",
-                  backgroundColor: "rgba(255,255,255,0.2)",
+                  backgroundColor: "var(--color-primary-50)",
                 }}
               >
-                <FaWallet className="w-4 h-4 text-white" />
+                <FaWallet className="w-4 h-4 text-primary-600" />
               </div>
               <div className="min-w-0 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.7)" }}>
+                  <span className="text-xs font-medium text-slate-500">
                     Wallet Balance
                   </span>
                   <div className="flex items-center gap-1">
                     {getConnectionIcon()}
-                    <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    <span className="text-xs text-slate-500">
                       {getConnectionText()}
                     </span>
                   </div>
                 </div>
-                <div className="text-lg font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                <div className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>
                   {isLoading ? "—" : formatAmount(walletBalance)}
                 </div>
               </div>
             </div>
 
             {/* Divider */}
-            <div className="w-px h-10 flex-shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.25)" }} />
+            <div className="w-px h-10 flex-shrink-0" style={{ backgroundColor: borderColor }} />
 
             {/* Today's spending */}
             <div className="flex-1 min-w-0 text-left">
-              <div className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.7)" }}>
+              <div className="text-xs font-medium text-slate-500">
                 Today's Spending
               </div>
-              <div className="text-lg font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+              <div className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>
                 {dailySpendingLoading || isLoading ? "—" : formatAmount(dailySpending)}
               </div>
             </div>

@@ -22,7 +22,7 @@
  *   └──────────┴───────────────────────────┘
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type UIEvent } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Sidebar } from "../components/sidebar";
 import { Header } from "../components/header";
@@ -45,6 +45,7 @@ export const DashboardLayout = () => {
   const { authState, updateFirstTimeFlag } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const location = useLocation();
 
   const userType = authState.user?.userType ?? "agent";
@@ -86,9 +87,14 @@ export const DashboardLayout = () => {
     }
   }, [authState.isAuthenticated, authState.user, location.pathname, updateFirstTimeFlag]);
 
+  const handleMainScroll = (e: UIEvent<HTMLElement>) => {
+    const threshold = 24;
+    setIsHeaderScrolled(e.currentTarget.scrollTop > threshold);
+  };
+
   return (
     <TutorialProvider userRole={userRole}>
-      <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#f2f4f8" }}>
+      <div className="flex h-screen overflow-hidden bg-[var(--color-primary-50)]">
 
         {/* ── Mobile sidebar overlay (dark scrim) ── */}
         {sidebarOpen && isMobile && (
@@ -107,15 +113,18 @@ export const DashboardLayout = () => {
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
           {/* Header (renders two variants internally — mobile compact / desktop full) */}
-          <Header onMenuClick={() => setSidebarOpen((v) => !v)} />
+          <Header
+            onMenuClick={() => setSidebarOpen((v) => !v)}
+            isScrolled={isHeaderScrolled}
+          />
 
           {/* Scrollable content */}
           <main
             className="flex-1 overflow-y-auto"
+            onScroll={handleMainScroll}
             style={{
               // Extra bottom padding on mobile so content clears the bottom nav
               paddingBottom: isMobile ? "88px" : "0px",
-              backgroundColor: "#f2f4f8",
             }}
           >
             <div className="p-3 sm:p-4 md:p-6">

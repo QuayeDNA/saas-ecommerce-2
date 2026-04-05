@@ -151,29 +151,30 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
   };
 
   return (
-    <Card className={className}>
+    <Card className={`border border-[var(--color-border)] bg-[var(--color-surface)] ${className}`}>
       <CardBody>
         {/* Search and Actions Row */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
           {/* Search Input */}
-          <form onSubmit={handleImmediateSearch} className="flex-1">
+          <form onSubmit={handleImmediateSearch} className="w-full md:flex-1">
             <Input
               type="text"
               placeholder={searchPlaceholder}
               value={immediateSearchTerm}
               onChange={(e) => handleSearchInputChange(e.target.value)}
-              leftIcon={<FaSearch className="text-gray-400" />}
+              leftIcon={<FaSearch className="text-slate-400" />}
               disabled={isLoading}
             />
           </form>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap">
             {showSearchButton && (
               <Button
                 onClick={handleImmediateSearch}
                 disabled={isLoading}
                 size="sm"
+                className="w-full sm:w-auto"
               >
                 <FaSearch className="mr-2" />
                 Search
@@ -184,11 +185,11 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
               <Button
                 variant="outline"
                 onClick={() => setShowMobileFilters(!showMobileFilters)}
-                className="sm:hidden"
+                className="w-full sm:w-auto md:hidden border-[var(--color-border)]"
                 size="sm"
               >
                 <FaFilter className="mr-2" />
-                Filters
+                {showMobileFilters ? 'Hide Filters' : 'Filters'}
               </Button>
             )}
 
@@ -198,6 +199,7 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 onClick={handleClearAll}
                 disabled={isLoading}
                 size="sm"
+                className="w-full sm:w-auto border-[var(--color-border)] text-slate-700"
               >
                 <FaTimes className="mr-2" />
                 Clear
@@ -210,8 +212,10 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
 
         {/* Filters Section */}
         {(Object.keys(filters).length > 0 || showDateRange) && (
-          <div className={`mt-4 pt-4 border-t border-gray-200 ${showMobileFilters ? 'block' : 'hidden'} sm:block`}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div
+            className={`mt-4 border-t border-[var(--color-border)] pt-4 ${showMobileFilters ? 'block' : 'hidden'} md:block`}
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {Object.entries(filters).map(([filterKey, filter]) => (
                 <div key={filterKey}>
                   <Select
@@ -260,17 +264,17 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
 
         {/* Active Filters Display */}
         {(hasActiveFilters || hasSearchTerm || hasImmediateSearchTerm) && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 border-t border-[var(--color-border)] pt-4">
             <div className="flex flex-wrap gap-2">
               {(hasSearchTerm || hasImmediateSearchTerm) && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                <span className="inline-flex items-center rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-sm text-primary-700">
                   Search: "{hasSearchTerm ? searchTerm : immediateSearchTerm}"
                   <button
                     onClick={() => {
                       setImmediateSearchTerm('');
                       onSearchChange('');
                     }}
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-primary-600 transition-colors hover:text-primary-800"
                   >
                     <FaTimes className="text-xs" />
                   </button>
@@ -281,11 +285,14 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 if (filter.value) {
                   const selectedOption = filter.options.find(opt => opt.value === filter.value);
                   return (
-                    <span key={filterKey} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                    <span
+                      key={filterKey}
+                      className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm text-slate-700"
+                    >
                       {filter.label}: {selectedOption?.label}
                       <button
                         onClick={() => onFilterChange(filterKey, '')}
-                        className="ml-2 text-gray-600 hover:text-gray-800"
+                        className="ml-2 text-slate-500 transition-colors hover:text-slate-700"
                       >
                         <FaTimes className="text-xs" />
                       </button>
@@ -297,11 +304,11 @@ export const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
 
               {/* Date Range Active Filter */}
               {showDateRange && dateRange && (dateRange.startDate || dateRange.endDate) && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm text-emerald-700">
                   Date: {dateRange.startDate || 'Start'} - {dateRange.endDate || 'End'}
                   <button
                     onClick={() => onDateRangeChange?.('', '')}
-                    className="ml-2 text-green-600 hover:text-green-800"
+                    className="ml-2 text-emerald-600 transition-colors hover:text-emerald-800"
                   >
                     <FaTimes className="text-xs" />
                   </button>

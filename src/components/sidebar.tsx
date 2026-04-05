@@ -240,14 +240,14 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   return (
     <aside
       className={`
-        fixed inset-y-0 left-0 z-30 flex flex-col
+        fixed left-0 top-0 bottom-[72px] z-30 flex flex-col
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0 md:static md:h-screen md:flex-shrink-0
+        md:inset-y-0 md:translate-x-0 md:static md:h-screen md:flex-shrink-0
       `}
       style={{
         width: "240px",
-        backgroundColor: "#0057FF",
+        backgroundColor: "var(--color-primary-500)",
       }}
     >
       {/* ── Logo header ── */}
