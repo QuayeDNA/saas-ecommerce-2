@@ -11,9 +11,15 @@ import superadminRoutes from "./superadmin-routes";
 // =============================================================================
 // LAZY LOADED COMPONENTS - PUBLIC PAGES
 // =============================================================================
-const LandingPage = lazy(() =>
-  import("../pages/landing-page").then((module) => ({
-    default: module.LandingPage,
+const SplashPage = lazy(() =>
+  import("../pages/splash-page").then((module) => ({
+    default: module.SplashPage,
+  }))
+);
+
+const WelcomePage = lazy(() =>
+  import("../pages/welcome-page").then((module) => ({
+    default: module.WelcomePage,
   }))
 );
 
@@ -172,14 +178,28 @@ function SystemRouteElement({ element }: { element: React.ReactNode }) {
 // =============================================================================
 
 const publicRoutes: RouteObject[] = [
-  // ── Root: redirect to login (wrapped — storefront visitors bounce back) ──
+  // ── Root: Splash Screen ──────────────────────────────────────────────────
   {
     path: "/",
     element: (
       <SystemRouteElement
         element={
           <Suspense fallback={<PageLoader />}>
-            <LoginPage />
+            <SplashPage />
+          </Suspense>
+        }
+      />
+    ),
+  },
+
+  // ── Welcome Screen ───────────────────────────────────────────────────────
+  {
+    path: "/welcome",
+    element: (
+      <SystemRouteElement
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <WelcomePage />
           </Suspense>
         }
       />
@@ -200,16 +220,6 @@ const publicRoutes: RouteObject[] = [
     element: (
       <Suspense fallback={<PageLoader />}>
         <StorefrontCallbackPage />
-      </Suspense>
-    ),
-  },
-
-  // ── Marketing landing page ────────────────────────────────────────────────
-  {
-    path: "/home",
-    element: (
-      <Suspense fallback={<PageLoader />}>
-        <LandingPage />
       </Suspense>
     ),
   },
@@ -325,15 +335,15 @@ const publicRoutes: RouteObject[] = [
   // Dev-only convenience route
   ...(import.meta.env.DEV
     ? ([
-        {
-          path: "/dev/store-landing",
-          element: (
-            <Suspense fallback={<PageLoader />}>
-              <StoreLandingPage />
-            </Suspense>
-          ),
-        },
-      ] as RouteObject[])
+      {
+        path: "/dev/store-landing",
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <StoreLandingPage />
+          </Suspense>
+        ),
+      },
+    ] as RouteObject[])
     : []),
 
   {
