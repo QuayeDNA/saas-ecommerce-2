@@ -39,7 +39,9 @@ export interface Tutorial {
   description: string;
   /** Category for grouping in the launcher */
   category: TutorialCategory;
-  /** The route path that this tutorial is relevant to (used for auto-trigger) */
+  /** Optional route to navigate to before starting this tutorial */
+  startRoute?: string;
+  /** The route paths that this tutorial is relevant to (used for auto-trigger) */
   targetRoutes: string[];
   /** Ordered steps */
   steps: TutorialStep[];
@@ -73,7 +75,9 @@ const dashboardOverviewTutorial: Tutorial = {
   title: "Your Dashboard",
   description: "Learn the main dashboard layout, quick actions, and key metrics.",
   category: "getting-started",
-  targetRoutes: ["/dashboard"],
+  roles: ["agent", "super_agent", "dealer", "super_dealer"],
+  startRoute: "/agent/dashboard",
+  targetRoutes: ["/agent/dashboard"],
   estimatedMinutes: 2,
   steps: [
     {
@@ -121,7 +125,9 @@ const placeOrderTutorial: Tutorial = {
   title: "How to Place an Order",
   description: "Step-by-step guide to purchasing airtime or data bundles.",
   category: "ordering",
-  targetRoutes: ["/dashboard/orders", "/dashboard"],
+  roles: ["agent", "super_agent", "dealer", "super_dealer"],
+  startRoute: "/agent/dashboard",
+  targetRoutes: ["/agent/dashboard/orders", "/agent/dashboard"],
   estimatedMinutes: 3,
   steps: [
     {
@@ -169,9 +175,10 @@ const storefrontSetupTutorial: Tutorial = {
   title: "Set Up Your Storefront",
   description: "Create a branded online store where customers can buy directly from you.",
   category: "storefront",
-  targetRoutes: ["/dashboard/storefront"],
-  estimatedMinutes: 4,
   roles: ["agent", "super_agent", "dealer", "super_dealer"],
+  startRoute: "/agent/dashboard/storefront",
+  targetRoutes: ["/agent/dashboard/storefront"],
+  estimatedMinutes: 4,
   steps: [
     {
       title: "What's a Storefront?",
@@ -223,9 +230,10 @@ const storefrontOrdersTutorial: Tutorial = {
   title: "Managing Store Orders",
   description: "Learn how to confirm payments and fulfill customer orders from your storefront.",
   category: "storefront",
-  targetRoutes: ["/dashboard/storefront"],
-  estimatedMinutes: 3,
   roles: ["agent", "super_agent", "dealer", "super_dealer"],
+  startRoute: "/agent/dashboard/storefront",
+  targetRoutes: ["/agent/dashboard/storefront"],
+  estimatedMinutes: 3,
   steps: [
     {
       title: "Storefront Orders",
@@ -264,7 +272,9 @@ const walletTutorial: Tutorial = {
   title: "Manage Your Wallet",
   description: "Learn how to top up your wallet and track transactions.",
   category: "wallet",
-  targetRoutes: ["/dashboard/wallet"],
+  roles: ["agent", "super_agent", "dealer", "super_dealer"],
+  startRoute: "/agent/dashboard/wallet",
+  targetRoutes: ["/agent/dashboard/wallet"],
   estimatedMinutes: 2,
   steps: [
     {
@@ -299,9 +309,10 @@ const commissionsTutorial: Tutorial = {
   title: "Understanding Commissions",
   description: "Learn how the commission system works and track your earnings.",
   category: "commissions",
-  targetRoutes: ["/dashboard/commissions"],
-  estimatedMinutes: 2,
   roles: ["super_agent", "dealer", "super_dealer"],
+  startRoute: "/agent/dashboard/commissions",
+  targetRoutes: ["/agent/dashboard/commissions"],
+  estimatedMinutes: 2,
   steps: [
     {
       title: "How Commissions Work",
@@ -327,10 +338,83 @@ const commissionsTutorial: Tutorial = {
   ],
 };
 
+const adminDashboardOverviewTutorial: Tutorial = {
+  id: "admin-dashboard-overview",
+  title: "Admin Dashboard Overview",
+  description: "Learn the admin dashboard layout, user management, and system controls.",
+  category: "admin",
+  roles: ["admin"],
+  startRoute: "/admin/dashboard",
+  targetRoutes: ["/admin/dashboard"],
+  estimatedMinutes: 2,
+  steps: [
+    {
+      title: "Admin Command Center",
+      content:
+        "This page gives you access to user management, packages, orders, and system settings for your admin account.",
+    },
+    {
+      title: "User and Order Management",
+      content:
+        "Use the sidebar to switch between users, orders, and reports. These tools help you support your agents and review activity.",
+      position: "bottom",
+      isTask: true,
+    },
+    {
+      title: "Configuration and Reports",
+      content:
+        "Open settings to update site options, API integrations, and wallet behavior. Check reports to monitor system health.",
+    },
+    {
+      title: "You're Ready",
+      content:
+        "As an admin, you can manage the system from here. Use the dashboard summary cards to keep the platform running smoothly.",
+      ctaText: "Finish",
+    },
+  ],
+};
+
+const superAdminDashboardOverviewTutorial: Tutorial = {
+  id: "super-admin-dashboard-overview",
+  title: "Super Admin Dashboard Overview",
+  description: "Learn the super admin dashboard and high-level system controls.",
+  category: "admin",
+  roles: ["super_admin"],
+  startRoute: "/superadmin",
+  targetRoutes: ["/superadmin"],
+  estimatedMinutes: 2,
+  steps: [
+    {
+      title: "Super Admin Overview",
+      content:
+        "This dashboard shows your top-level system metrics, user activity, and configuration shortcuts.",
+    },
+    {
+      title: "Provider and Package Controls",
+      content:
+        "Use the sidebar to manage providers, packages, and announcements. These are the core controls for your platform.",
+      isTask: true,
+    },
+    {
+      title: "Advanced Settings",
+      content:
+        "Open the settings page to update wallet rules, API keys, and global options across the system.",
+    },
+    {
+      title: "Finish",
+      content:
+        "You're ready to manage the platform from the super admin dashboard. Use the sidebar to explore each area.",
+      ctaText: "Finish",
+    },
+  ],
+};
+
 // --- Registry ---
 
 export const TUTORIALS: Tutorial[] = [
   dashboardOverviewTutorial,
+  adminDashboardOverviewTutorial,
+  superAdminDashboardOverviewTutorial,
   placeOrderTutorial,
   storefrontSetupTutorial,
   storefrontOrdersTutorial,

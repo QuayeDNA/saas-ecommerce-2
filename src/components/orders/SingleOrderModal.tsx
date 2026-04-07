@@ -324,38 +324,40 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} size="md">
-      <DialogHeader className="flex items-start justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+    <Dialog isOpen={isOpen} onClose={onClose} size="md" mode="bottom-sheet" closeOnOverlay={true}>
+      <DialogHeader className="flex items-start justify-between border-b border-[var(--color-border)] px-4 py-3 sm:px-6 sm:py-4">
+        <h2 className="text-base sm:text-lg font-semibold text-[var(--color-secondary-500)] truncate pr-4">
           {showSummary ? "Order Summary" : "Order Bundle"}
         </h2>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-[var(--color-border)] hover:text-[var(--color-secondary-400)] flex-shrink-0"
         >
-          <FaTimes size={20} />
+          <FaTimes size={18} className="sm:w-5 sm:h-5" />
         </Button>
       </DialogHeader>
 
-      <DialogBody>
+      <DialogBody className="px-4 py-4 sm:px-6 sm:py-5">
         {!showSummary ? (
           // Order Form
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Bundle Info */}
-            <Card>
+            <Card className="bg-[var(--color-surface)] border border-[var(--color-border)]">
               <CardBody>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{bundle.name}</h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 sm:mb-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base text-[var(--color-secondary-500)] truncate">
+                      {bundle.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[var(--color-mutedText)] mt-1 line-clamp-2">
                       {bundle.description}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <div
-                      className="text-lg font-bold"
+                      className="text-base sm:text-lg font-bold whitespace-nowrap"
                       style={{ color: providerColors.primary }}
                     >
                       {formatCurrency(
@@ -366,16 +368,16 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <FaWifi className="text-blue-500" />
-                    <span>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                  <div className="flex items-center gap-2 p-2 sm:p-3 bg-[var(--color-primaryLight)] rounded">
+                    <FaWifi className="text-[var(--color-primary-500)] flex-shrink-0" />
+                    <span className="truncate">
                       {bundle.dataVolume} {bundle.dataUnit}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FaClock className="text-green-500" />
-                    <span>
+                  <div className="flex items-center gap-2 p-2 sm:p-3 bg-[var(--color-primaryLight)] rounded">
+                    <FaClock className="text-[var(--color-success-icon)] flex-shrink-0" />
+                    <span className="truncate">
                       {bundle.validity === "unlimited" &&
                         bundle.validityUnit === "unlimited"
                         ? "Unlimited"
@@ -389,19 +391,21 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
             {/* Phone Number Input */}
             <div>
               <label
-                htmlFor="Phone Number"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="phone"
+                className="block text-xs sm:text-sm font-medium text-[var(--color-secondary-500)] mb-2"
               >
                 Customer Phone Number
               </label>
               <Input
+                id="phone"
                 type="tel"
                 value={customerPhone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="Enter 10-digit phone number"
-                leftIcon={<FaPhone className="text-gray-400" />}
+                leftIcon={<FaPhone className="text-[var(--color-border)]" />}
                 isInvalid={!!phoneError}
                 errorText={phoneError}
+                className="text-sm"
               />
             </div>
 
@@ -411,7 +415,7 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
               disabled={
                 !customerPhone || loading || siteStatus?.isSiteOpen === false
               }
-              className="w-full"
+              className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-medium"
               style={{
                 backgroundColor: providerColors.primary,
                 color: providerColors.text,
@@ -420,7 +424,7 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
               {loading ? (
                 <>
                   <Spinner size="sm" />
-                  Processing...
+                  <span className="ml-2">Processing...</span>
                 </>
               ) : siteStatus && !siteStatus.isSiteOpen ? (
                 "Service Unavailable"
@@ -431,39 +435,39 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
           </div>
         ) : (
           // Order Summary
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Bundle Summary */}
-            <Card>
+            <Card className="bg-[var(--color-surface)] border border-[var(--color-border)]">
               <CardBody>
-                <h3 className="font-medium text-gray-900 mb-3">
+                <h3 className="font-semibold text-sm sm:text-base text-[var(--color-secondary-500)] mb-3 sm:mb-4">
                   Bundle Details
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Bundle:</span>
-                    <span className="font-medium">
+                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+                  <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-[var(--color-primaryLight)]">
+                    <span className="text-[var(--color-mutedText)]">Bundle:</span>
+                    <span className="font-medium text-[var(--color-secondary-500)] text-right truncate ml-2">
                       {orderSummary?.bundle.name}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Data:</span>
-                    <span className="font-medium">
+                  <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-[var(--color-primaryLight)]">
+                    <span className="text-[var(--color-mutedText)]">Data:</span>
+                    <span className="font-medium text-[var(--color-secondary-500)]">
                       {orderSummary?.bundle.dataVolume}{" "}
                       {orderSummary?.bundle.dataUnit}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Validity:</span>
-                    <span className="font-medium">
+                  <div className="flex justify-between items-center pb-2 sm:pb-3 border-b border-[var(--color-primaryLight)]">
+                    <span className="text-[var(--color-mutedText)]">Validity:</span>
+                    <span className="font-medium text-[var(--color-secondary-500)]">
                       {orderSummary?.bundle.validityUnit === "unlimited"
                         ? "Unlimited"
                         : `${orderSummary?.bundle.validity} ${orderSummary?.bundle.validityUnit}`}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Price:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[var(--color-mutedText)]">Price:</span>
                     <span
-                      className="font-bold"
+                      className="font-bold text-sm sm:text-base"
                       style={{ color: providerColors.primary }}
                     >
                       {orderSummary?.bundle.currency}{" "}
@@ -475,23 +479,25 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
             </Card>
 
             {/* Customer Info */}
-            <Card>
+            <Card className="bg-[var(--color-primaryLight)] border border-[var(--color-border)]">
               <CardBody>
-                <h3 className="font-medium text-gray-900 mb-3">
+                <h3 className="font-semibold text-sm sm:text-base text-[var(--color-secondary-500)] mb-3 sm:mb-4">
                   Customer Information
                 </h3>
-                <div className="flex items-center gap-2 text-sm">
-                  <FaPhone className="text-blue-500" />
-                  <span>{orderSummary?.customerPhone}</span>
+                <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                  <FaPhone className="text-[var(--color-primary-500)] flex-shrink-0" />
+                  <span className="font-medium text-[var(--color-secondary-500)] truncate">
+                    {orderSummary?.customerPhone}
+                  </span>
                 </div>
               </CardBody>
             </Card>
 
             {/* Total */}
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center text-lg font-bold">
-                <span>Total Amount:</span>
-                <span style={{ color: providerColors.primary }}>
+            <div className="border-t-2 border-[var(--color-border)] pt-3 sm:pt-4 mt-4">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-sm sm:text-base font-semibold text-[var(--color-secondary-500)]">Total Amount:</span>
+                <span className="text-base sm:text-lg font-bold" style={{ color: providerColors.primary }}>
                   {orderSummary?.bundle.currency} {orderSummary?.totalPrice}
                 </span>
               </div>
@@ -499,7 +505,7 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
 
             {/* Error Display */}
             {error && (
-              <Alert status="error" title="Error">
+              <Alert status="error" title="Error" className="text-xs sm:text-sm">
                 {error}
               </Alert>
             )}
@@ -508,36 +514,43 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
       </DialogBody>
 
       {showSummary && (
-        <DialogFooter>
-          <div className="flex gap-3 w-full">
-            <Button variant="secondary" onClick={handleBack} className="flex-1">
-              Back
-            </Button>
-            <Button
-              onClick={handleConfirmOrder}
-              disabled={loading || siteStatus?.isSiteOpen === false}
-              className="flex-1"
-              leftIcon={
-                loading ? (
-                  <Spinner size="sm" />
-                ) : siteStatus && !siteStatus.isSiteOpen ? (
-                  <FaTimes />
-                ) : (
-                  <FaCheckCircle />
-                )
-              }
-              style={{
-                backgroundColor: providerColors.primary,
-                color: providerColors.text,
-              }}
-            >
-              {loading
-                ? "Processing..."
-                : siteStatus && !siteStatus.isSiteOpen
-                  ? "Site Under Maintenance"
-                  : "Confirm Order"}
-            </Button>
-          </div>
+        <DialogFooter className="border-t border-[var(--color-border)] px-4 py-3 sm:px-6 sm:py-4 flex gap-2 sm:gap-3">
+          <Button
+            variant="secondary"
+            onClick={handleBack}
+            className="flex-1 text-xs sm:text-sm py-2 sm:py-2.5"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={handleConfirmOrder}
+            disabled={loading || siteStatus?.isSiteOpen === false}
+            className="flex-1 text-xs sm:text-sm py-2 sm:py-2.5 font-medium"
+            style={{
+              backgroundColor: providerColors.primary,
+              color: providerColors.text,
+            }}
+          >
+            {loading ? (
+              <>
+                <Spinner size="sm" className="mr-1" />
+                <span className="hidden sm:inline">Processing...</span>
+                <span className="sm:hidden">Wait...</span>
+              </>
+            ) : siteStatus && !siteStatus.isSiteOpen ? (
+              <>
+                <FaTimes className="mr-1" />
+                <span className="hidden sm:inline">Site Under Maintenance</span>
+                <span className="sm:hidden">Unavailable</span>
+              </>
+            ) : (
+              <>
+                <FaCheckCircle className="mr-1" />
+                <span className="hidden sm:inline">Confirm Order</span>
+                <span className="sm:hidden">Confirm</span>
+              </>
+            )}
+          </Button>
         </DialogFooter>
       )}
 

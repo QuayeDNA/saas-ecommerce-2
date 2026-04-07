@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Edit, Key as KeyIcon, Eye, EyeOff, Smartphone, CreditCard } from "lucide-react";
+import { Edit, Key as KeyIcon, Eye, EyeOff, Smartphone, CreditCard, HelpCircle } from "lucide-react";
 import { Button } from "../../design-system/components/button";
 import { Card } from "../../design-system/components/card";
 import { Badge } from "../../design-system/components/badge";
 import { Spinner, Tabs, TabsList, TabsTrigger } from "../../design-system";
 import { useToast } from "../../design-system/components/toast";
 import { ColorSchemeSelector } from "../../components/common/color-scheme-selector";
+import { useTutorial } from "../../hooks/use-tutorial";
 import { settingsService, type SiteSettings, type ApiSettings, type WalletSettings, type FeeSettings, type SystemInfo } from "../../services/settings.service";
 import pushNotificationService from "../../services/pushNotificationService";
 import { SiteSettingsDialog, ApiSettingsDialog, WalletSettingsDialog, AdminPasswordDialog } from "../../components/superadmin";
@@ -35,6 +36,7 @@ export default function SuperAdminSettingsPage() {
   const [feeDialogOpen, setFeeDialogOpen] = useState(false);
   const [feeSettings, setFeeSettings] = useState<FeeSettings | null>(null);
   const [testPushLoading, setTestPushLoading] = useState(false);
+  const { setLauncherOpen } = useTutorial();
 
   // single load + client cache via settingsService.getAllSettings()
   useEffect(() => {
@@ -231,6 +233,15 @@ export default function SuperAdminSettingsPage() {
           <h1 className="text-2xl font-bold text-gray-900">System Settings</h1>
           <p className="text-sm text-gray-600 mt-1">Manage site, API and wallet configuration</p>
         </div>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setLauncherOpen(true)}
+          className="inline-flex items-center gap-2"
+        >
+          <HelpCircle className="w-4 h-4" />
+          Help & Tutorials
+        </Button>
       </div>
 
       {/* Tabs (mobile-first) */}

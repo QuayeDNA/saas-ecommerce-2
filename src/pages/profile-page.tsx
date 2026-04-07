@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth, useUser, useWallet } from "../hooks";
+import { useTutorial } from "../hooks/use-tutorial";
 import {
   Card,
   CardBody,
@@ -25,7 +26,7 @@ import {
   FaRedo,
   FaBell,
 } from "react-icons/fa";
-import { UserPen, Key } from "lucide-react";
+import { UserPen, Key, HelpCircle } from "lucide-react";
 import type { User } from "../types";
 import { isBusinessUser } from "../utils/userTypeHelpers";
 import { ColorSchemeSelector } from "../components/common/color-scheme-selector";
@@ -35,6 +36,7 @@ export const ProfilePage: React.FC = () => {
   const { authState, logout } = useAuth();
   const { getProfile } = useUser();
   const { walletBalance, connectionStatus, refreshWallet } = useWallet();
+  const { setLauncherOpen } = useTutorial();
   const [profileData, setProfileData] = useState<User | null>(authState.user);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -411,7 +413,7 @@ export const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="container mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
@@ -424,6 +426,15 @@ export const ProfilePage: React.FC = () => {
                 Manage your account information and settings
               </p>
             </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setLauncherOpen(true)}
+              className="inline-flex items-center gap-2"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Help & Tutorials
+            </Button>
           </div>
         </div>
 
