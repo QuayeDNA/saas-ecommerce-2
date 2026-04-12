@@ -14,37 +14,13 @@ import {
   FaUserCheck,
   FaUserCog,
   FaCrown,
+  FaChevronDown,
 } from "react-icons/fa";
-import { Card, CardHeader, CardBody, Button, Badge } from "../../design-system";
+import { Card, CardHeader, CardBody, Button } from "../../design-system";
 import {
   userService,
   type DashboardStats,
-  type ChartData,
 } from "../../services/user.service";
-import { colors } from "../../design-system/tokens";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from "chart.js";
-import { Line, Pie } from "react-chartjs-2";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
 
 const quickLinks = [
   {
@@ -106,15 +82,6 @@ const MetricCardSkeleton = () => (
   </Card>
 );
 
-const ChartSkeleton = () => (
-  <Card className="animate-pulse">
-    <CardBody>
-      <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
-      <div className="h-80 bg-gray-200 rounded"></div>
-    </CardBody>
-  </Card>
-);
-
 const StatsCardSkeleton = () => (
   <Card className="animate-pulse">
     <CardBody>
@@ -133,12 +100,10 @@ const StatsCardSkeleton = () => (
 
 export default function SuperAdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [chartData, setChartData] = useState<ChartData | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
-  const [loadingCharts, setLoadingCharts] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const [chartTimeframe, setChartTimeframe] = useState("30d");
+  const [snapshotOpen, setSnapshotOpen] = useState(false);
 
   // User type carousel data
   const userTypeCarousel = [
@@ -220,26 +185,6 @@ export default function SuperAdminDashboard() {
     fetchStats();
   }, []);
 
-  // Load charts after stats (heavier data)
-  useEffect(() => {
-    const fetchCharts = async () => {
-      try {
-        setLoadingCharts(true);
-        const chartDataResponse = await userService.fetchChartData(chartTimeframe);
-        setChartData(chartDataResponse);
-      } catch {
-        // Chart data error
-        // Don't set error for charts as they're not critical
-      } finally {
-        setLoadingCharts(false);
-      }
-    };
-
-    // Small delay to prioritize stats loading on initial load
-    const timer = setTimeout(fetchCharts, 100);
-    return () => clearTimeout(timer);
-  }, [chartTimeframe]);
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GH", {
       style: "currency",
@@ -247,180 +192,7 @@ export default function SuperAdminDashboard() {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "active":
-      case "verified":
-        return "success";
-      case "pending":
-        return "warning";
-      case "failed":
-      case "rejected":
-        return "error";
-      default:
-        return "default";
-    }
-  };
-
   // Chart configurations
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          usePointStyle: true,
-          padding: 12,
-          font: {
-            size: 11,
-          },
-          boxWidth: 8,
-        },
-      },
-      title: {
-        display: false,
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          maxTicksLimit: 6,
-          maxRotation: 45,
-          minRotation: 0,
-          font: {
-            size: 10,
-          },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        min: 0,
-        suggestedMin: 0,
-        grid: {
-          color: "rgba(0, 0, 0, 0.1)",
-        },
-        ticks: {
-          font: {
-            size: 10,
-          },
-        },
-      },
-    },
-    interaction: {
-      intersect: false,
-      mode: "index" as const,
-    },
-  };
-
-  const createLineChartData = (
-    labels: string[],
-    userData: number[],
-    orderData: number[],
-    revenueData: number[]
-  ) => ({
-    labels,
-    datasets: [
-      {
-        label: "User Registrations",
-        data: userData,
-        borderColor: "rgb(59, 130, 246)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        tension: 0.4,
-        fill: false,
-        pointRadius: 2,
-        pointHoverRadius: 5,
-        borderWidth: 2,
-      },
-      {
-        label: "Orders",
-        data: orderData,
-        borderColor: "rgb(245, 158, 11)",
-        backgroundColor: "rgba(245, 158, 11, 0.1)",
-        tension: 0.4,
-        fill: false,
-        pointRadius: 2,
-        pointHoverRadius: 5,
-        borderWidth: 2,
-      },
-      {
-        label: "Revenue (GHS)",
-        data: revenueData,
-        borderColor: "rgb(34, 197, 94)",
-        backgroundColor: "rgba(34, 197, 94, 0.1)",
-        tension: 0.4,
-        fill: false,
-        pointRadius: 2,
-        pointHoverRadius: 5,
-        borderWidth: 2,
-      },
-    ],
-  });
-
-  const createPieChartData = (
-    labels: string[],
-    data: number[],
-    colors: string[]
-  ) => ({
-    labels,
-    datasets: [
-      {
-        data,
-        backgroundColor: colors,
-        borderColor: colors.map((color) => color.replace("0.8", "1")),
-        borderWidth: 2,
-        hoverOffset: 4,
-      },
-    ],
-  });
-
-  const pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-        labels: {
-          usePointStyle: true,
-          padding: 12,
-          font: {
-            size: 11,
-          },
-          boxWidth: 8,
-        },
-      },
-    },
-  };
-
-  // Check if chart data has meaningful values
-  const hasChartData =
-    chartData &&
-    (chartData.userRegistrations.some((val) => val > 0) ||
-      chartData.orders.some((val) => val > 0) ||
-      chartData.revenue.some((val) => val > 0));
-
-  const hasPieChartData =
-    chartData &&
-    (chartData.orderStatus.completed > 0 ||
-      chartData.orderStatus.pending > 0 ||
-      chartData.orderStatus.failed > 0);
-
-  // Filter out negative values from chart data and ensure all values are non-negative
-  const sanitizedChartData = chartData
-    ? {
-      ...chartData,
-      userRegistrations: chartData.userRegistrations.map((val) =>
-        Math.max(0, val || 0)
-      ),
-      orders: chartData.orders.map((val) => Math.max(0, val || 0)),
-      revenue: chartData.revenue.map((val) => Math.max(0, val || 0)),
-    }
-    : null;
-
   if (error && !stats) {
     return (
       <div className="text-center py-8">
@@ -434,94 +206,87 @@ export default function SuperAdminDashboard() {
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       {/* Today's Snapshot */}
-      {loadingStats ? (
-        <Card className="animate-pulse">
-          <CardBody>
-            <div className="h-5 bg-gray-200 rounded w-40 mb-4"></div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i}>
-                  <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
-                  <div className="h-7 bg-gray-200 rounded w-14 mb-1"></div>
-                  <div className="h-2 bg-gray-200 rounded w-24"></div>
-                </div>
-              ))}
+      <div className="space-y-3">
+        <div className="rounded-3xl border border-slate-200 bg-slate-50 overflow-hidden">
+          <button
+            type="button"
+            className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-slate-900 text-white text-left"
+            onClick={() => setSnapshotOpen((prev) => !prev)}
+            aria-expanded={snapshotOpen}
+          >
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-slate-100">
+                <FaChartLine className="h-5 w-5" />
+              </span>
+              <p className="text-sm sm:text-base font-semibold text-white">Today's Snapshot</p>
             </div>
-          </CardBody>
-        </Card>
-      ) : stats ? (
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-800">
-                Today's Snapshot
-              </h2>
-              <span className="text-xs text-gray-400">
-                {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short", year: "numeric" })}
+
+            <div className="mt-3 overflow-hidden">
+              <div className="inline-block animate-marquee whitespace-nowrap text-sm text-slate-100/80">
+                Orders: {stats ? stats.orders.today.total : '...'} • Revenue: {stats ? formatCurrency(stats.revenue.today) : '...'} • New Users: {stats ? stats.users.newThisWeek : '...'} • Success: {stats ? `${stats.orders.successRate}%` : '...'}
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <span className="text-xs text-slate-300">{new Date().toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })}</span>
+              <span
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-transform duration-300 ${snapshotOpen ? 'rotate-180' : 'rotate-0'}`}
+              >
+                <FaChevronDown className="text-white" />
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-              {/* Orders Today */}
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Orders Today</p>
-                <p className="text-2xl sm:text-3xl font-bold" style={{ color: colors.brand.primary }}>
-                  {stats.orders.today.total}
-                </p>
-                <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
-                  {stats.orders.today.completed > 0 && (
-                    <span className="text-[10px] text-green-600">{stats.orders.today.completed} completed</span>
-                  )}
-                  {stats.orders.today.pending > 0 && (
-                    <span className="text-[10px] text-yellow-600">{stats.orders.today.pending} pending</span>
-                  )}
-                  {stats.orders.today.processing > 0 && (
-                    <span className="text-[10px] text-blue-600">{stats.orders.today.processing} processing</span>
-                  )}
-                  {stats.orders.today.failed > 0 && (
-                    <span className="text-[10px] text-red-600">{stats.orders.today.failed} failed</span>
-                  )}
-                  {stats.orders.today.cancelled > 0 && (
-                    <span className="text-[10px] text-gray-500">{stats.orders.today.cancelled} cancelled</span>
-                  )}
-                  {stats.orders.today.total === 0 && (
-                    <span className="text-[10px] text-gray-400">No orders yet</span>
-                  )}
+          </button>
+
+          <div
+            className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-out ${snapshotOpen ? 'max-h-[1200px] opacity-100 mt-0' : 'max-h-0 opacity-0 mt-0'}`}
+            style={{ willChange: 'max-height, opacity' }}
+          >
+            <div className="border-t border-slate-200 bg-white px-4 py-4 sm:px-5">
+              {loadingStats || !stats ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="rounded-3xl border border-slate-200 bg-slate-50 p-3 animate-pulse" />
+                  ))}
                 </div>
-              </div>
-              {/* Revenue Today */}
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Revenue Today</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-600">
-                  {formatCurrency(stats.revenue.today)}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-1">
-                  This month: {formatCurrency(stats.revenue.thisMonth)}
-                </p>
-              </div>
-              {/* New Users */}
-              <div>
-                <p className="text-xs text-gray-500 mb-1">New Users This Week</p>
-                <p className="text-2xl sm:text-3xl font-bold text-blue-600">
-                  {stats.users.newThisWeek}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-1">
-                  {stats.users.total} total users
-                </p>
-              </div>
-              {/* Platform Health */}
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Success Rate</p>
-                <p className="text-2xl sm:text-3xl font-bold" style={{ color: stats.orders.successRate >= 90 ? "#16a34a" : stats.orders.successRate >= 70 ? "#ca8a04" : "#dc2626" }}>
-                  {stats.orders.successRate}%
-                </p>
-                <p className="text-[10px] text-gray-400 mt-1">
-                  {stats.orders.completed.toLocaleString()} of {stats.orders.total.toLocaleString()} orders
-                </p>
-              </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1">Orders Today</p>
+                    <p className="text-xl font-semibold text-slate-900">{stats.orders.today.total}</p>
+                    <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-slate-600">
+                      {stats.orders.today.completed > 0 && <span className="rounded-full bg-emerald-100 px-2 py-0.5">{stats.orders.today.completed} completed</span>}
+                      {stats.orders.today.pending > 0 && <span className="rounded-full bg-amber-100 px-2 py-0.5">{stats.orders.today.pending} pending</span>}
+                      {stats.orders.today.processing > 0 && <span className="rounded-full bg-sky-100 px-2 py-0.5">{stats.orders.today.processing} processing</span>}
+                      {stats.orders.today.failed > 0 && <span className="rounded-full bg-rose-100 px-2 py-0.5">{stats.orders.today.failed} failed</span>}
+                      {stats.orders.today.cancelled > 0 && <span className="rounded-full bg-slate-100 px-2 py-0.5">{stats.orders.today.cancelled} cancelled</span>}
+                    </div>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1">Revenue Today</p>
+                    <p className="text-xl font-semibold text-emerald-700">{formatCurrency(stats.revenue.today)}</p>
+                    <p className="mt-1 text-[10px] text-slate-500">This month: {formatCurrency(stats.revenue.thisMonth)}</p>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1">New Users This Week</p>
+                    <p className="text-xl font-semibold text-sky-700">{stats.users.newThisWeek}</p>
+                    <p className="mt-1 text-[10px] text-slate-500">{stats.users.total} total users</p>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1">Success Rate</p>
+                    <p className="text-xl font-semibold" style={{ color: stats.orders.successRate >= 90 ? '#16a34a' : stats.orders.successRate >= 70 ? '#ca8a04' : '#dc2626' }}>{stats.orders.successRate}%</p>
+                    <p className="mt-1 text-[10px] text-slate-500">{stats.orders.completed.toLocaleString()} of {stats.orders.total.toLocaleString()} orders</p>
+                  </div>
+                </div>
+              )}
             </div>
-          </CardBody>
-        </Card>
-      ) : null}
+          </div>
+        </div>
+      </div>
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
@@ -745,119 +510,22 @@ export default function SuperAdminDashboard() {
         </CardBody>
       </Card>
 
-      {/* Charts Section */}
-      {/* Chart Timeframe Filter */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-800">Analytics</h3>
-        <select
-          value={chartTimeframe}
-          onChange={(e) => setChartTimeframe(e.target.value)}
-          className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 cursor-pointer"
-        >
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-          <option value="90d">Last 90 Days</option>
-          <option value="365d">Last 365 Days</option>
-        </select>
+      {/* Analytics Preview */}
+      <div className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800">Analytics Summary</h3>
+            <p className="text-sm text-gray-500 max-w-2xl">
+              A quick overview of your top business KPIs. See the full analytics dashboard for detailed trends and breakdowns.
+            </p>
+          </div>
+          <Link to="/superadmin/analytics" className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            See more
+          </Link>
+        </div>
       </div>
 
-      {loadingCharts ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <ChartSkeleton />
-          <ChartSkeleton />
-        </div>
-      ) : chartData ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Line Chart - Activity Over Time */}
-          <Card>
-            <CardHeader>
-              <h3 className="text-sm sm:text-lg font-semibold flex items-center gap-2">
-                <FaChartLine style={{ color: "var(--color-primary-600)" }} />
-                Activity Over Time
-              </h3>
-            </CardHeader>
-            <CardBody>
-              {hasChartData ? (
-                <div className="h-60 sm:h-72 lg:h-80">
-                  <Line
-                    options={lineChartOptions}
-                    data={createLineChartData(
-                      sanitizedChartData!.labels,
-                      sanitizedChartData!.userRegistrations,
-                      sanitizedChartData!.orders,
-                      sanitizedChartData!.revenue
-                    )}
-                  />
-                </div>
-              ) : (
-                <div className="h-60 sm:h-80 flex items-center justify-center">
-                  <div className="text-center">
-                    <FaChartLine className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-sm font-medium text-gray-900 mb-2">
-                      No Activity Data
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      No activity data available for the selected period.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </CardBody>
-          </Card>
-
-          {/* Pie Charts Row */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Order Status Distribution */}
-            <Card>
-              <CardHeader>
-                <h3 className="text-lg font-semibold">
-                  Order Status Distribution
-                </h3>
-              </CardHeader>
-              <CardBody>
-                {hasPieChartData ? (
-                  <div className="h-52 sm:h-60 lg:h-64">
-                    <Pie
-                      data={createPieChartData(
-                        ["Completed", "Pending", "Processing", "Failed", "Cancelled"],
-                        [
-                          chartData.orderStatus.completed,
-                          chartData.orderStatus.pending,
-                          chartData.orderStatus.processing,
-                          chartData.orderStatus.failed,
-                          chartData.orderStatus.cancelled,
-                        ],
-                        [
-                          "rgba(34, 197, 94, 0.8)",
-                          "rgba(245, 158, 11, 0.8)",
-                          "rgba(59, 130, 246, 0.8)",
-                          "rgba(239, 68, 68, 0.8)",
-                          "rgba(107, 114, 128, 0.8)",
-                        ]
-                      )}
-                      options={pieChartOptions}
-                    />
-                  </div>
-                ) : (
-                  <div className="h-52 sm:h-60 lg:h-64 flex items-center justify-center">
-                    <div className="text-center">
-                      <FaClipboardList className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                      <h3 className="text-sm font-medium text-gray-900 mb-2">
-                        No Order Data
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        No order status data available.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </div>
-        </div>
-      ) : null}
-
-      {/* Detailed Statistics */}
+      {/* Analytics Details */}
       {loadingStats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <StatsCardSkeleton />
@@ -865,55 +533,6 @@ export default function SuperAdminDashboard() {
         </div>
       ) : stats ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* User Statistics */}
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <FaUsers style={{ color: "var(--color-primary-600)" }} />
-                User Statistics
-              </h3>
-            </CardHeader>
-            <CardBody>
-              <div className="space-y-3">
-                {/* Dynamic User Type Statistics */}
-                {stats.users.byType &&
-                  Object.entries(stats.users.byType).map(
-                    ([userType, count]) => (
-                      <div
-                        key={userType}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-sm text-gray-600 capitalize">
-                          {userType.replace(/_/g, " ").replace(/s$/, "")}s
-                        </span>
-                        <span className="font-medium">{count}</span>
-                      </div>
-                    )
-                  )}
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Verified Users</span>
-                  <span className="font-medium">{stats.users.verified}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Active Agents</span>
-                  <Badge colorScheme="warning" size="sm">
-                    {stats.users.activeAgents}
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
-                    Verification Rate
-                  </span>
-                  <Badge colorScheme="success" size="sm">
-                    {stats?.rates?.userVerification ?? 0}%
-                  </Badge>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Order Statistics */}
           <Card>
             <CardHeader>
               <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -922,52 +541,30 @@ export default function SuperAdminDashboard() {
               </h3>
             </CardHeader>
             <CardBody>
-              <div className="space-y-3">
+              <div className="space-y-3 text-sm text-slate-700">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
-                    Completed Orders
-                  </span>
-                  <Badge colorScheme="success" size="sm">
-                    {stats.orders.completed}
-                  </Badge>
+                  <span>Completed Orders</span>
+                  <span className="font-semibold">{stats.orders.completed}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Pending Orders</span>
-                  <Badge colorScheme="warning" size="sm">
-                    {stats.orders.pending}
-                  </Badge>
+                  <span>Pending Orders</span>
+                  <span className="font-semibold">{stats.orders.pending}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Failed Orders</span>
-                  <Badge colorScheme="error" size="sm">
-                    {stats.orders.failed}
-                  </Badge>
+                  <span>Failed Orders</span>
+                  <span className="font-semibold">{stats.orders.failed}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Orders</span>
-                  <span className="font-medium">{stats.orders.total}</span>
+                  <span>Total Orders</span>
+                  <span className="font-semibold">{stats.orders.total}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Success Rate</span>
-                  <Badge colorScheme="success" size="sm">
-                    {stats.orders.successRate}%
-                  </Badge>
+                  <span>Success Rate</span>
+                  <span className="font-semibold">{stats.orders.successRate}%</span>
                 </div>
               </div>
             </CardBody>
           </Card>
-        </div>
-      ) : null}
-
-      {/* Revenue & Provider Stats */}
-      {loadingStats ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <StatsCardSkeleton />
-          <StatsCardSkeleton />
-        </div>
-      ) : stats ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Revenue Statistics */}
           <Card>
             <CardHeader>
               <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -976,64 +573,24 @@ export default function SuperAdminDashboard() {
               </h3>
             </CardHeader>
             <CardBody>
-              <div className="space-y-3">
+              <div className="space-y-3 text-sm text-slate-700">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Revenue</span>
-                  <span className="font-medium text-green-600">
-                    {formatCurrency(stats.revenue.total)}
-                  </span>
+                  <span>Total Revenue</span>
+                  <span className="font-semibold">{formatCurrency(stats.revenue.total)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Revenue</span>
-                  <span className="font-medium">
-                    {formatCurrency(stats.revenue.total)}
-                  </span>
+                  <span>Total Revenue</span>
+                  <span className="font-semibold">{formatCurrency(stats.revenue.total)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Avg Order Value</span>
-                  <span className="font-medium">
-                    {formatCurrency(stats.revenue.averageOrderValue)}
-                  </span>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Provider Statistics */}
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <FaBuilding style={{ color: "var(--color-primary-600)" }} />
-                Provider Statistics
-              </h3>
-            </CardHeader>
-            <CardBody>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Providers</span>
-                  <span className="font-medium">{stats.providers.total}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
-                    Active Providers
-                  </span>
-                  <Badge colorScheme="success" size="sm">
-                    {stats.providers.active}
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">New This Month</span>
-                  <span className="font-medium">
-                    {stats.providers.newThisMonth}
-                  </span>
+                  <span>Avg Order Value</span>
+                  <span className="font-semibold">{formatCurrency(stats.revenue.averageOrderValue)}</span>
                 </div>
               </div>
             </CardBody>
           </Card>
         </div>
       ) : null}
-
-      {/* Recent Activity */}
       {loadingStats ? (
         <Card className="animate-pulse">
           <CardBody>
@@ -1061,108 +618,7 @@ export default function SuperAdminDashboard() {
             </div>
           </CardBody>
         </Card>
-      ) : stats?.recentActivity ? (
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <FaChartLine className="text-purple-600" />
-              Recent Activity
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-              {/* Recent Users */}
-              <div>
-                <h4 className="font-medium text-gray-700 mb-3">Recent Users</h4>
-                <div className="space-y-2">
-                  {stats.recentActivity.users?.slice(0, 5)?.map((user) => (
-                    <div
-                      key={user._id}
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">{user.fullName}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
-                      </div>
-                      <Badge
-                        variant="subtle"
-                        colorScheme={getStatusColor(user.status)}
-                        size="xs"
-                      >
-                        {user.userType}
-                      </Badge>
-                    </div>
-                  )) || []}
-                </div>
-              </div>
-
-              {/* Recent Orders */}
-              <div>
-                <h4 className="font-medium text-gray-700 mb-3">
-                  Recent Orders
-                </h4>
-                <div className="space-y-2">
-                  {stats.recentActivity.orders?.slice(0, 5)?.map((order) => (
-                    <div
-                      key={order._id}
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">
-                          {order.orderNumber}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formatCurrency(order.total)}
-                        </p>
-                      </div>
-                      <Badge
-                        variant="subtle"
-                        colorScheme={getStatusColor(order.status)}
-                        size="xs"
-                      >
-                        {order.status}
-                      </Badge>
-                    </div>
-                  )) || []}
-                </div>
-              </div>
-
-              {/* Recent Transactions */}
-              <div>
-                <h4 className="font-medium text-gray-700 mb-3">
-                  Recent Transactions
-                </h4>
-                <div className="space-y-2">
-                  {stats.recentActivity.transactions
-                    ?.slice(0, 5)
-                    ?.map((transaction) => (
-                      <div
-                        key={transaction._id}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                      >
-                        <div>
-                          <p className="text-sm font-medium">
-                            {transaction.description || transaction.type}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatCurrency(transaction.amount)}
-                          </p>
-                        </div>
-                        <Badge
-                          variant="subtle"
-                          colorScheme={getStatusColor(transaction.type)}
-                          size="xs"
-                        >
-                          {transaction.type}
-                        </Badge>
-                      </div>
-                    )) || []}
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      ) : null}
+      ) : null} 
     </div>
   );
 }

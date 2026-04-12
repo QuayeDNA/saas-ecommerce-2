@@ -11,7 +11,7 @@ import { useAuth } from "../hooks/use-auth";
 import type { ReactNode } from "react";
 import {
   FaBox, FaMobile, FaUsers, FaUsersCog, FaWallet, FaUser,
-  FaCog, FaTachometerAlt, FaBuilding, FaClipboardList,
+  FaCog, FaTachometerAlt, FaBuilding, FaClipboardList, FaChartLine,
   FaMoneyBillWave, FaCreditCard, FaHistory, FaBullhorn, FaStore,
 } from "react-icons/fa";
 import { Home, Plus, LogOut, ChevronRight, Check, X } from "lucide-react";
@@ -62,6 +62,7 @@ const getAdminNavItems = (): NavItem[] => [
 
 const getSuperAdminNavItems = (): NavItem[] => [
   { label: "Dashboard", path: "/superadmin", icon: <FaTachometerAlt /> },
+  { label: "Analytics", path: "/superadmin/analytics", icon: <FaChartLine /> },
   { label: "Users", path: "/superadmin/users", icon: <FaUsers /> },
   { label: "Providers", path: "/superadmin/providers", icon: <FaBuilding /> },
   { label: "Packages", path: "/superadmin/packages", icon: <FaBox /> },

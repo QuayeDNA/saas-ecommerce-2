@@ -3,6 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaPlus } from 'react-icons/fa';
 import type { Provider } from '../../types/package';
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  Input,
+  Switch,
+  Textarea,
+} from '../../design-system';
 
 // Extended provider interface with tags for the form
 export interface ProviderFormData extends Omit<Partial<Provider>, 'code'> {
@@ -86,120 +96,112 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {mode === 'create' ? 'Create Provider' : 'Edit Provider'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <FaTimes size={20} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="providerName" className="block text-sm font-medium text-gray-700 mb-1">
-                Provider Name *
-              </label>
-              <input
-                id="providerName"
-                type="text"
-                value={formData.name ?? ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="providerCode" className="block text-sm font-medium text-gray-700 mb-1">
-                Provider Code *
-              </label>
-              <input
-                id="providerCode"
-                type="text"
-                value={formData.code ?? ''}
-                onChange={(e) => {
-                  // Allow typing freely, just uppercase
-                  setFormData(prev => ({
-                    ...prev,
-                    code: e.target.value.toUpperCase()
-                  }));
-                }}
-                onBlur={(e) => {
-                  // Only restrict to allowed codes on blur
-                  const value = e.target.value.toUpperCase();
-                  const allowedCodes = ['MTN', 'TELECEL', 'AT', 'AFA', ''] as const;
-                  if (!allowedCodes.includes(value as any)) {
-                    setFormData(prev => ({ ...prev, code: '' }));
-                  }
-                }}
-                placeholder="e.g., MTN, TELECEL, AT, AFA"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      size="full"
+      mode="bottom-sheet"
+      overlayClassName="bg-black/60"
+      className="max-h-[95vh]"
+    >
+      <DialogHeader>
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-slate-900">
+              {mode === 'create' ? 'Add Provider' : 'Edit Provider'}
+            </h2>
+            <p className="text-sm text-slate-500">
+              Complete the provider details and save your changes.
+            </p>
           </div>
+          <Button
+            variant="ghost"
+            iconOnly
+            aria-label="Close provider form"
+            onClick={onClose}
+            className="text-slate-600 hover:text-slate-900"
+          >
+            <FaTimes />
+          </Button>
+        </div>
+      </DialogHeader>
 
-          <div>
-            <label htmlFor="providerDescription" className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              id="providerDescription"
-              value={formData.description ?? ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <DialogBody className="space-y-6 pb-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Provider Name"
+              required
+              value={formData.name ?? ''}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+              placeholder="Enter provider name"
+              fullWidth
+            />
+            <Input
+              label="Provider Code"
+              required
+              value={formData.code ?? ''}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  code: e.target.value.toUpperCase(),
+                }))
+              }
+              onBlur={(e) => {
+                const value = e.target.value.toUpperCase();
+                const allowedCodes = ['MTN', 'TELECEL', 'AT', 'AFA', ''] as const;
+                if (!allowedCodes.includes(value as any)) {
+                  setFormData((prev) => ({ ...prev, code: '' }));
+                }
+              }}
+              placeholder="MTN, TELECEL, AT, AFA"
+              fullWidth
             />
           </div>
 
-          {/* Tags */}
-          <div>
-            <label htmlFor="providerTags" className="block text-sm font-medium text-gray-700 mb-1">
-              Tags
-            </label>
-            <div className="flex gap-2 mb-2">
-              <input
-                id="providerTags"
-                type="text"
+          <Textarea
+            label="Description"
+            value={formData.description ?? ''}
+            onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+            placeholder="Add a short description for this provider"
+          />
+
+          <div className="space-y-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Input
+                label="New Tag"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     addTag();
                   }
                 }}
-                placeholder="Add tag..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., data, airtime"
+                fullWidth
               />
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                leftIcon={<FaPlus />}
                 onClick={addTag}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="min-w-[130px]"
               >
-                <FaPlus />
-              </button>
+                Add Tag
+              </Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {formData.tags?.map((tag) => (
                 <span
                   key={tag}
-                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
                 >
                   {tag}
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-slate-500 transition hover:text-slate-900"
                   >
                     ×
                   </button>
@@ -208,61 +210,41 @@ export const ProviderFormModal: React.FC<ProviderFormModalProps> = ({
             </div>
           </div>
 
-          {/* Logo URL */}
-          <div>
-            <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 mb-1">
-              Logo URL
-            </label>
-            <input
-              id="logoUrl"
-              type="url"
-              value={formData.logo?.url ?? ''}
-              onChange={(e) => setFormData(prev => ({ 
-                ...prev, 
-                logo: { 
-                  url: e.target.value, 
-                  alt: prev.logo?.alt ?? '' // Ensure alt is always a string
-                } 
-              }))}
-              placeholder="https://example.com/logo.png"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <Input
+            label="Logo URL"
+            type="url"
+            value={formData.logo?.url ?? ''}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                logo: {
+                  url: e.target.value,
+                  alt: prev.logo?.alt ?? '',
+                },
+              }))
+            }
+            placeholder="https://example.com/logo.png"
+            fullWidth
+          />
 
-          {/* Status */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isActive"
+          <div className="flex items-center gap-3">
+            <Switch
               checked={formData.isActive || false}
-              onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-              className="mr-2"
+              onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
+              label="Active provider"
             />
-            <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-              Active Provider
-            </label>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              disabled={loading}
-            >
+          <DialogFooter justify="between" className="flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-              disabled={loading}
-            >
-              {loading ? 'Saving...' : mode === 'create' ? 'Create Provider' : 'Update Provider'}
-            </button>
-          </div>
+            </Button>
+            <Button type="submit" variant="primary" isLoading={loading} loadingText={mode === 'create' ? 'Creating...' : 'Updating...'}>
+              {mode === 'create' ? 'Create Provider' : 'Update Provider'}
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogBody>
+    </Dialog>
   );
 };

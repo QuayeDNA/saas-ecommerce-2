@@ -20,12 +20,6 @@ import {
   CardBody,
   Pagination,
   Skeleton,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
 } from "../../design-system";
 
 export default function SuperAdminProvidersPage() {
@@ -51,7 +45,6 @@ export default function SuperAdminProvidersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showDeleted, setShowDeleted] = useState(false);
-  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProviders();
@@ -157,47 +150,6 @@ export default function SuperAdminProvidersPage() {
     await updateProvider(id, { isActive: !currentStatus });
   };
 
-  const handleBulkAction = async (
-    action: "delete" | "activate" | "deactivate"
-  ) => {
-    if (selectedProviders.length === 0) return;
-
-    const confirmMessage = {
-      delete: "Are you sure you want to delete the selected providers?",
-      activate: "Are you sure you want to activate the selected providers?",
-      deactivate: "Are you sure you want to deactivate the selected providers?",
-    };
-
-    if (window.confirm(confirmMessage[action])) {
-      for (const id of selectedProviders) {
-        try {
-          if (action === "delete") {
-            await deleteProvider(id);
-          } else {
-            await updateProvider(id, { isActive: action === "activate" });
-          }
-        } catch {
-          // Failed to perform action on provider
-        }
-      }
-      setSelectedProviders([]);
-    }
-  };
-
-  const handleSelectAll = () => {
-    if (selectedProviders.length === providers.length) {
-      setSelectedProviders([]);
-    } else {
-      setSelectedProviders(providers.map((p) => p._id));
-    }
-  };
-
-  const handleSelectProvider = (id: string) => {
-    setSelectedProviders((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
-  };
-
   const getStatusColorScheme = (isActive: boolean, isDeleted: boolean) => {
     if (isDeleted) return "error" as const;
     return isActive ? "success" as const : "warning" as const;
@@ -216,9 +168,37 @@ export default function SuperAdminProvidersPage() {
         return "error" as const;
       case "AT":
         return "info" as const;
-      // case 'GLO': return 'text-green-600 bg-green-100'; // Removed GLO support
       default:
         return "gray" as const;
+    }
+  };
+
+  const getProviderCardStyle = (code: string) => {
+    switch (code) {
+      case "MTN":
+        return {
+          cardBg: "bg-yellow-50",
+          cardBorder: "border-yellow-200",
+          textColor: "text-yellow-900",
+        };
+      case "TELECEL":
+        return {
+          cardBg: "bg-red-50",
+          cardBorder: "border-red-200",
+          textColor: "text-red-900",
+        };
+      case "AT":
+        return {
+          cardBg: "bg-sky-50",
+          cardBorder: "border-sky-200",
+          textColor: "text-sky-900",
+        };
+      default:
+        return {
+          cardBg: "bg-slate-50",
+          cardBorder: "border-slate-200",
+          textColor: "text-slate-900",
+        };
     }
   };
 
@@ -278,104 +258,67 @@ export default function SuperAdminProvidersPage() {
         </div>
       </div>
 
-      {/* Provider distribution */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card>
-          <CardBody className="text-center">
-            <div className="text-xs text-gray-500">MTN</div>
-            <div className="text-lg font-bold text-yellow-600">{stats.mtn}</div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody className="text-center">
-            <div className="text-xs text-gray-500">TELECEL</div>
-            <div className="text-lg font-bold text-red-600">{stats.telecel}</div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody className="text-center">
-            <div className="text-xs text-gray-500">AT</div>
-            <div className="text-lg font-bold text-blue-600">{stats.at}</div>
-          </CardBody>
-        </Card>
-      </div>
-
       {/* Search and Filters */}
-      <Card>
-        <CardBody>
-          <SearchAndFilter
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            searchPlaceholder="Search by name, code, or description..."
-            enableAutoSearch={true}
-            debounceDelay={500}
-            filters={{
-              status: {
-                value: statusFilter,
-                options: [
-                  { value: "", label: "All Status" },
-                  { value: "active", label: "Active" },
-                  { value: "inactive", label: "Inactive" },
-                ],
-                label: "Status",
-                placeholder: "All Status",
-              },
-              showDeleted: {
-                value: showDeleted ? "true" : "false",
-                options: [
-                  { value: "false", label: "Hide Deleted" },
-                  { value: "true", label: "Show Deleted" },
-                ],
-                label: "Deleted Providers",
-                placeholder: "Hide Deleted",
-              },
-            }}
-            onFilterChange={handleFilterChange}
-            onSearch={handleSearch}
-            onClearFilters={handleClearFilters}
-            showSearchButton={true}
-            showClearButton={true}
-            isLoading={loading}
-          />
-        </CardBody>
-      </Card>
-
-      {/* Bulk Actions */}
-      {selectedProviders.length > 0 && (
-        <Card variant="outlined">
-          <CardBody className="flex items-center justify-between flex-wrap gap-2">
-            <span className="text-sm text-blue-800">
-              {selectedProviders.length} provider(s) selected
-            </span>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleBulkAction("activate")}>
-                <FaToggleOn className="mr-1" /> Activate
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleBulkAction("deactivate")}>
-                <FaToggleOff className="mr-1" /> Deactivate
-              </Button>
-              <Button size="sm" variant="danger" onClick={() => handleBulkAction("delete")}>
-                <FaTrash className="mr-1" /> Delete
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-      )}
+      <SearchAndFilter
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder="Search by name, code, or description..."
+        enableAutoSearch={true}
+        debounceDelay={500}
+        filters={{
+          status: {
+            value: statusFilter,
+            options: [
+              { value: "", label: "All Status" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+            ],
+            label: "Status",
+            placeholder: "All Status",
+          },
+          showDeleted: {
+            value: showDeleted ? "true" : "false",
+            options: [
+              { value: "false", label: "Hide Deleted" },
+              { value: "true", label: "Show Deleted" },
+            ],
+            label: "Deleted Providers",
+            placeholder: "Hide Deleted",
+          },
+        }}
+        onFilterChange={handleFilterChange}
+        onSearch={handleSearch}
+        onClearFilters={handleClearFilters}
+        showSearchButton={true}
+        showClearButton={true}
+        isLoading={loading}
+      />
 
       {/* Providers List */}
       <Card noPadding>
         <CardBody className="p-0">
           {loading ? (
-            <div className="p-4 space-y-3">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg">
-                  <Skeleton variant="circular" width={36} height={36} />
-                  <div className="flex-1 space-y-1.5">
-                    <Skeleton height="0.875rem" width="40%" />
-                    <Skeleton height="0.75rem" width="60%" />
-                  </div>
-                  <Skeleton height="1rem" width="60px" />
-                </div>
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <Card
+                  key={i}
+                  className="border border-gray-200 bg-white p-5 shadow-sm"
+                >
+                  <CardBody className="space-y-4">
+                    <div className="flex justify-center">
+                      <Skeleton variant="circular" width={80} height={80} />
+                    </div>
+                    <div className="space-y-3">
+                      <Skeleton height="1.25rem" width="60%" />
+                      <Skeleton height="1rem" width="80%" />
+                      <Skeleton height="1rem" width="50%" />
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-2 pt-2">
+                      <Skeleton height={36} width={90} variant="rectangular" />
+                      <Skeleton height={36} width={90} variant="rectangular" />
+                    </div>
+                  </CardBody>
+                </Card>
               ))}
             </div>
           ) : providers.length === 0 ? (
@@ -383,186 +326,79 @@ export default function SuperAdminProvidersPage() {
               No providers found.
             </div>
           ) : (
-            <>
-              {/* Mobile cards */}
-              <div className="sm:hidden divide-y divide-gray-100">
-                {providers.map((provider) => (
-                  <div key={provider._id} className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        {provider.logo?.url ? (
-                          <img
-                            src={provider.logo.url}
-                            alt={provider.logo.alt || provider.name}
-                            className="h-9 w-9 rounded-full"
-                          />
-                        ) : (
-                          <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                            <FaChartBar />
-                          </div>
-                        )}
-                        <div>
-                          <div className="text-sm font-semibold text-gray-900">{provider.name}</div>
-                          {provider.description && (
-                            <div className="text-xs text-gray-500 line-clamp-2">
-                              {provider.description}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={selectedProviders.includes(provider._id)}
-                        onChange={() => handleSelectProvider(provider._id)}
-                        className="rounded mt-1"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 mt-3 flex-wrap">
-                      <Badge colorScheme={getProviderColorScheme(provider.code)} size="xs">
-                        {provider.code}
-                      </Badge>
-                      <Badge
-                        colorScheme={getStatusColorScheme(provider.isActive, provider.isDeleted)}
-                        size="xs"
-                      >
-                        {getStatusText(provider.isActive, provider.isDeleted)}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        Sales {provider.salesCount || 0}
-                      </span>
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      <Button size="xs" variant="outline" onClick={() => handleEdit(provider)}>
-                        <FaEdit className="w-3 h-3" />
-                      </Button>
-                      {!provider.isDeleted ? (
-                        <>
-                          <Button
-                            size="xs"
-                            variant="outline"
-                            onClick={() => handleToggleStatus(provider._id, provider.isActive)}
-                          >
-                            {provider.isActive ? <FaToggleOff className="w-3 h-3" /> : <FaToggleOn className="w-3 h-3" />}
-                          </Button>
-                          <Button size="xs" variant="danger" onClick={() => handleDelete(provider._id)}>
-                            <FaTrash className="w-3 h-3" />
-                          </Button>
-                        </>
-                      ) : (
-                        <Button size="xs" variant="outline" onClick={() => handleRestore(provider._id)}>
-                          <FaUndo className="w-3 h-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop table */}
-              <div className="hidden sm:block overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHeaderCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedProviders.length === providers.length && providers.length > 0}
-                          onChange={handleSelectAll}
-                          className="rounded"
-                        />
-                      </TableHeaderCell>
-                      <TableHeaderCell>Provider</TableHeaderCell>
-                      <TableHeaderCell>Code</TableHeaderCell>
-                      <TableHeaderCell>Status</TableHeaderCell>
-                      <TableHeaderCell>Sales</TableHeaderCell>
-                      <TableHeaderCell>Created</TableHeaderCell>
-                      <TableHeaderCell>Actions</TableHeaderCell>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {providers.map((provider) => (
-                      <TableRow key={provider._id} className="hover:bg-gray-50">
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={selectedProviders.includes(provider._id)}
-                            onChange={() => handleSelectProvider(provider._id)}
-                            className="rounded"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {providers.map((provider) => {
+                const { cardBg, cardBorder, textColor } = getProviderCardStyle(provider.code);
+                return (
+                  <Card
+                    key={provider._id}
+                    className={`border ${cardBorder} ${cardBg} shadow-sm hover:shadow-md transition-shadow duration-200`}
+                  >
+                    <CardBody>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex justify-center">
                             {provider.logo?.url ? (
                               <img
                                 src={provider.logo.url}
                                 alt={provider.logo.alt || provider.name}
-                                className="h-8 w-8 rounded-full"
+                                className="h-20 w-20 rounded-full object-cover border border-white/80 shadow-sm"
                               />
                             ) : (
-                              <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                              <div className="h-20 w-20 rounded-full bg-white/80 flex items-center justify-center text-2xl text-gray-500 shadow-sm">
                                 <FaChartBar />
                               </div>
                             )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {provider.name}
-                              </div>
-                              {provider.description && (
-                                <div className="text-xs text-gray-500 line-clamp-1">
-                                  {provider.description}
-                                </div>
-                              )}
-                            </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge colorScheme={getProviderColorScheme(provider.code)} size="xs">
-                            {provider.code}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            colorScheme={getStatusColorScheme(provider.isActive, provider.isDeleted)}
-                            size="xs"
-                          >
-                            {getStatusText(provider.isActive, provider.isDeleted)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{provider.salesCount || 0}</TableCell>
-                        <TableCell className="text-xs text-gray-500">
-                          {new Date(provider.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button size="xs" variant="outline" onClick={() => handleEdit(provider)}>
-                              <FaEdit className="w-3 h-3" />
-                            </Button>
-                            {!provider.isDeleted ? (
-                              <>
-                                <Button
-                                  size="xs"
-                                  variant="outline"
-                                  onClick={() => handleToggleStatus(provider._id, provider.isActive)}
-                                >
-                                  {provider.isActive ? <FaToggleOff className="w-3 h-3" /> : <FaToggleOn className="w-3 h-3" />}
-                                </Button>
-                                <Button size="xs" variant="danger" onClick={() => handleDelete(provider._id)}>
-                                  <FaTrash className="w-3 h-3" />
-                                </Button>
-                              </>
-                            ) : (
-                              <Button size="xs" variant="outline" onClick={() => handleRestore(provider._id)}>
-                                <FaUndo className="w-3 h-3" />
-                              </Button>
+                          <div className="mt-5 text-center">
+                            <p className={`text-base font-semibold ${textColor}`}>{provider.name}</p>
+                            {provider.description && (
+                              <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+                                {provider.description}
+                              </p>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                        <Badge colorScheme={getProviderColorScheme(provider.code)} size="xs">
+                          {provider.code}
+                        </Badge>
+                        <Badge colorScheme={getStatusColorScheme(provider.isActive, provider.isDeleted)} size="xs">
+                          {getStatusText(provider.isActive, provider.isDeleted)}
+                        </Badge>
+                        <span className="text-xs text-slate-500">Sales {provider.salesCount || 0}</span>
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap justify-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(provider)}>
+                          <FaEdit className="mr-1" /> Edit
+                        </Button>
+                        {!provider.isDeleted ? (
+                          <>
+                            <Button size="sm" variant="outline" onClick={() => handleToggleStatus(provider._id, provider.isActive)}>
+                              {provider.isActive ? (
+                                <><FaToggleOff className="mr-1" /> Disable</>
+                              ) : (
+                                <><FaToggleOn className="mr-1" /> Enable</>
+                              )}
+                            </Button>
+                            <Button size="sm" variant="danger" onClick={() => handleDelete(provider._id)}>
+                              <FaTrash className="mr-1" /> Delete
+                            </Button>
+                          </>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => handleRestore(provider._id)}>
+                            <FaUndo className="mr-1" /> Restore
+                          </Button>
+                        )}
+                      </div>
+                    </CardBody>
+                  </Card>
+                );
+              })}
+            </div>
           )}
         </CardBody>
       </Card>
