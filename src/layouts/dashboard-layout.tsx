@@ -99,7 +99,7 @@ export const DashboardLayout = () => {
         {/* ── Mobile sidebar overlay (dark scrim) ── */}
         {sidebarOpen && isMobile && (
           <button
-            className="fixed inset-0 z-20 bg-black/50 border-0 cursor-default md:hidden"
+            className="fixed inset-0 z-50 bg-black/50 border-0 cursor-default md:hidden"
             onClick={() => setSidebarOpen(false)}
             onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
             aria-label="Close sidebar"

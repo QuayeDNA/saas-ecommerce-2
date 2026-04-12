@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubble";
 import { Home, Plus, LogOut, ChevronRight, Check, X } from "lucide-react";
+import { Button, Badge } from "../design-system";
 import { useState } from "react";
 import { DirectDataLogo } from "./common/DirectDataLogo";
 
@@ -133,82 +134,48 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const hasActiveChild = (item: NavItem) =>
     !!item.children?.some((c) => isActivePath(c.path));
 
-  // ── Style helpers ─────────────────────────────────────────────
-  const itemBase: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "10px 12px",
-    borderRadius: "12px",
-    cursor: "pointer",
-    transition: "all 0.15s",
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 500,
-    fontSize: "14px",
-    width: "100%",
-    border: "none",
-    textAlign: "left",
-  };
-
-  const activeStyle: React.CSSProperties = {
-    backgroundColor: "rgba(255,255,255,0.18)",
-    color: "#ffffff",
-  };
-
-  const inactiveStyle: React.CSSProperties = {
-    backgroundColor: "transparent",
-    color: "rgba(255,255,255,0.65)",
-  };
-
   const renderNavItem = (item: NavItem, level = 0) => {
     const hasChildren = !!item.children?.length;
     const isExpanded = expandedItems.has(item.path);
     const isActive = isActivePath(item.path);
     const hasActiveChildItem = hasActiveChild(item);
 
-    const computedStyle = {
-      ...itemBase,
-      ...(isActive || hasActiveChildItem ? activeStyle : inactiveStyle),
-      paddingLeft: level > 0 ? "36px" : "12px",
-    };
+    const baseClasses =
+      "group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors duration-150";
+    const activeClasses =
+      "bg-slate-800 text-white shadow-sm shadow-slate-950/20";
+    const inactiveClasses =
+      "text-slate-300 hover:bg-slate-800/80 hover:text-white";
+    const iconClasses =
+      "flex h-10 w-10 items-center justify-center rounded-2xl text-lg transition-colors duration-150";
+    const iconActive = "bg-primary-600 text-white";
+    const iconInactive =
+      "bg-slate-800/80 text-slate-400 group-hover:bg-primary-600 group-hover:text-white";
 
     return (
       <li key={item.path} className="list-none">
         {hasChildren ? (
           <>
             <button
+              type="button"
               onClick={() => toggleExpanded(item.path)}
-              style={computedStyle}
-              onMouseEnter={(e) => {
-                if (!isActive && !hasActiveChildItem) {
-                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
-                  e.currentTarget.style.color = "#ffffff";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive && !hasActiveChildItem) {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "rgba(255,255,255,0.65)";
-                }
-              }}
+              className={`${baseClasses} ${isActive || hasActiveChildItem ? activeClasses : inactiveClasses}`}
             >
-              {/* Icon */}
-              <span style={{ fontSize: "14px", flexShrink: 0, opacity: isActive || hasActiveChildItem ? 1 : 0.7 }}>
+              <span className={`${iconClasses} ${isActive || hasActiveChildItem ? iconActive : iconInactive}`}>
                 {item.icon}
               </span>
-              <span className="flex-1 truncate">{item.label}</span>
+              <div className="min-w-0 flex-1 text-left">
+                <p className={`text-sm font-semibold ${isActive || hasActiveChildItem ? "text-white" : "text-slate-200"}`}>
+                  {item.label}
+                </p>
+              </div>
               <ChevronRight
-                size={14}
-                style={{
-                  flexShrink: 0,
-                  opacity: 0.6,
-                  transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                  transition: "transform 0.2s",
-                }}
+                size={16}
+                className={`text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-90 text-white" : ""}`}
               />
             </button>
             {isExpanded && (
-              <ul className="mt-0.5 space-y-0.5">
+              <ul className="mt-2 space-y-2 pl-8">
                 {item.children?.map((child) => renderNavItem(child, level + 1))}
               </ul>
             )}
@@ -216,35 +183,23 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         ) : (
           <Link
             to={item.path}
-            style={computedStyle}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.1)";
-                e.currentTarget.style.color = "#ffffff";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "rgba(255,255,255,0.65)";
-              }
-            }}
             onClick={onClose}
+            className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
           >
-            <span style={{ fontSize: "14px", flexShrink: 0, opacity: isActive ? 1 : 0.7 }}>
+            <span className={`${iconClasses} ${isActive ? iconActive : iconInactive}`}>
               {item.icon}
             </span>
-            <span className="flex-1 truncate">
-              {item.label}
-              {item.path.includes("/orders") && newOrderCount > 0 && !isActive && (
-                <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-2 text-[10px] font-semibold text-white">
-                  {newOrderCount}
-                </span>
-              )}
-            </span>
-            {isActive && (
-              <Check size={14} style={{ flexShrink: 0, opacity: 0.9 }} />
+            <div className="min-w-0 flex-1">
+              <p className={`text-sm font-semibold ${isActive ? "text-white" : "text-slate-200"}`}>
+                {item.label}
+              </p>
+            </div>
+            {item.path.includes("/orders") && newOrderCount > 0 && !isActive && (
+              <Badge variant="solid" colorScheme="error" className="ml-auto text-[10px] font-semibold">
+                {newOrderCount}
+              </Badge>
             )}
+            {isActive && <Check size={16} className="text-primary-400" />}
           </Link>
         )}
       </li>
@@ -253,142 +208,70 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   return (
     <aside
-      className={`
-        fixed left-0 top-0 bottom-[72px] z-30 flex flex-col
-        transform transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        md:inset-y-0 md:translate-x-0 md:static md:h-screen md:flex-shrink-0
-      `}
-      style={{
-        width: "240px",
-        backgroundColor: "var(--color-primary-500)",
-      }}
+      className={`fixed left-0 top-0 bottom-0 z-[70] w-72 transform transition-transform duration-300 ease-in-out bg-slate-950 text-slate-100 shadow-xl border-r border-slate-800 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:h-screen flex flex-col min-h-0 overflow-hidden`}
     >
-      {/* ── Logo header ── */}
-      <div
-        className="flex items-center justify-between px-4 py-4 flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.15)" }}
-      >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <DirectDataLogo width={32} height={32} className="flex-shrink-0" />
-          <span
-            className="truncate"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: "18px",
-              color: "#ffffff",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            DirectData
-          </span>
+      <div className="flex items-center justify-between gap-4 p-2 bg-slate-900/95 border-b border-slate-700">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-950 shadow-sm shadow-slate-950/20">
+            <DirectDataLogo width={26} height={26} />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-base font-semibold text-white">DirectData</p>
+            <p className="truncate text-xs uppercase tracking-[0.24em] text-slate-500">User Portal</p>
+          </div>
         </div>
-        {/* Close button — mobile only */}
-        <button
-          onClick={onClose}
-          className="md:hidden flex items-center justify-center rounded-xl ml-2 flex-shrink-0"
-          style={{
-            width: "32px",
-            height: "32px",
-            backgroundColor: "rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.8)",
-            border: "none",
-          }}
+
+        <Button
+          variant="ghost"
+          iconOnly
           aria-label="Close sidebar"
+          onClick={onClose}
+          className="text-slate-300 hover:text-white"
         >
-          <X size={16} />
-        </button>
+          <X size={18} />
+        </Button>
       </div>
 
-      {/* ── Nav section label ── */}
-      <div className="px-4 pt-5 pb-2">
-        <span
-          style={{
-            fontSize: "10px",
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.4)",
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
+      <div className="px-5 pt-5 pb-3">
+        <span className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
           Navigation
         </span>
       </div>
 
-      {/* ── Nav items ── */}
-      <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-0.5">
-        {navItems.map((item) => renderNavItem(item))}
+      <nav className="flex-1 min-h-0 overflow-y-auto px-2 pb-3">
+        <ul className="space-y-2">{navItems.map((item) => renderNavItem(item))}</ul>
       </nav>
 
       {/* ── User profile + logout ── */}
-      <div
-        className="flex-shrink-0 p-3"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}
-      >
-        {/* User row */}
-        <div className="flex items-center gap-3 px-2 py-2 mb-2">
-          <div
-            className="flex items-center justify-center rounded-full flex-shrink-0 font-bold text-sm"
-            style={{
-              width: "36px",
-              height: "36px",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "#ffffff",
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
+      <div className="flex-shrink-0 border-t border-slate-800 bg-slate-950/95 p-2 gap-2 flex flex-col">
+        <div className="flex items-center gap-3 rounded-3xl bg-slate-900/95 p-2 shadow-inner shadow-slate-950/10">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-800 text-white">
             {initials}
           </div>
-          <div className="min-w-0 flex-1">
-            <div
-              className="text-sm font-semibold truncate"
-              style={{ color: "#ffffff", fontFamily: "'DM Sans', sans-serif" }}
-            >
-              {authState.user?.fullName}
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span
-                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ backgroundColor: authState.isAuthenticated ? "#34d399" : "#9ca3af" }}
-              />
-              <span
-                className="text-xs truncate capitalize"
-                style={{ color: "rgba(255,255,255,0.55)", fontFamily: "'DM Sans', sans-serif" }}
-              >
-                {authState.user?.userType?.replace("_", " ") ?? "User"}
-              </span>
-            </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white">
+              {authState.user?.fullName ?? "Admin user"}
+            </p>
+            <p className="inline-flex items-center truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[8px] font-light uppercase tracking-[0.18em] text-white shadow-sm shadow-black/10">
+              {authState.user?.userType?.replace("_", " ") ?? "User"}
+            </p>
           </div>
         </div>
 
-        {/* Logout */}
-        <button
-          onClick={() => { logout(); onClose(); }}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[12px] text-sm font-semibold transition-all duration-150"
-          style={{
-            backgroundColor: "rgba(244,63,94,0.18)",
-            color: "#fda4af",
-            border: "1px solid rgba(244,63,94,0.25)",
-            fontFamily: "'DM Sans', sans-serif",
+        <Button
+          variant="outline"
+          colorScheme="error"
+          leftIcon={<LogOut className="h-4 w-4" />}
+          onClick={() => {
+            logout();
+            onClose();
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(244,63,94,0.28)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(244,63,94,0.18)";
-          }}
+          className="w-full"
         >
-          <LogOut className="w-4 h-4" />
           Sign Out
-        </button>
+        </Button>
 
-        {/* Version */}
-        <div
-          className="text-center mt-2"
-          style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Sans', sans-serif" }}
-        >
+        <div className="text-center text-[11px] text-slate-500">
           {authState.user?.businessName ?? "DirectData"} · v1.0.0
         </div>
       </div>

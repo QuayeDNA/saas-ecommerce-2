@@ -21,19 +21,28 @@ export const NetworkStatusIndicator: React.FC<NetworkStatusIndicatorProps> = ({
 
   return (
     <div className={`fixed top-4 right-4 z-50 max-w-sm ${className}`}>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-3 space-y-2">
+      <div
+        className={`rounded-lg shadow-lg border p-3 space-y-2 ${isOnline
+            ? "bg-white border-gray-200 text-slate-900 dark:bg-gray-800 dark:border-gray-700 dark:text-slate-100"
+            : "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/90 dark:border-red-600 dark:text-red-200"
+          }`}
+      >
         {/* Network Status */}
         <div className="flex items-center space-x-2">
           {isOnline ? (
             <Wifi
-              className={`w-4 h-4 ${
-                isSlowConnection ? "text-yellow-500" : "text-green-500"
-              }`}
+              className={`w-4 h-4 ${isSlowConnection ? "text-yellow-500" : "text-green-500"
+                }`}
             />
           ) : (
             <WifiOff className="w-4 h-4 text-red-500" />
           )}
-          <span className="text-sm font-medium">
+          <span
+            className={`text-sm font-medium ${isOnline
+                ? "text-slate-900 dark:text-slate-100"
+                : "text-red-700 dark:text-red-200"
+              }`}
+          >
             {isOnline
               ? isSlowConnection
                 ? "Slow Connection"
@@ -41,7 +50,7 @@ export const NetworkStatusIndicator: React.FC<NetworkStatusIndicatorProps> = ({
               : "Offline"}
           </span>
           {connectionType && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-slate-500 dark:text-slate-300">
               ({effectiveType || connectionType})
             </span>
           )}

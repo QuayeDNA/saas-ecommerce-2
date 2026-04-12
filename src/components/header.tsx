@@ -144,23 +144,6 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
         backdropFilter: isScrolled ? "blur(8px)" : "none",
       }}
     >
-      {/* Impersonation ribbon */}
-      {isImpersonating && (
-        <div
-          className="flex items-center justify-center gap-2 py-1.5 text-xs font-semibold"
-          style={{ backgroundColor: "#f59e0b", color: "#1a1a2e" }}
-        >
-          <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-          Viewing as {authState.user?.fullName}
-          <button
-            onClick={handleReturnToAdmin}
-            className="underline underline-offset-2 ml-1"
-          >
-            Return to Admin
-          </button>
-        </div>
-      )}
-
       <div
         className="flex items-center justify-between px-4"
         style={{ height: "56px" }}
@@ -206,6 +189,22 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
           </button>
         </div>
       </div>
+
+      {isImpersonating && (
+        <div
+          className="flex items-center justify-center gap-2 py-1.5 text-xs font-semibold"
+          style={{ backgroundColor: "#f59e0b", color: "#1a1a2e" }}
+        >
+          <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+          Viewing as {authState.user?.fullName}
+          <button
+            onClick={handleReturnToAdmin}
+            className="underline underline-offset-2 ml-1"
+          >
+            Return to Admin
+          </button>
+        </div>
+      )}
 
       {/* Mobile dropdown */}
       {isDropdownOpen && (
@@ -343,20 +342,6 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
         backdropFilter: isScrolled ? "blur(8px)" : "none",
       }}
     >
-      {/* Impersonation ribbon */}
-      {isImpersonating && (
-        <div
-          className="flex items-center justify-center gap-2 py-1.5 text-xs font-semibold"
-          style={{ backgroundColor: "#f59e0b", color: "#1a1a2e" }}
-        >
-          <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-          Impersonating: {authState.user?.fullName}
-          <button onClick={handleReturnToAdmin} className="underline underline-offset-2 ml-2">
-            Return to Admin
-          </button>
-        </div>
-      )}
-
       <div className="px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Greeting */}
