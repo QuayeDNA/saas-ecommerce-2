@@ -182,7 +182,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
 
   const handleStatusChange = async (newStatus: string) => {
     try {
-      onUpdateStatus(order._id!, newStatus);
+      await onUpdateStatus(order._id!, newStatus);
       setStatusDropdownOpen(false);
     } catch (error) {
       console.error("Failed to update status:", error);

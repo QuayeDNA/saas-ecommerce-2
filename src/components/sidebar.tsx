@@ -14,6 +14,7 @@ import {
   FaCog, FaTachometerAlt, FaBuilding, FaClipboardList, FaChartLine,
   FaMoneyBillWave, FaCreditCard, FaHistory, FaBullhorn, FaStore,
 } from "react-icons/fa";
+import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubble";
 import { Home, Plus, LogOut, ChevronRight, Check, X } from "lucide-react";
 import { useState } from "react";
 import { DirectDataLogo } from "./common/DirectDataLogo";
@@ -115,6 +116,11 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const initials =
     (authState.user?.fullName.charAt(0) ?? "") +
     (authState.user?.fullName.split(" ")[1]?.charAt(0) ?? "");
+  const isOrdersPage =
+    location.pathname.startsWith("/superadmin/orders") ||
+    location.pathname.startsWith("/admin/dashboard/orders") ||
+    location.pathname.startsWith("/agent/dashboard/orders");
+  const newOrderCount = useOrderNotificationBubble(isOrdersPage);
 
   const isActivePath = (path: string) => {
     if (path === "/superadmin") return location.pathname === "/superadmin" || location.pathname === "/superadmin/";
@@ -228,7 +234,14 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             <span style={{ fontSize: "14px", flexShrink: 0, opacity: isActive ? 1 : 0.7 }}>
               {item.icon}
             </span>
-            <span className="flex-1 truncate">{item.label}</span>
+            <span className="flex-1 truncate">
+              {item.label}
+              {item.path.includes("/orders") && newOrderCount > 0 && !isActive && (
+                <span className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-2 text-[10px] font-semibold text-white">
+                  {newOrderCount}
+                </span>
+              )}
+            </span>
             {isActive && (
               <Check size={14} style={{ flexShrink: 0, opacity: 0.9 }} />
             )}

@@ -29,6 +29,7 @@ import {
     BadgeDollarSign,
     BarChart3,
 } from "lucide-react";
+import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubble";
 
 // ─── Primary tabs (always visible) ──────────────────────────────────────────
 
@@ -115,6 +116,8 @@ export const AdminBottomNav = ({ userType = "admin" }: AdminBottomNavProps) => {
     };
 
     const anyOverflowActive = overflowItems.some((item) => isActive(item.path));
+    const isOrdersPage = location.pathname.startsWith("/superadmin/orders");
+    const newOrderCount = useOrderNotificationBubble(isOrdersPage);
 
     return (
         <>
@@ -220,10 +223,17 @@ export const AdminBottomNav = ({ userType = "admin" }: AdminBottomNavProps) => {
                             aria-label={tab.label}
                             className="flex flex-col items-center justify-center gap-1 flex-1 min-h-[48px] py-2 transition-all duration-150"
                         >
-                            <div
-                                className={`flex h-7 w-10 items-center justify-center rounded-[10px] transition-all duration-200 ${active ? "bg-primary-50 text-primary-600" : "text-slate-400"}`}
-                            >
-                                {tab.icon}
+                            <div className="relative">
+                                <div
+                                    className={`flex h-7 w-10 items-center justify-center rounded-[10px] transition-all duration-200 ${active ? "bg-primary-50 text-primary-600" : "text-slate-400"}`}
+                                >
+                                    {tab.icon}
+                                </div>
+                                {(tab.path.includes("/orders") || tab.label === "Orders") && newOrderCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                                        {newOrderCount}
+                                    </span>
+                                )}
                             </div>
                             <span
                                 className={`font-['DM Sans'] text-[11px] font-semibold leading-none ${active ? "text-primary-600" : "text-slate-400"}`}
