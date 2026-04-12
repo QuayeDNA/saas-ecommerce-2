@@ -27,6 +27,7 @@ import {
     History,
     Building2,
     BadgeDollarSign,
+    BarChart3,
 } from "lucide-react";
 
 // ─── Primary tabs (always visible) ──────────────────────────────────────────
@@ -64,6 +65,7 @@ interface OverflowItem {
 }
 
 const superAdminOverflow: OverflowItem[] = [
+    { label: "Analytics", path: "/superadmin/analytics", icon: <BarChart3 className="w-5 h-5" />, description: "Performance dashboards" },
     { label: "Settings", path: "/superadmin/settings", icon: <Settings className="w-5 h-5" />, description: "Platform configuration" },
     { label: "Providers", path: "/superadmin/providers", icon: <Building2 className="w-5 h-5" />, description: "Manage telecom providers" },
     { label: "Commissions", path: "/superadmin/commissions", icon: <BadgeDollarSign className="w-5 h-5" />, description: "Reseller commission rates" },

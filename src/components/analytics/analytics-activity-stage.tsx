@@ -77,7 +77,7 @@ export function AnalyticsActivityStage({
 
     return (
         <section className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-            <Card className="xl:col-span-2 p-4 sm:p-5">
+            <Card className="xl:col-span-2 rounded-3xl p-4 sm:p-5">
                 <CardHeader className="pb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900">Recent Activity</h3>
                     <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -102,19 +102,19 @@ export function AnalyticsActivityStage({
                             {activityFeed.slice(0, 10).map((item) => (
                                 <div
                                     key={item.id}
-                                    className="rounded-xl border border-slate-200 px-3 py-2.5 flex items-start justify-between gap-3"
+                                    className="rounded-3xl border border-slate-200 px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
                                 >
-                                    <div className="space-y-1 min-w-0">
-                                        <p className="text-sm font-medium text-slate-900">{item.message}</p>
-                                        <div className="flex items-center gap-2">
+                                    <div className="space-y-2 min-w-0">
+                                        <p className="text-sm font-semibold text-slate-900">{item.message}</p>
+                                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
                                             <Badge variant="subtle" colorScheme="info" className="text-[10px] uppercase">
                                                 {item.type.replace(/_/g, " ")}
                                             </Badge>
-                                            <p className="text-xs text-slate-500">{formatDateTime(item.createdAt)}</p>
+                                            <span>{formatDateTime(item.createdAt)}</span>
                                         </div>
                                     </div>
                                     {typeof item.value === "number" ? (
-                                        <p className="text-xs font-semibold text-slate-700 shrink-0">
+                                        <p className="text-sm font-semibold text-slate-700 shrink-0">
                                             {formatCurrency(item.value)}
                                         </p>
                                     ) : null}
@@ -126,7 +126,7 @@ export function AnalyticsActivityStage({
             </Card>
 
             <div className="space-y-4 sm:space-y-6">
-                <Card className="p-4 sm:p-5">
+                <Card className="rounded-3xl p-4 sm:p-5">
                     <CardHeader className="pb-3">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-900">Top Agents</h3>
                         <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -193,7 +193,7 @@ export function AnalyticsActivityStage({
                     </CardBody>
                 </Card>
 
-                <Card className="p-4 sm:p-5">
+                <Card className="rounded-3xl p-4 sm:p-5">
                     <CardHeader className="pb-3">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-900">Financial Summary</h3>
                     </CardHeader>

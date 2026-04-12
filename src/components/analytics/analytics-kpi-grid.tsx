@@ -132,23 +132,23 @@ export function AnalyticsKpiGrid({ cards }: AnalyticsKpiGridProps) {
                     <Card
                         key={card.id}
                         variant="outlined"
-                        className={`${tone.cardClass} p-3 sm:p-3.5`}
+                        className={`${tone.cardClass} rounded-3xl border p-4 sm:p-5`}
                         style={tone.cardStyle}
                     >
                         <CardBody className="pt-0">
-                            <div className="flex items-center gap-3">
-                                <div className={`shrink-0 text-base sm:text-lg ${tone.iconClass}`}>
+                            <div className="flex items-start gap-4">
+                                <div className={`mt-1 text-2xl ${tone.iconClass}`}>
                                     {card.icon}
                                 </div>
 
-                                <div className="min-w-0 flex-1">
-                                    <p className={`text-[10px] uppercase tracking-wide font-medium truncate ${tone.titleClass}`}>
+                                <div className="min-w-0 flex-1 space-y-2">
+                                    <p className={`text-[11px] uppercase tracking-[0.24em] font-semibold truncate ${tone.titleClass}`}>
                                         {card.title}
                                     </p>
-                                    <p className={`text-base sm:text-lg font-bold leading-tight truncate ${tone.valueClass}`}>
+                                    <p className={`text-2xl font-bold leading-tight truncate ${tone.valueClass}`}>
                                         {card.value}
                                     </p>
-                                    <p className={`mt-0.5 text-[11px] font-medium truncate inline-flex items-center gap-1 ${trend.className}`}>
+                                    <p className={`inline-flex items-center gap-1 text-sm font-medium ${trend.className}`}>
                                         {trend.icon}
                                         <span>{card.subtitle}</span>
                                     </p>

@@ -156,7 +156,7 @@ export function AnalyticsTrendStage({
 
     return (
         <section className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-            <Card className="xl:col-span-2 p-4 sm:p-5">
+            <Card className="xl:col-span-2 rounded-3xl p-4 sm:p-5">
                 <CardHeader className="flex flex-col gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-base sm:text-lg font-semibold text-slate-900">Performance Trend</h2>
@@ -168,7 +168,7 @@ export function AnalyticsTrendStage({
                         value={selectedMetric}
                         onChange={(value) => onMetricChange(value as TrendMetric)}
                         options={metricOptions}
-                        className="min-w-[160px]"
+                        className="min-w-[160px] w-full sm:w-auto"
                     />
                 </CardHeader>
 
@@ -179,12 +179,14 @@ export function AnalyticsTrendStage({
                             <Skeleton variant="rectangular" height="18rem" />
                         </div>
                     ) : (
-                        <Line data={trendChartData} options={trendChartOptions} />
+                        <div className="min-h-[18rem]">
+                            <Line data={trendChartData} options={trendChartOptions} />
+                        </div>
                     )}
                 </CardBody>
             </Card>
 
-            <Card className="p-4 sm:p-5">
+            <Card className="rounded-3xl p-4 sm:p-5">
                 <CardHeader className="pb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900">Order Status Breakdown</h3>
                     <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -195,38 +197,40 @@ export function AnalyticsTrendStage({
                 <CardBody className="space-y-4">
                     {loading ? (
                         <>
-                            <Skeleton variant="rectangular" height="11rem" />
+                            <Skeleton variant="rectangular" height="14rem" />
                             <Skeleton height="1rem" />
                             <Skeleton height="1rem" />
                         </>
                     ) : (
                         <>
-                            <Bar
-                                data={orderStatusData}
-                                options={{
-                                    responsive: true,
-                                    plugins: { legend: { display: false } },
-                                    scales: {
-                                        x: { ticks: { display: false } },
-                                        y: { beginAtZero: true },
-                                    },
-                                }}
-                            />
+                            <div className="min-h-[14rem]">
+                                <Bar
+                                    data={orderStatusData}
+                                    options={{
+                                        responsive: true,
+                                        plugins: { legend: { display: false } },
+                                        scales: {
+                                            x: { ticks: { display: false } },
+                                            y: { beginAtZero: true },
+                                        },
+                                    }}
+                                />
+                            </div>
 
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 {statusLabels.map((label, index) => {
                                     const value = statusValues[index];
                                     const ratio = totalStatusOrders > 0 ? (value / totalStatusOrders) * 100 : 0;
 
                                     return (
-                                        <div key={label}>
+                                        <div key={label} className="space-y-2">
                                             <div className="flex items-center justify-between text-xs text-slate-600">
                                                 <span>{label}</span>
                                                 <span>{value.toLocaleString()} ({ratio.toFixed(1)}%)</span>
                                             </div>
-                                            <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                                            <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                                                 <div
-                                                    className="h-full rounded-full bg-blue-500"
+                                                    className="h-full rounded-full bg-sky-500"
                                                     style={{ width: `${Math.min(100, ratio)}%` }}
                                                 />
                                             </div>

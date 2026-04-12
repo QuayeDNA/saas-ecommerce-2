@@ -62,7 +62,7 @@ export function AnalyticsBreakdownStage({
 
     return (
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-            <Card className="p-4 sm:p-5">
+            <Card className="rounded-3xl p-4 sm:p-5">
                 <CardHeader className="pb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900">User Type Distribution</h3>
                     <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -73,10 +73,10 @@ export function AnalyticsBreakdownStage({
                 <CardBody>
                     {loading ? (
                         <div className="space-y-4">
-                            <Skeleton variant="rectangular" height="16rem" />
+                            <Skeleton variant="rectangular" height="18rem" />
                         </div>
                     ) : (
-                        <div className="min-h-[16rem] flex items-center justify-center">
+                        <div className="min-h-[18rem] flex items-center justify-center">
                             <Doughnut
                                 data={userTypesData}
                                 options={{
@@ -94,7 +94,7 @@ export function AnalyticsBreakdownStage({
                 </CardBody>
             </Card>
 
-            <Card className="p-4 sm:p-5">
+            <Card className="rounded-3xl p-4 sm:p-5">
                 <CardHeader className="pb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900">Order Type Performance</h3>
                     <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -113,34 +113,36 @@ export function AnalyticsBreakdownStage({
                     ) : orderTypeLeaders.length === 0 ? (
                         <p className="text-sm text-slate-500">No order type data available for this period.</p>
                     ) : (
-                        orderTypeLeaders.map((row) => {
-                            const ratio = (row.count / maxLeaderCount) * 100;
+                        <div className="space-y-3">
+                            {orderTypeLeaders.map((row) => {
+                                const ratio = (row.count / maxLeaderCount) * 100;
 
-                            return (
-                                <div key={row.orderType} className="rounded-xl border border-slate-200 p-3">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-slate-900 capitalize">
-                                                {row.orderType.replace(/_/g, " ")}
-                                            </p>
-                                            <p className="text-xs text-slate-500">
-                                                {formatNumber(row.count)} orders
+                                return (
+                                    <div key={row.orderType} className="rounded-3xl border border-slate-200 p-4">
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-900 capitalize">
+                                                    {row.orderType.replace(/_/g, " ")}
+                                                </p>
+                                                <p className="text-xs text-slate-500">
+                                                    {formatNumber(row.count)} orders
+                                                </p>
+                                            </div>
+                                            <p className="text-sm font-semibold text-slate-900">
+                                                {formatCurrency(row.revenue)}
                                             </p>
                                         </div>
-                                        <p className="text-sm font-semibold text-slate-900">
-                                            {formatCurrency(row.revenue)}
-                                        </p>
-                                    </div>
 
-                                    <div className="mt-2 h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-                                        <div
-                                            className="h-full rounded-full bg-indigo-500"
-                                            style={{ width: `${Math.max(8, ratio)}%` }}
-                                        />
+                                        <div className="mt-3 h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full bg-indigo-500"
+                                                style={{ width: `${Math.max(8, ratio)}%` }}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })
+                                );
+                            })}
+                        </div>
                     )}
                 </CardBody>
             </Card>

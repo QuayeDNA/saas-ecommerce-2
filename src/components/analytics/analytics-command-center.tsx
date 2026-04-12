@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Badge, Button, Card, CardBody, Select } from "../../design-system";
+import { Badge, Button, Card, CardBody, CardHeader, Select } from "../../design-system";
 import type { SelectOption } from "../../design-system/components/select";
 import {
     FaArrowDown,
@@ -112,60 +112,66 @@ export function AnalyticsCommandCenter({
     snapshots,
 }: AnalyticsCommandCenterProps) {
     return (
-        <div className="space-y-4">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div>
-                    <h1 className="text-xl font-bold text-gray-900">Sales & Operations Analytics</h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Monitor platform performance across revenue, orders, users, commissions, and payouts.
-                    </p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                        <span className="inline-flex items-center gap-1.5">
-                            <FaChartLine className="text-gray-500" />
-                            Last updated: {generatedAt ? formatDateTime(generatedAt) : "Awaiting data"}
-                        </span>
-                        {source ? (
-                            <Badge colorScheme="gray" variant="subtle" className="text-[11px]">
-                                {source}
-                            </Badge>
-                        ) : null}
-                    </div>
-                </div>
-
-                <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <div className="sm:min-w-[170px]">
-                        <Select
-                            value={timeframe}
-                            onChange={onTimeframeChange}
-                            options={timeOptions}
-                        />
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="justify-center"
-                        onClick={onRefresh}
-                        disabled={loading}
-                    >
-                        <FaRedo className={loading ? "mr-2 animate-spin" : "mr-2"} />
-                        Refresh
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="justify-center"
-                        onClick={onExport}
-                        disabled={loading}
-                    >
-                        <FaDownload className="mr-2" />
-                        Export CSV
-                    </Button>
-                </div>
-            </div>
-
+        <section className="space-y-4">
             <Card>
-                <CardBody>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+                <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <FaChartLine className="text-primary-600" />
+                            <h1 className="text-lg sm:text-xl font-semibold text-slate-900">
+                                Sales & Operations Analytics
+                            </h1>
+                        </div>
+                        <p className="text-sm text-slate-500 max-w-2xl">
+                            Monitor platform performance across revenue, orders, users, commissions, and payouts.
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                            <span className="inline-flex items-center gap-1">
+                                <FaDotCircle className="text-slate-400" />
+                                Last updated: {generatedAt ? formatDateTime(generatedAt) : "Awaiting data"}
+                            </span>
+                            {source ? (
+                                <Badge colorScheme="gray" size="sm">
+                                    {source}
+                                </Badge>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <div className="w-full sm:w-auto">
+                            <Select
+                                value={timeframe}
+                                onChange={onTimeframeChange}
+                                options={timeOptions}
+                                className="w-full"
+                            />
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onRefresh}
+                            disabled={loading}
+                            className="w-full sm:w-auto"
+                        >
+                            <FaRedo className={loading ? "mr-2 animate-spin" : "mr-2"} />
+                            Refresh
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={onExport}
+                            disabled={loading}
+                            className="w-full sm:w-auto"
+                        >
+                            <FaDownload className="mr-2" />
+                            Export CSV
+                        </Button>
+                    </div>
+                </CardHeader>
+
+                <CardBody className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                         {snapshots.map((snapshot) => {
                             const tone = snapshotToneMap[snapshot.tone || "default"];
 
@@ -173,34 +179,31 @@ export function AnalyticsCommandCenter({
                                 <Card
                                     key={snapshot.label}
                                     variant="outlined"
-                                    className={`${tone.cardClass} p-3 sm:p-3.5`}
+                                    className={`${tone.cardClass} rounded-3xl border p-4`}
                                 >
-                                    <CardBody className="pt-0">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`shrink-0 text-base sm:text-lg ${tone.iconClass}`}>
-                                                <FaDotCircle />
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <p className={`text-[10px] uppercase tracking-wide font-medium truncate ${tone.titleClass}`}>
-                                                    {snapshot.label}
-                                                </p>
-                                                <p className={`text-base sm:text-lg font-bold leading-tight truncate ${tone.valueClass}`}>
-                                                    {snapshot.value}
-                                                </p>
-                                                <p className={`mt-0.5 text-[11px] font-medium truncate inline-flex items-center gap-1 ${tone.subtitleClass}`}>
-                                                    {tone.trendIcon}
-                                                    <span>{tone.subtitleText}</span>
-                                                </p>
+                                    <div className="flex items-start gap-3">
+                                        <div className={`mt-1 text-2xl ${tone.iconClass}`}>
+                                            <FaDotCircle />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className={`text-[11px] uppercase tracking-[0.25em] font-semibold truncate ${tone.titleClass}`}>
+                                                {snapshot.label}
+                                            </p>
+                                            <p className={`mt-2 text-2xl font-bold truncate ${tone.valueClass}`}>
+                                                {snapshot.value}
+                                            </p>
+                                            <div className={`mt-2 inline-flex items-center gap-2 text-[11px] font-semibold ${tone.subtitleClass}`}>
+                                                {tone.trendIcon}
+                                                <span>{tone.subtitleText}</span>
                                             </div>
                                         </div>
-                                    </CardBody>
+                                    </div>
                                 </Card>
                             );
                         })}
                     </div>
                 </CardBody>
             </Card>
-        </div>
+        </section>
     );
 }
