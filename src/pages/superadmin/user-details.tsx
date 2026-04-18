@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { userService, type User } from "../../services/user.service";
-import { Button } from "../../design-system/components/button";
 import {
   FaArrowLeft,
   FaEdit,
@@ -25,15 +24,25 @@ import {
 import { orderService } from "../../services/order.service";
 import { authService } from "../../services/auth.service";
 import { PageLoader } from "../../components/page-loader";
-import { Input } from "../../design-system/components/input";
 import type { Order } from "../../types/order";
 import { Modal } from "../../design-system/components/modal";
-import { useToast } from "../../design-system/components/toast";
 import {
+  Alert,
+  Button,
+  Badge,
   Card,
   CardHeader,
   CardBody,
-} from "../../design-system/components/card";
+  Input,
+  Select,
+  Table,
+  TableHeader,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
+  useToast,
+} from "../../design-system";
 
 export default function SuperAdminUserDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -81,6 +90,41 @@ export default function SuperAdminUserDetailsPage() {
   ) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
+
+  const updateEditField = (field: string, value: string) => {
+    setEditData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const userTypeOptions = [
+    { value: "agent", label: "Agent" },
+    { value: "super_agent", label: "Super Agent" },
+    { value: "dealer", label: "Dealer" },
+    { value: "super_dealer", label: "Super Dealer" },
+    { value: "super_admin", label: "Super Admin" },
+  ];
+
+  const businessCategoryOptions = [
+    { value: "", label: "Select Category" },
+    { value: "electronics", label: "Electronics" },
+    { value: "fashion", label: "Fashion" },
+    { value: "food", label: "Food" },
+    { value: "services", label: "Services" },
+    { value: "other", label: "Other" },
+  ];
+
+  const subscriptionPlanOptions = [
+    { value: "", label: "Select Plan" },
+    { value: "basic", label: "Basic" },
+    { value: "premium", label: "Premium" },
+    { value: "enterprise", label: "Enterprise" },
+  ];
+
+  const subscriptionStatusOptions = [
+    { value: "", label: "Select Status" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+    { value: "suspended", label: "Suspended" },
+  ];
 
   const saveEdit = async () => {
     if (!user) return;
@@ -311,16 +355,24 @@ export default function SuperAdminUserDetailsPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadgeScheme = (
+    status: string
+  ): "success" | "warning" | "error" | "gray" => {
     switch (status) {
       case "active":
-        return "text-green-600 bg-green-100";
+      case "completed":
+      case "confirmed":
+        return "success";
       case "pending":
-        return "text-yellow-600 bg-yellow-100";
+      case "processing":
+      case "partiallyCompleted":
+        return "warning";
       case "rejected":
-        return "text-red-600 bg-red-100";
+      case "failed":
+      case "cancelled":
+        return "error";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "gray";
     }
   };
 
@@ -395,7 +447,7 @@ export default function SuperAdminUserDetailsPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -422,9 +474,9 @@ export default function SuperAdminUserDetailsPage() {
         {/* User Information Card */}
         <Card>
           <CardHeader>
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg sm:text-2xl font-bold">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+              <div className="flex sm:items-center space-y-3 sm:space-y-0 space-x-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white text-lg sm:text-2xl font-bold">
                   {user.fullName.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -441,22 +493,22 @@ export default function SuperAdminUserDetailsPage() {
                         </span>
                       )}
                     </div>
-                    <span
-                      className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        user.status
-                      )}`}
+                    <Badge
+                      variant="subtle"
+                      colorScheme={getStatusBadgeScheme(user.status)}
                     >
                       {user.status}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={startEdit}
                   disabled={editMode}
+                  className="w-full"
                 >
                   <FaEdit className="mr-2" />
                   <span className="">Edit</span>
@@ -467,6 +519,7 @@ export default function SuperAdminUserDetailsPage() {
                     size="sm"
                     onClick={handleImpersonate}
                     isLoading={impersonateLoading}
+                    className="w-full"
                   >
                     <FaUserShield className="mr-2" />
                     <span>Impersonate</span>
@@ -586,7 +639,7 @@ export default function SuperAdminUserDetailsPage() {
 
             {/* Action Buttons */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex flex-wrap gap-2 sm:gap-3">
+              <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 sm:gap-3">
                 {user.userType === "agent" && user.status === "pending" && (
                   <>
                     <Button
@@ -594,6 +647,7 @@ export default function SuperAdminUserDetailsPage() {
                       size="sm"
                       onClick={handleApprove}
                       isLoading={actionLoading}
+                      className="w-full sm:w-auto"
                     >
                       <FaUserCheck className="mr-2" />
                       <span className="hidden sm:inline">Approve Agent</span>
@@ -604,6 +658,7 @@ export default function SuperAdminUserDetailsPage() {
                       size="sm"
                       onClick={handleReject}
                       isLoading={actionLoading}
+                      className="w-full sm:w-auto"
                     >
                       <FaUserTimes className="mr-2" />
                       <span className="hidden sm:inline">Reject Agent</span>
@@ -617,6 +672,7 @@ export default function SuperAdminUserDetailsPage() {
                     size="sm"
                     onClick={handleDeactivate}
                     isLoading={actionLoading}
+                    className="w-full sm:w-auto"
                   >
                     <FaUserTimes className="mr-2" />
                     <span className="hidden sm:inline">Deactivate</span>
@@ -628,6 +684,7 @@ export default function SuperAdminUserDetailsPage() {
                     size="sm"
                     onClick={handleReactivate}
                     isLoading={actionLoading}
+                    className="w-full sm:w-auto"
                   >
                     <FaUserCheck className="mr-2" />
                     <span className="hidden sm:inline">Reactivate</span>
@@ -638,6 +695,7 @@ export default function SuperAdminUserDetailsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowResetModal(true)}
+                  className="w-full sm:w-auto"
                 >
                   <FaEdit className="mr-2" />
                   <span className="hidden sm:inline">Reset Password</span>
@@ -648,6 +706,7 @@ export default function SuperAdminUserDetailsPage() {
                   size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
                   isLoading={deleteLoading}
+                  className="w-full sm:w-auto"
                 >
                   <FaTrash className="mr-2" />
                   <span className="hidden sm:inline">Delete User</span>
@@ -668,9 +727,9 @@ export default function SuperAdminUserDetailsPage() {
             </CardHeader>
             <CardBody>
               {editError && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 text-sm">{editError}</p>
-                </div>
+                <Alert status="error" variant="left-accent" className="mb-4" title="Update failed">
+                  {editError}
+                </Alert>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
@@ -691,23 +750,12 @@ export default function SuperAdminUserDetailsPage() {
                   value={editData.phone || ""}
                   onChange={handleEditChange}
                 />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    User Type
-                  </label>
-                  <select
-                    name="userType"
-                    value={editData.userType || ""}
-                    onChange={handleEditChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="agent">Agent</option>
-                    <option value="super_agent">Super Agent</option>
-                    <option value="dealer">Dealer</option>
-                    <option value="super_dealer">Super Dealer</option>
-                    <option value="super_admin">Super Admin</option>
-                  </select>
-                </div>
+                <Select
+                  label="User Type"
+                  value={String(editData.userType || "agent")}
+                  onChange={(value) => updateEditField("userType", value)}
+                  options={userTypeOptions}
+                />
                 {["agent", "super_agent", "dealer", "super_dealer"].includes(
                   editData.userType || user.userType
                 ) && (
@@ -718,56 +766,24 @@ export default function SuperAdminUserDetailsPage() {
                         value={editData.businessName || ""}
                         onChange={handleEditChange}
                       />
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Business Category
-                        </label>
-                        <select
-                          name="businessCategory"
-                          value={editData.businessCategory || ""}
-                          onChange={handleEditChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Select Category</option>
-                          <option value="electronics">Electronics</option>
-                          <option value="fashion">Fashion</option>
-                          <option value="food">Food</option>
-                          <option value="services">Services</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Subscription Plan
-                        </label>
-                        <select
-                          name="subscriptionPlan"
-                          value={editData.subscriptionPlan || ""}
-                          onChange={handleEditChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Select Plan</option>
-                          <option value="basic">Basic</option>
-                          <option value="premium">Premium</option>
-                          <option value="enterprise">Enterprise</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Subscription Status
-                        </label>
-                        <select
-                          name="subscriptionStatus"
-                          value={editData.subscriptionStatus || ""}
-                          onChange={handleEditChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                          <option value="suspended">Suspended</option>
-                        </select>
-                      </div>
+                      <Select
+                        label="Business Category"
+                        value={String(editData.businessCategory || "")}
+                        onChange={(value) => updateEditField("businessCategory", value)}
+                        options={businessCategoryOptions}
+                      />
+                      <Select
+                        label="Subscription Plan"
+                        value={String(editData.subscriptionPlan || "")}
+                        onChange={(value) => updateEditField("subscriptionPlan", value)}
+                        options={subscriptionPlanOptions}
+                      />
+                      <Select
+                        label="Subscription Status"
+                        value={String(editData.subscriptionStatus || "")}
+                        onChange={(value) => updateEditField("subscriptionStatus", value)}
+                        options={subscriptionStatusOptions}
+                      />
                     </>
                   )}
               </div>
@@ -825,57 +841,18 @@ export default function SuperAdminUserDetailsPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Order
-                      </th>
-                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total
-                      </th>
-                      <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Created
-                      </th>
-                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {orders.map((order) => (
-                      <tr key={order._id} className="hover:bg-gray-50">
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                          <div className="text-xs sm:text-sm font-medium text-gray-900">
-                            {order.orderNumber || order._id}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {order.items.length} item
-                            {order.items.length !== 1 ? "s" : ""}
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                              order.status
-                            )}`}
-                          >
-                            {order.status}
+              <>
+                <div className="space-y-2 sm:hidden">
+                  {orders.map((order) => (
+                    <div key={order._id || order.orderNumber} className="rounded-2xl border border-gray-200 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {order.orderNumber || order._id}
+                        </p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-sm font-semibold text-gray-900">
+                            {formatCurrency(order.total || 0)}
                           </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                          {formatCurrency(order.total || 0)}
-                        </td>
-                        <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                          {order.createdAt
-                            ? formatDate(order.createdAt)
-                            : "N/A"}
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <Button
                             size="xs"
                             variant="outline"
@@ -883,12 +860,68 @@ export default function SuperAdminUserDetailsPage() {
                           >
                             <FaEye className="w-3 h-3" />
                           </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <p className="text-xs text-gray-500">
+                          {order.items.length} item
+                          {order.items.length !== 1 ? "s" : ""}
+                        </p>
+                        <Badge variant="subtle" colorScheme={getStatusBadgeScheme(order.status)}>
+                          {order.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="hidden sm:block overflow-x-auto">
+                  <Table size="sm" colorScheme="gray" className="min-w-full">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHeaderCell>Order</TableHeaderCell>
+                        <TableHeaderCell>Status</TableHeaderCell>
+                        <TableHeaderCell>Total</TableHeaderCell>
+                        <TableHeaderCell className="hidden sm:table-cell">Created</TableHeaderCell>
+                        <TableHeaderCell>Actions</TableHeaderCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order._id || order.orderNumber}>
+                          <TableCell>
+                            <div className="text-xs sm:text-sm font-medium text-gray-900">
+                              {order.orderNumber || order._id}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {order.items.length} item
+                              {order.items.length !== 1 ? "s" : ""}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="subtle" colorScheme={getStatusBadgeScheme(order.status)}>
+                              {order.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatCurrency(order.total || 0)}</TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            {order.createdAt ? formatDate(order.createdAt) : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              onClick={() => handleViewOrder(order._id || "")}
+                            >
+                              <FaEye className="w-3 h-3" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
             )}
           </CardBody>
         </Card>
@@ -914,9 +947,9 @@ export default function SuperAdminUserDetailsPage() {
                 required
               />
               {resetError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 text-sm">{resetError}</p>
-                </div>
+                <Alert status="error" variant="left-accent" title="Reset failed">
+                  {resetError}
+                </Alert>
               )}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
@@ -950,21 +983,15 @@ export default function SuperAdminUserDetailsPage() {
             title="Delete User"
           >
             <div className="space-y-4">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-start">
-                  <FaExclamationTriangle className="text-red-500 mr-3 mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-red-800 font-semibold text-sm sm:text-base">
-                      Warning
-                    </h4>
-                    <p className="text-red-700 text-xs sm:text-sm mt-1">
-                      Are you sure you want to delete this user? This action
-                      cannot be undone and will permanently remove all user
-                      data.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <Alert
+                status="error"
+                variant="left-accent"
+                title="Warning"
+                icon={<FaExclamationTriangle className="w-4 h-4" />}
+              >
+                Are you sure you want to delete this user? This action cannot
+                be undone and will permanently remove all user data.
+              </Alert>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   variant="primary"

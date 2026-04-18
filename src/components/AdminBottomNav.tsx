@@ -134,10 +134,10 @@ export const AdminBottomNav = ({ userType = "admin" }: AdminBottomNavProps) => {
             {isSuperAdmin && (
                 <div
                     ref={sheetRef}
-                    className="md:hidden fixed left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-surface)] rounded-t-[20px] shadow-[0_-8px_32px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-out"
+                    className="md:hidden fixed left-0 right-0 z-50 flex flex-col border-t border-[var(--color-border)] bg-[var(--color-surface)] rounded-t-[20px] shadow-[0_-8px_32px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-out"
                     style={{
                         bottom: overflowOpen ? "72px" : "-100%",
-                        padding: "0 0 16px 0",
+                        maxHeight: "calc(100vh - 88px - env(safe-area-inset-top, 0px))",
                     }}
                 >
                     {/* Sheet handle */}
@@ -146,7 +146,7 @@ export const AdminBottomNav = ({ userType = "admin" }: AdminBottomNavProps) => {
                     </div>
 
                     {/* Sheet title */}
-                    <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 pb-3">
+                    <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] px-5 pb-3">
                         <span className="font-['Syne'] text-base font-bold text-slate-900">
                             More
                         </span>
@@ -160,47 +160,54 @@ export const AdminBottomNav = ({ userType = "admin" }: AdminBottomNavProps) => {
                     </div>
 
                     {/* Overflow items */}
-                    <div className="px-4 pt-2 grid grid-cols-1 gap-1">
-                        {overflowItems.map((item) => {
-                            const active = isActive(item.path);
-                            return (
-                                <NavLink
-                                    key={item.path}
-                                    to={item.path}
-                                    className={`flex items-center gap-3 rounded-[14px] px-3 py-3 transition-colors duration-150 ${active ? "bg-primary-50" : "hover:bg-slate-50"}`}
-                                    onMouseEnter={(e) => {
-                                        if (!active) e.currentTarget.style.backgroundColor = "";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!active) e.currentTarget.style.backgroundColor = "";
-                                    }}
-                                >
-                                    {/* Icon */}
-                                    <div
-                                        className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[12px] ${active ? "bg-primary-500 text-white" : "bg-slate-100 text-slate-600"}`}
+                    <div
+                        className="overflow-y-auto overscroll-contain px-4 pt-2 pb-4"
+                        style={{
+                            paddingBottom: "max(16px, env(safe-area-inset-bottom, 0px))",
+                        }}
+                    >
+                        <div className="grid grid-cols-1 gap-1">
+                            {overflowItems.map((item) => {
+                                const active = isActive(item.path);
+                                return (
+                                    <NavLink
+                                        key={item.path}
+                                        to={item.path}
+                                        className={`flex items-center gap-3 rounded-[14px] px-3 py-3 transition-colors duration-150 ${active ? "bg-primary-50" : "hover:bg-slate-50"}`}
+                                        onMouseEnter={(e) => {
+                                            if (!active) e.currentTarget.style.backgroundColor = "";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!active) e.currentTarget.style.backgroundColor = "";
+                                        }}
                                     >
-                                        {item.icon}
-                                    </div>
-
-                                    {/* Text */}
-                                    <div className="min-w-0 flex-1">
-                                        <div className={`font-['DM Sans'] text-sm font-semibold ${active ? "text-primary-600" : "text-slate-900"}`}>
-                                            {item.label}
+                                        {/* Icon */}
+                                        <div
+                                            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[12px] ${active ? "bg-primary-500 text-white" : "bg-slate-100 text-slate-600"}`}
+                                        >
+                                            {item.icon}
                                         </div>
-                                        {item.description && (
-                                            <div className="mt-0.5 truncate text-xs text-slate-500">
-                                                {item.description}
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    {/* Active indicator */}
-                                    {active && (
-                                        <div className="h-2 w-2 flex-shrink-0 rounded-full bg-primary-500" />
-                                    )}
-                                </NavLink>
-                            );
-                        })}
+                                        {/* Text */}
+                                        <div className="min-w-0 flex-1">
+                                            <div className={`font-['DM Sans'] text-sm font-semibold ${active ? "text-primary-600" : "text-slate-900"}`}>
+                                                {item.label}
+                                            </div>
+                                            {item.description && (
+                                                <div className="mt-0.5 truncate text-xs text-slate-500">
+                                                    {item.description}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Active indicator */}
+                                        {active && (
+                                            <div className="h-2 w-2 flex-shrink-0 rounded-full bg-primary-500" />
+                                        )}
+                                    </NavLink>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             )}

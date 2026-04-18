@@ -149,7 +149,8 @@ function WalletTransactionModal({
         <div className="flex gap-2 pt-2">
           <Button
             type="submit"
-            variant={isCredit ? "primary" : "danger"}
+            variant="primary"
+            colorScheme={isCredit ? "success" : "error"}
             disabled={loading || !amount || parseFloat(amount) <= 0}
             isLoading={loading}
           >
@@ -484,6 +485,8 @@ export default function WalletTopUpsPage() {
                     <div className="flex gap-2 mt-3">
                       <Button
                         size="xs"
+                        variant="primary"
+                        colorScheme="success"
                         className="flex-1"
                         onClick={() => handleProcessRequest(req._id, true)}
                         isLoading={processingId === req._id}
@@ -493,7 +496,8 @@ export default function WalletTopUpsPage() {
                       </Button>
                       <Button
                         size="xs"
-                        variant="danger"
+                        variant="primary"
+                        colorScheme="error"
                         className="flex-1"
                         onClick={() => handleProcessRequest(req._id, false)}
                         isLoading={processingId === req._id}
@@ -548,6 +552,8 @@ export default function WalletTopUpsPage() {
                           <div className="flex gap-2">
                             <Button
                               size="xs"
+                              variant="primary"
+                              colorScheme="success"
                               onClick={() => handleProcessRequest(req._id, true)}
                               isLoading={processingId === req._id}
                               disabled={!!processingId}
@@ -556,7 +562,8 @@ export default function WalletTopUpsPage() {
                             </Button>
                             <Button
                               size="xs"
-                              variant="danger"
+                              variant="primary"
+                              colorScheme="error"
                               onClick={() => handleProcessRequest(req._id, false)}
                               isLoading={processingId === req._id}
                               disabled={!!processingId}
@@ -667,14 +674,17 @@ export default function WalletTopUpsPage() {
                       {user.agentCode && (
                         <p className="text-xs text-blue-600 font-mono mt-0.5">{user.agentCode}</p>
                       )}
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <div className="bg-gray-50 rounded-lg px-2.5 py-1.5">
+                      <div className="mt-3 space-y-2">
+                        <div className="bg-gray-50 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
                           <p className="text-[10px] text-gray-500 uppercase tracking-wide">Balance</p>
                           <p className="font-bold text-sm text-gray-900">{fmt(user.walletBalance || 0)}</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                           <Button
                             size="xs"
+                            variant="primary"
+                            colorScheme="success"
+                            className="w-full justify-center"
                             onClick={() => {
                               setSelectedUser(user);
                               setTransactionModal({ isOpen: true, mode: "credit" });
@@ -684,7 +694,9 @@ export default function WalletTopUpsPage() {
                           </Button>
                           <Button
                             size="xs"
-                            variant="danger"
+                            variant="primary"
+                            colorScheme="error"
+                            className="w-full justify-center"
                             onClick={() => {
                               setSelectedUser(user);
                               setTransactionModal({ isOpen: true, mode: "debit" });
@@ -749,9 +761,12 @@ export default function WalletTopUpsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-1.5">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-1.5 min-w-[140px]">
                           <Button
                             size="xs"
+                            variant="primary"
+                            colorScheme="success"
+                            className="w-full justify-center"
                             onClick={() => {
                               setSelectedUser(user);
                               setTransactionModal({ isOpen: true, mode: "credit" });
@@ -762,7 +777,9 @@ export default function WalletTopUpsPage() {
                           </Button>
                           <Button
                             size="xs"
-                            variant="danger"
+                            variant="primary"
+                            colorScheme="error"
+                            className="w-full justify-center"
                             onClick={() => {
                               setSelectedUser(user);
                               setTransactionModal({ isOpen: true, mode: "debit" });

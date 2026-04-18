@@ -1,29 +1,17 @@
 import {
-    ArcElement,
-    BarElement,
-    CategoryScale,
-    Chart as ChartJS,
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
     Legend,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Title,
+    ResponsiveContainer,
     Tooltip,
-} from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
+    XAxis,
+    YAxis,
+} from "recharts";
 import { Card, CardBody, CardHeader, Select, Skeleton } from "../../design-system";
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    ArcElement,
-    Title,
-    Tooltip,
-    Legend
-);
+import { formatCurrency, formatNumber } from "./analytics-formatters";
 
 export type TrendMetric = "revenue" | "orders" | "users" | "commissions";
 
@@ -68,50 +56,17 @@ export function AnalyticsTrendStage({
     trendSeries,
     orderStatus,
 }: AnalyticsTrendStageProps) {
-    const trendChartData = {
-        labels,
-        datasets: [
-            {
-                label: trendLabelMap[selectedMetric],
-                data: trendSeries,
-                borderColor: "rgb(14, 116, 144)",
-                backgroundColor: "rgba(6, 182, 212, 0.15)",
-                tension: 0.35,
-                fill: true,
-                pointRadius: 2,
-                pointHoverRadius: 5,
-            },
-        ],
-    };
+    const trendData = labels.map((label, index) => ({
+        label,
+        value: trendSeries[index] ?? 0,
+    }));
 
-    const trendChartOptions = {
-        responsive: true,
-        plugins: {
-            legend: { position: "top" as const },
-            title: {
-                display: false,
-            },
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: (value: number | string) => {
-                        if (selectedMetric === "revenue" || selectedMetric === "commissions") {
-                            return `GHS ${Number(value).toLocaleString()}`;
-                        }
-                        return Number(value).toLocaleString();
-                    },
-                },
-            },
-            x: {
-                ticks: {
-                    maxRotation: 0,
-                    autoSkip: true,
-                    maxTicksLimit: 8,
-                },
-            },
-        },
+    const formatTrendValue = (value: number) => {
+        if (selectedMetric === "revenue" || selectedMetric === "commissions") {
+            return formatCurrency(value);
+        }
+
+        return formatNumber(value);
     };
 
     const statusLabels = [
@@ -133,24 +88,10 @@ export function AnalyticsTrendStage({
         orderStatus.partiallyCompleted,
     ];
 
-    const orderStatusData = {
-        labels: statusLabels,
-        datasets: [
-            {
-                label: "Orders",
-                data: statusValues,
-                backgroundColor: [
-                    "rgba(16, 185, 129, 0.85)",
-                    "rgba(59, 130, 246, 0.85)",
-                    "rgba(245, 158, 11, 0.85)",
-                    "rgba(6, 182, 212, 0.85)",
-                    "rgba(239, 68, 68, 0.85)",
-                    "rgba(107, 114, 128, 0.85)",
-                    "rgba(168, 85, 247, 0.85)",
-                ],
-            },
-        ],
-    };
+    const orderStatusData = statusLabels.map((label, index) => ({
+        status: label,
+        value: statusValues[index],
+    }));
 
     const totalStatusOrders = statusValues.reduce((sum, value) => sum + value, 0);
 
@@ -179,8 +120,55 @@ export function AnalyticsTrendStage({
                             <Skeleton variant="rectangular" height="18rem" />
                         </div>
                     ) : (
-                        <div className="min-h-[18rem]">
-                            <Line data={trendChartData} options={trendChartOptions} />
+                        <div className="h-[18rem] w-full min-w-0 min-h-[18rem]">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
+                                <AreaChart data={trendData} margin={{ top: 16, right: 8, left: 8, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#0891b2" stopOpacity={0.35} />
+                                            <stop offset="95%" stopColor="#0891b2" stopOpacity={0.02} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                    <XAxis
+                                        dataKey="label"
+                                        tick={{ fill: "#475569", fontSize: 12 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        minTickGap={20}
+                                    />
+                                    <YAxis
+                                        tickFormatter={(value: number | string) => formatTrendValue(Number(value))}
+                                        tick={{ fill: "#475569", fontSize: 12 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        width={70}
+                                    />
+                                    <Tooltip
+                                        formatter={(value) => {
+                                            const numericValue = Number(value ?? 0);
+                                            return [formatTrendValue(numericValue), trendLabelMap[selectedMetric]] as [string, string];
+                                        }}
+                                        labelFormatter={(label) => `Period: ${String(label)}`}
+                                        contentStyle={{
+                                            borderRadius: 12,
+                                            borderColor: "rgba(148, 163, 184, 0.25)",
+                                            backgroundColor: "#ffffff",
+                                        }}
+                                    />
+                                    <Legend wrapperStyle={{ paddingBottom: 6, fontSize: 12 }} />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="value"
+                                        name={trendLabelMap[selectedMetric]}
+                                        stroke="#0e7490"
+                                        strokeWidth={2.5}
+                                        fill="url(#trendFill)"
+                                        dot={{ r: 2, fill: "#0e7490" }}
+                                        activeDot={{ r: 5 }}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
                         </div>
                     )}
                 </CardBody>
@@ -203,18 +191,33 @@ export function AnalyticsTrendStage({
                         </>
                     ) : (
                         <>
-                            <div className="min-h-[14rem]">
-                                <Bar
-                                    data={orderStatusData}
-                                    options={{
-                                        responsive: true,
-                                        plugins: { legend: { display: false } },
-                                        scales: {
-                                            x: { ticks: { display: false } },
-                                            y: { beginAtZero: true },
-                                        },
-                                    }}
-                                />
+                            <div className="h-[14rem] w-full min-w-0 min-h-[14rem]">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
+                                    <BarChart data={orderStatusData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                        <XAxis
+                                            dataKey="status"
+                                            tick={false}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            tick={{ fill: "#64748b", fontSize: 12 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            formatter={(value) => [formatNumber(Number(value ?? 0)), "Orders"] as [string, string]}
+                                            labelFormatter={(label) => `Status: ${String(label)}`}
+                                            contentStyle={{
+                                                borderRadius: 12,
+                                                borderColor: "rgba(148, 163, 184, 0.25)",
+                                                backgroundColor: "#ffffff",
+                                            }}
+                                        />
+                                        <Bar dataKey="value" name="Orders" fill="#0ea5e9" radius={[10, 10, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
 
                             <div className="space-y-3">

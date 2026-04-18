@@ -172,42 +172,48 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} className="max-w-4xl">
-      <DialogHeader>
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <FaDollarSign className="w-5 h-5 text-blue-600" />
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      mode="bottom-sheet"
+      size="xl"
+      className="sm:max-w-5xl"
+    >
+      <DialogHeader className="px-4 sm:px-6">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg shrink-0">
+            <FaDollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
               Pricing Management
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600">
               Set user type-specific pricing for "{bundleName}"
             </p>
           </div>
         </div>
       </DialogHeader>
 
-      <DialogBody>
+      <DialogBody className="px-4 sm:px-6 py-4 max-h-[70vh]">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-12 sm:py-16">
             <Spinner size="lg" />
-            <span className="ml-3 text-gray-600">Loading pricing data...</span>
+            <span className="ml-3 text-sm sm:text-base text-gray-600">Loading pricing data...</span>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Base Price Info */}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center justify-between">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-900">Base Price</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="text-sm sm:text-base font-semibold text-gray-900">Base Price</h4>
+                  <p className="text-xs sm:text-sm text-gray-600">
                     The original bundle price set during creation
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-semibold text-gray-900">
+                  <div className="text-base sm:text-lg font-semibold text-gray-900">
                     {formatCurrency(basePrice)}
                   </div>
                 </div>
@@ -218,7 +224,7 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FaUsers className="w-5 h-5 text-gray-600" />
-                <h4 className="font-medium text-gray-900">User Type Pricing</h4>
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900">User Type Pricing</h4>
               </div>
 
               <div className="grid gap-4">
@@ -229,15 +235,15 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
                   return (
                     <div
                       key={userType}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+                      className="p-4 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                             <Badge
                               className={
                                 userTypeColors[
-                                  userType as keyof typeof userTypeColors
+                                userType as keyof typeof userTypeColors
                                 ]
                               }
                             >
@@ -252,16 +258,16 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-xs sm:text-sm text-gray-600">
                             {
                               userTypeDescriptions[
-                                userType as keyof typeof userTypeDescriptions
+                              userType as keyof typeof userTypeDescriptions
                               ]
                             }
                           </p>
                         </div>
 
-                        <div className="w-32">
+                        <div className="w-full sm:w-40">
                           <label
                             htmlFor={`price-${userType}`}
                             className="sr-only"
@@ -281,7 +287,7 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
                                   e.target.value
                                 )
                               }
-                              className="pl-8"
+                              className="pl-8 w-full"
                               placeholder="0.00"
                             />
                             <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -297,17 +303,17 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
             </div>
 
             {/* Pricing Summary */}
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-3">
+            <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <h4 className="text-sm sm:text-base font-semibold text-blue-900 mb-3">
                 Pricing Summary
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 text-sm">
                 {Object.entries(pricingTiers).map(([userType, price]) => (
-                  <div key={userType} className="flex justify-between">
-                    <span className="text-blue-700">
+                  <div key={userType} className="flex items-center justify-between gap-3 p-2 bg-white/60 rounded-lg">
+                    <span className="text-xs sm:text-sm text-blue-700">
                       {userTypeLabels[userType as keyof typeof userTypeLabels]}:
                     </span>
-                    <span className="font-medium text-blue-900">
+                    <span className="text-xs sm:text-sm font-semibold text-blue-900">
                       {formatCurrency(price)}
                     </span>
                   </div>
@@ -318,44 +324,42 @@ export const PricingManagementModal: React.FC<PricingManagementModalProps> = ({
         )}
       </DialogBody>
 
-      <DialogFooter>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex gap-2">
-            {hasChanges() && (
-              <Button
-                variant="outline"
-                onClick={handleReset}
-                disabled={saving}
-                className="text-gray-600"
-              >
-                <FaTimes className="w-4 h-4 mr-2" />
-                Reset
-              </Button>
-            )}
-          </div>
-
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} disabled={saving}>
-              Cancel
-            </Button>
+      <DialogFooter className="px-4 sm:px-6 flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="w-full sm:w-auto flex gap-2 order-2 sm:order-1">
+          {hasChanges() && (
             <Button
-              onClick={handleSave}
-              disabled={saving || !hasChanges()}
-              className="bg-blue-600 hover:bg-blue-700"
+              variant="outline"
+              onClick={handleReset}
+              disabled={saving}
+              className="text-gray-600 w-full sm:w-auto"
             >
-              {saving ? (
-                <>
-                  <Spinner size="sm" className="mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <FaSave className="w-4 h-4 mr-2" />
-                  Save Pricing
-                </>
-              )}
+              <FaTimes className="w-4 h-4 mr-2" />
+              Reset
             </Button>
-          </div>
+          )}
+        </div>
+
+        <div className="w-full sm:w-auto flex flex-col-reverse sm:flex-row gap-3 order-1 sm:order-2">
+          <Button variant="outline" onClick={onClose} disabled={saving} className="w-full sm:w-auto">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={saving || !hasChanges()}
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+          >
+            {saving ? (
+              <>
+                <Spinner size="sm" className="mr-2" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <FaSave className="w-4 h-4 mr-2" />
+                Save Pricing
+              </>
+            )}
+          </Button>
         </div>
       </DialogFooter>
     </Dialog>

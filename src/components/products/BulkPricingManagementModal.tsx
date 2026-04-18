@@ -7,6 +7,7 @@ import {
   Button,
   Spinner,
   Badge,
+  Input,
 } from "../../design-system";
 import { bundleService } from "../../services/bundle.service";
 import { useToast } from "../../design-system/components/toast";
@@ -69,6 +70,7 @@ export const BulkPricingManagementModal: React.FC<
     userType: string;
   } | null>(null);
   const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
+  const [expandedBundles, setExpandedBundles] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isOpen && bundles.length > 0) {
@@ -95,6 +97,13 @@ export const BulkPricingManagementModal: React.FC<
       });
 
       setPricingData(newPricingData);
+      const initialExpansion: Record<string, boolean> = {};
+      bundles.forEach((bundle, idx) => {
+        if (bundle._id) {
+          initialExpansion[bundle._id] = idx < 2;
+        }
+      });
+      setExpandedBundles(initialExpansion);
     } catch (error) {
       console.error("Error loading pricing:", error);
       addToast("Failed to load pricing data", "error");
@@ -204,8 +213,23 @@ export const BulkPricingManagementModal: React.FC<
     addToast("All changes have been reset", "info");
   };
 
+  const toggleBundleExpanded = (bundleId: string) => {
+    setExpandedBundles((prev) => ({
+      ...prev,
+      [bundleId]: !prev[bundleId],
+    }));
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-GH", {
+      style: "currency",
+      currency: "GHS",
+      minimumFractionDigits: 2,
+    }).format(amount || 0);
+  };
+
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} size="full">
+    <Dialog isOpen={isOpen} onClose={onClose} size="full" mode="bottom-sheet">
       <DialogHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-3">
           <div className="flex-1 min-w-0">
@@ -265,8 +289,106 @@ export const BulkPricingManagementModal: React.FC<
               )}
             </div>
 
-            {/* Pricing Table */}
-            <div className="border rounded-lg overflow-hidden">
+            {/* Mobile Pricing Cards */}
+            <div className="space-y-3 lg:hidden">
+              {bundles.map((bundle) => {
+                const bundlePricing = pricingData[bundle._id!];
+                if (!bundlePricing) return null;
+
+                const isExpanded = expandedBundles[bundle._id!] ?? false;
+
+                return (
+                  <div
+                    key={bundle._id}
+                    className={`rounded-xl border ${bundlePricing.hasChanges
+                        ? "border-yellow-300 bg-yellow-50/40"
+                        : "border-gray-200 bg-white"
+                      }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleBundleExpanded(bundle._id!)}
+                      className="w-full p-3 text-left"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">
+                            {bundle.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1 truncate">
+                            {bundle.dataVolume} {bundle.dataUnit} • {bundle.validity} {bundle.validityUnit}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {bundlePricing.hasChanges ? (
+                            <Badge colorScheme="warning" size="sm">Modified</Badge>
+                          ) : (
+                            <Badge colorScheme="success" size="sm">Saved</Badge>
+                          )}
+                          {isExpanded ? (
+                            <FaChevronUp className="text-gray-500" />
+                          ) : (
+                            <FaChevronDown className="text-gray-500" />
+                          )}
+                        </div>
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-3 pb-3 border-t border-gray-200 pt-3 space-y-3">
+                        <div>
+                          <label className="text-xs font-medium text-gray-600 mb-1 block">
+                            Base Price
+                          </label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={bundlePricing.basePrice}
+                            onChange={(e) => handleBasePriceChange(bundle._id!, e.target.value)}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                          {USER_TYPES.map((userType) => {
+                            const price =
+                              bundlePricing.pricingTiers[userType.key] || bundlePricing.basePrice;
+                            return (
+                              <div key={userType.key} className="rounded-lg border border-gray-200 p-2.5 bg-white">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-semibold text-gray-700">
+                                    {userType.label}
+                                  </span>
+                                  <Badge size="sm" className={userType.color}>
+                                    {userType.key}
+                                  </Badge>
+                                </div>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={price}
+                                  onChange={(e) =>
+                                    handlePriceChange(bundle._id!, userType.key, e.target.value)
+                                  }
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="text-xs text-gray-600 bg-gray-50 rounded-lg px-2.5 py-2">
+                          Current base: <span className="font-semibold text-gray-900">{formatCurrency(bundlePricing.basePrice)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Pricing Table */}
+            <div className="hidden lg:block border rounded-lg overflow-hidden">
               <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0 z-10">
@@ -311,9 +433,8 @@ export const BulkPricingManagementModal: React.FC<
                       return (
                         <tr
                           key={bundle._id}
-                          className={`hover:bg-gray-50 ${
-                            bundlePricing.hasChanges ? "bg-yellow-50" : ""
-                          }`}
+                          className={`hover:bg-gray-50 ${bundlePricing.hasChanges ? "bg-yellow-50" : ""
+                            }`}
                         >
                           {/* Bundle Name (Sticky) */}
                           <td className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 sticky left-0 bg-white z-10">
@@ -345,11 +466,10 @@ export const BulkPricingManagementModal: React.FC<
                                     e.target.value
                                   )
                                 }
-                                className={`w-full px-1.5 sm:px-2 py-1 text-[11px] sm:text-xs md:text-sm text-center border rounded focus:outline-none focus:ring-1 sm:focus:ring-2 focus:ring-blue-500 ${
-                                  bundlePricing.hasChanges
-                                    ? "border-yellow-400 bg-yellow-50"
-                                    : "border-gray-300"
-                                }`}
+                                className={`w-full px-1.5 sm:px-2 py-1 text-[11px] sm:text-xs md:text-sm text-center border rounded focus:outline-none focus:ring-1 sm:focus:ring-2 focus:ring-blue-500 ${bundlePricing.hasChanges
+                                  ? "border-yellow-400 bg-yellow-50"
+                                  : "border-gray-300"
+                                  }`}
                               />
                             </div>
                           </td>
@@ -385,13 +505,12 @@ export const BulkPricingManagementModal: React.FC<
                                       handleCellClick(bundle._id!, userType.key)
                                     }
                                     onBlur={handleCellBlur}
-                                    className={`w-full px-1.5 sm:px-2 py-1 text-[11px] sm:text-xs md:text-sm text-center border rounded transition-all ${
-                                      isEditing
-                                        ? "ring-1 sm:ring-2 ring-blue-500 border-blue-500"
-                                        : bundlePricing.hasChanges
+                                    className={`w-full px-1.5 sm:px-2 py-1 text-[11px] sm:text-xs md:text-sm text-center border rounded transition-all ${isEditing
+                                      ? "ring-1 sm:ring-2 ring-blue-500 border-blue-500"
+                                      : bundlePricing.hasChanges
                                         ? "border-yellow-400 bg-yellow-50"
                                         : "border-gray-300"
-                                    } focus:outline-none focus:ring-1 sm:focus:ring-2 focus:ring-blue-500`}
+                                      } focus:outline-none focus:ring-1 sm:focus:ring-2 focus:ring-blue-500`}
                                   />
                                 </div>
                               </td>
@@ -477,7 +596,7 @@ export const BulkPricingManagementModal: React.FC<
         )}
       </DialogBody>
 
-      <DialogFooter>
+      <DialogFooter className="sticky bottom-0 bg-white border-t border-gray-200">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between w-full gap-2 sm:gap-4">
           <div className="flex items-center gap-2 order-2 sm:order-1">
             <Button

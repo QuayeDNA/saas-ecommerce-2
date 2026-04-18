@@ -370,6 +370,10 @@ export default function SuperAdminAnalyticsPage() {
             loading={loading}
             activityFeed={activityFeed}
             topAgents={topAgents}
+            topStorefronts={[]}
+            performanceTimeframe={timeframe}
+            performanceTimeOptions={TIME_OPTIONS}
+            onPerformanceTimeframeChange={setTimeframe}
             pendingCommissionAmount={pendingCommissionAmount}
             payoutQueueCount={payoutQueueCount}
             netFlow={netFlow}

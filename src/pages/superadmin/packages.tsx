@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { packageService } from "../../services/package.service";
 import type { Package } from "../../types/package";
 import { SearchAndFilter } from "../../components/common";
-import { 
-  FaBox, 
-  FaEdit, 
-  FaTrash, 
-  FaEye, 
+import {
+  FaBox,
+  FaEdit,
+  FaTrash,
+  FaEye,
   FaPlus,
   FaBuilding,
   FaDownload,
@@ -16,12 +16,12 @@ import {
   FaTimesCircle
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { 
-  Button, 
-  Card, 
-  CardHeader, 
-  CardBody, 
-  Badge, 
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  Badge,
   Spinner,
   Dialog,
   DialogHeader,
@@ -94,7 +94,7 @@ export default function SuperAdminPackagesPage() {
     }
   };
 
-  const fetchPackages = async () => {
+  const fetchPackages = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -116,11 +116,11 @@ export default function SuperAdminPackagesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [provider, status, category, search, addToast]);
 
   useEffect(() => {
     fetchPackages();
-  }, [provider, status, category]);
+  }, [fetchPackages]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,16 +259,16 @@ export default function SuperAdminPackagesPage() {
               </h1>
               <p className="text-sm sm:text-base text-gray-600">Create and manage data packages</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button variant="outline" onClick={fetchPackages} disabled={loading} size="sm">
+            <div className="grid grid-cols-2 sm:flex gap-2 w-full lg:w-auto">
+              <Button variant="outline" onClick={fetchPackages} disabled={loading} size="sm" className="w-full">
                 <FaRedo className="mr-2" />
                 Refresh
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full">
                 <FaDownload className="mr-2" />
                 Export
               </Button>
-              <Button onClick={handleCreate} size="sm">
+              <Button onClick={handleCreate} size="sm" className="col-span-2 sm:col-span-1 w-full">
                 <FaPlus className="mr-2" />
                 Create Package
               </Button>
@@ -390,58 +390,55 @@ export default function SuperAdminPackagesPage() {
               {packages.map(pkg => {
                 const providerColors = getProviderColors(pkg.provider);
                 return (
-                  <Card 
-                    key={pkg._id} 
-                    className="hover:shadow-lg transition-all duration-200 group"
+                  <Card
+                    key={pkg._id}
+                    className="border border-gray-200 hover:border-gray-300 transition-all duration-200 group"
                     style={{
                       borderTop: `4px solid ${providerColors.primary}`,
                       backgroundColor: providerColors.background
                     }}
                   >
-                    {/* Card Header with Provider Branding */}
-                    <div 
-                      className="pb-3"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="p-2 rounded-full"
-                            style={{ backgroundColor: providerColors.primary }}
-                          >
-                            <FaBox className="text-white text-sm" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 truncate">
-                              {pkg.name}
-                            </h3>
-                            <p 
-                              className="text-xs font-medium mt-1"
-                              style={{ color: providerColors.primary }}
+                    <CardBody className="p-4 sm:p-5">
+                      {/* Card Header with Provider Branding */}
+                      <div className="pb-3 border-b border-gray-200">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div
+                              className="p-2 rounded-full shrink-0"
+                              style={{ backgroundColor: providerColors.primary }}
                             >
-                              {pkg.provider}
-                            </p>
+                              <FaBox className="text-white text-sm" />
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="text-base font-semibold text-gray-900 truncate">
+                                {pkg.name}
+                              </h3>
+                              <p
+                                className="text-xs font-medium mt-0.5"
+                                style={{ color: providerColors.primary }}
+                              >
+                                {pkg.provider}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Badge 
+                          <Badge
                             colorScheme={pkg.isActive ? "success" : "error"}
                             size="sm"
+                            className="shrink-0"
                           >
                             {pkg.isActive ? <FaCheckCircle className="w-3 h-3 mr-1" /> : <FaTimesCircle className="w-3 h-3 mr-1" />}
                             {pkg.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </div>
+
+                        {pkg.description && (
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            {pkg.description}
+                          </p>
+                        )}
                       </div>
-                      
-                      {/* Description */}
-                      {pkg.description && (
-                        <p className="text-xs text-gray-600 line-clamp-2 mb-3">
-                          {pkg.description}
-                        </p>
-                      )}
-                      
-                      {/* Tags */}
-                      <div className="flex flex-wrap items-center gap-1">
+
+                      <div className="pt-3 pb-4 flex flex-wrap items-center gap-2">
                         <Badge variant="outline" size="sm" className={getCategoryColor(pkg.category)}>
                           {pkg.category}
                         </Badge>
@@ -450,53 +447,47 @@ export default function SuperAdminPackagesPage() {
                           {formatDate(pkg.createdAt || '')}
                         </Badge>
                       </div>
-                    </div>
 
-                    {/* Card Actions */}
-                    <div className="pt-3 border-t border-gray-100">
-                      <div className="flex flex-col gap-2">
-                        {/* Primary Actions */}
-                        <div className="flex gap-2">
+                      {/* Card Actions */}
+                      <div className="pt-3 border-t border-gray-200 space-y-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/superadmin/packages/${pkg._id}/bundles`)}
+                          className="w-full text-sm border-none"
+                          style={{
+                            backgroundColor: providerColors.primary,
+                            color: providerColors.background
+                          }}
+                        >
+                          <FaEye className="mr-2" />
+                          Manage Bundles
+                        </Button>
+
+                        <div className="grid grid-cols-2 gap-2">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleEdit(pkg)}
                             disabled={actionLoading}
-                            className="flex-1 text-xs"
+                            className="w-full text-xs"
                           >
                             <FaEdit className="mr-1" />
                             Edit
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
-                            onClick={() => navigate(`/superadmin/packages/${pkg._id}/bundles`)}
-                            className="flex-1 text-xs border-none"
-                            style={{
-                              backgroundColor: providerColors.primary,
-                              color: providerColors.background
-                            }}
-                          >
-                            <FaEye className="mr-1" />
-                            Bundles
-                          </Button>
-                        </div>
-                        
-                        {/* Secondary Actions */}
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
                             variant="danger"
                             onClick={() => handleDelete(pkg)}
                             disabled={actionLoading}
-                            className="flex-1 text-xs"
+                            className="w-full text-xs"
                           >
                             <FaTrash className="mr-1" />
                             Delete
                           </Button>
                         </div>
                       </div>
-                    </div>
+                    </CardBody>
                   </Card>
                 );
               })}
@@ -514,7 +505,7 @@ export default function SuperAdminPackagesPage() {
       />
 
       {/* Delete Confirmation Modal */}
-      <Dialog isOpen={showDeleteModal} onClose={() => { setShowDeleteModal(false); setDeletePackage(null); }}>
+      <Dialog isOpen={showDeleteModal} onClose={() => { setShowDeleteModal(false); setDeletePackage(null); }} mode="bottom-sheet" size="md">
         <DialogHeader>
           <h2 className="text-lg font-bold">Delete Package</h2>
         </DialogHeader>

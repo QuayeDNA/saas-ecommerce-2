@@ -30,6 +30,12 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Table,
+  TableHeader,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
 } from "../../design-system";
 import { BundleCreationModal } from "../../components/products/BundleCreationModal";
 import { PricingManagementModal } from "../../components/products/PricingManagementModal";
@@ -481,12 +487,13 @@ export const BundleManagementPage: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="grid grid-cols-2 sm:flex gap-2 w-full lg:w-auto">
               <Button
                 variant="outline"
                 onClick={fetchBundles}
                 disabled={loading}
                 size="sm"
+                className="w-full"
               >
                 <FaRedo className="mr-2" />
                 Refresh
@@ -496,16 +503,16 @@ export const BundleManagementPage: React.FC = () => {
                 onClick={handleBulkPricing}
                 disabled={loading || bundles.length === 0}
                 size="sm"
-                className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100"
+                className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 w-full"
               >
                 <FaDollarSign className="mr-2" />
                 Bulk Pricing
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full">
                 <FaDownload className="mr-2" />
                 Export
               </Button>
-              <Button onClick={handleCreate} size="sm">
+              <Button onClick={handleCreate} size="sm" className="col-span-2 sm:col-span-1 w-full">
                 <FaPlus className="mr-2" />
                 Create Bundle
               </Button>
@@ -611,9 +618,8 @@ export const BundleManagementPage: React.FC = () => {
                 }}
               >
                 <FaBuilding
-                  className={`text-lg sm:text-xl ${
-                    getProviderColors(pkg?.provider)?.primary
-                  }`}
+                  className={`text-lg sm:text-xl ${getProviderColors(pkg?.provider)?.primary
+                    }`}
                 />
               </div>
             </div>
@@ -707,205 +713,224 @@ export const BundleManagementPage: React.FC = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              {bundles.map((bundle) => {
-                const providerColors = getProviderColors(pkg?.provider);
-                return (
-                  <Card
-                    key={bundle._id}
-                    className="hover:shadow-lg transition-all duration-200 group"
-                    style={{
-                      borderTop: `4px solid ${providerColors.primary}`,
-                      backgroundColor: providerColors.background,
-                    }}
-                  >
-                    {/* Card Header with Provider Branding */}
-                    <div className="pb-3">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="p-2 rounded-full"
-                            style={{ backgroundColor: providerColors.primary }}
-                          >
-                            <FaCube className="text-white text-sm" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 truncate">
+            <>
+              <div className="grid grid-cols-1 gap-4 lg:hidden">
+                {bundles.map((bundle) => {
+                  const providerColors = getProviderColors(pkg?.provider);
+                  return (
+                    <Card
+                      key={bundle._id}
+                      className="border border-gray-200"
+                      style={{
+                        borderTop: `4px solid ${providerColors.primary}`,
+                        backgroundColor: providerColors.background,
+                      }}
+                    >
+                      <CardBody className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="text-base font-semibold text-gray-900 truncate">
                               {bundle.name}
                             </h3>
-                            <p
-                              className="text-xs font-medium mt-1"
-                              style={{ color: providerColors.primary }}
-                            >
+                            <p className="text-xs text-gray-600 mt-0.5">
                               {pkg?.provider || "N/A"}
                             </p>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1">
                           <Badge
                             colorScheme={bundle.isActive ? "success" : "error"}
                             size="sm"
+                            className="shrink-0"
                           >
-                            {bundle.isActive ? (
-                              <FaCheckCircle className="w-3 h-3 mr-1" />
-                            ) : (
-                              <FaTimesCircle className="w-3 h-3 mr-1" />
-                            )}
                             {bundle.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </div>
-                      </div>
 
-                      {/* Description */}
-                      {bundle.description && (
-                        <p className="text-xs text-gray-600 line-clamp-2 mb-3">
-                          {bundle.description}
-                        </p>
-                      )}
+                        {bundle.description && (
+                          <p className="text-xs text-gray-600 mt-3 line-clamp-2">
+                            {bundle.description}
+                          </p>
+                        )}
 
-                      {/* Bundle Details */}
-                      <div className="space-y-2 mb-3">
-                        {pkg?.provider === "AFA" ? (
-                          // AFA-specific details
-                          <>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-500">
-                                Type:
-                              </span>
-                              <span className="text-xs font-medium text-gray-900">
-                                AFA Registration Service
-                              </span>
-                            </div>
-                            {bundle.requiresGhanaCard && (
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-500">
-                                  Ghana Card:
-                                </span>
-                                <span className="text-xs font-medium text-green-600">
-                                  Required
+                        <div className="mt-3 rounded-lg bg-white/70 border border-gray-200 p-3 space-y-2">
+                          {pkg?.provider === "AFA" ? (
+                            <>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Type</span>
+                                <span className="font-medium text-gray-900">AFA Registration Service</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Ghana Card</span>
+                                <span className="font-medium text-gray-900">
+                                  {bundle.requiresGhanaCard ? "Required" : "Optional"}
                                 </span>
                               </div>
-                            )}
-                            {bundle.afaRequirements &&
-                              bundle.afaRequirements.length > 0 && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-gray-500">
-                                    Requirements:
-                                  </span>
-                                  <span className="text-xs font-medium text-gray-900">
-                                    {bundle.afaRequirements.length} item
-                                    {bundle.afaRequirements.length !== 1
-                                      ? "s"
-                                      : ""}
-                                  </span>
-                                </div>
-                              )}
-                          </>
-                        ) : (
-                          // Regular bundle details
-                          <>
-                            {/* Data Volume */}
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-500">
-                                Data:
-                              </span>
-                              <span className="text-xs font-medium text-gray-900">
-                                {bundle.dataVolume} {bundle.dataUnit}
-                              </span>
-                            </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Data</span>
+                                <span className="font-medium text-gray-900">
+                                  {bundle.dataVolume} {bundle.dataUnit}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Validity</span>
+                                <span className="font-medium text-gray-900">
+                                  {bundle.validity === "unlimited" ||
+                                    bundle.validityUnit === "unlimited"
+                                    ? "Unlimited"
+                                    : `${bundle.validity} ${bundle.validityUnit}`}
+                                </span>
+                              </div>
+                            </>
+                          )}
 
-                            {/* Validity */}
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-gray-500">
-                                Validity:
-                              </span>
-                              <span className="text-xs font-medium text-gray-900">
-                                {bundle.validity === "unlimited" ||
-                                bundle.validityUnit === "unlimited"
-                                  ? "Unlimited"
-                                  : `${bundle.validity} ${bundle.validityUnit}`}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {/* Price */}
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">Price:</span>
-                          <span className="text-xs font-medium text-gray-900">
-                            {formatCurrency(bundle.price, bundle.currency)}
-                          </span>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-500">Price</span>
+                            <span className="font-semibold text-gray-900">
+                              {formatCurrency(bundle.price, bundle.currency)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Tags */}
-                      <div className="flex flex-wrap items-center gap-1">
-                        {bundle.category && (
-                          <Badge
-                            variant="outline"
-                            size="sm"
-                            className={getCategoryColor(bundle.category)}
-                          >
-                            {bundle.category}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {bundle.category && (
+                            <Badge variant="outline" size="sm" className={getCategoryColor(bundle.category)}>
+                              {bundle.category}
+                            </Badge>
+                          )}
+                          <Badge variant="outline" size="sm" className="bg-gray-100 text-gray-700">
+                            <FaCalendar className="w-3 h-3 mr-1" />
+                            {formatDate(bundle.createdAt || "")}
                           </Badge>
-                        )}
-                        <Badge
-                          variant="outline"
-                          size="sm"
-                          className="bg-gray-100 text-gray-700"
-                        >
-                          <FaCalendar className="w-3 h-3 mr-1" />
-                          {formatDate(bundle.createdAt || "")}
-                        </Badge>
-                      </div>
-                    </div>
+                        </div>
 
-                    {/* Card Actions */}
-                    <div className="pt-3 border-t border-gray-100">
-                      <div className="flex flex-col gap-2">
-                        {/* Primary Actions */}
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEdit(bundle)}
-                            disabled={actionLoading}
-                            className="flex-1 text-xs"
-                          >
-                            <FaEdit className="mr-1" />
-                            Edit
-                          </Button>
+                        <div className="mt-4 pt-3 border-t border-gray-200 space-y-2">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handlePricingManagement(bundle)}
                             disabled={actionLoading}
-                            className="flex-1 text-xs text-green-600 border-green-200 hover:bg-green-50"
+                            className="w-full text-sm text-green-700 border-green-300 hover:bg-green-50"
                           >
-                            <FaDollarSign className="mr-1" />
-                            Pricing
+                            <FaDollarSign className="mr-2" />
+                            Manage Pricing
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDelete(bundle)}
-                            disabled={actionLoading}
-                            className="flex-1 text-xs border-none"
-                            style={{
-                              backgroundColor: providerColors.primary,
-                              color: providerColors.background,
-                            }}
-                          >
-                            <FaTrash className="mr-1" />
-                            Delete
-                          </Button>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(bundle)}
+                              disabled={actionLoading}
+                              className="w-full text-xs"
+                            >
+                              <FaEdit className="mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => handleDelete(bundle)}
+                              disabled={actionLoading}
+                              className="w-full text-xs"
+                            >
+                              <FaTrash className="mr-1" />
+                              Delete
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                      </CardBody>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <div className="hidden lg:block overflow-x-auto">
+                <Table size="sm" colorScheme="gray" className="min-w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHeaderCell>Bundle</TableHeaderCell>
+                      <TableHeaderCell>Type / Data</TableHeaderCell>
+                      <TableHeaderCell>Validity</TableHeaderCell>
+                      <TableHeaderCell>Price</TableHeaderCell>
+                      <TableHeaderCell>Status</TableHeaderCell>
+                      <TableHeaderCell>Created</TableHeaderCell>
+                      <TableHeaderCell>Actions</TableHeaderCell>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bundles.map((bundle) => (
+                      <TableRow key={bundle._id}>
+                        <TableCell>
+                          <div className="text-sm font-semibold text-gray-900">{bundle.name}</div>
+                          <div className="text-xs text-gray-500">{pkg?.provider || "N/A"}</div>
+                        </TableCell>
+                        <TableCell>
+                          {pkg?.provider === "AFA" ? (
+                            <div className="text-xs text-gray-700">
+                              AFA Registration Service
+                            </div>
+                          ) : (
+                            <div className="text-xs text-gray-700">
+                              {bundle.dataVolume} {bundle.dataUnit}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-gray-700">
+                            {bundle.validity === "unlimited" || bundle.validityUnit === "unlimited"
+                              ? "Unlimited"
+                              : `${bundle.validity} ${bundle.validityUnit}`}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm font-semibold text-gray-900">
+                            {formatCurrency(bundle.price, bundle.currency)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge colorScheme={bundle.isActive ? "success" : "error"} size="sm">
+                            {bundle.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-gray-700">{formatDate(bundle.createdAt || "")}</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              onClick={() => handlePricingManagement(bundle)}
+                              disabled={actionLoading}
+                              className="text-green-700 border-green-300"
+                            >
+                              <FaDollarSign className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              onClick={() => handleEdit(bundle)}
+                              disabled={actionLoading}
+                            >
+                              <FaEdit className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="xs"
+                              variant="danger"
+                              onClick={() => handleDelete(bundle)}
+                              disabled={actionLoading}
+                            >
+                              <FaTrash className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardBody>
       </Card>
@@ -931,6 +956,8 @@ export const BundleManagementPage: React.FC = () => {
           setShowDeleteModal(false);
           setDeleteBundle(null);
         }}
+        mode="bottom-sheet"
+        size="md"
       >
         <DialogHeader>
           <h2 className="text-lg font-bold">Delete Bundle</h2>

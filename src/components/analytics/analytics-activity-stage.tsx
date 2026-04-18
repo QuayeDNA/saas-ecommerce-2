@@ -1,4 +1,19 @@
-import { Badge, Card, CardBody, CardHeader, Skeleton, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from "../../design-system";
+import { useMemo, useState } from "react";
+import {
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    Select,
+    Skeleton,
+    Table,
+    TableBody,
+    TableCell,
+    TableHeader,
+    TableHeaderCell,
+    TableRow,
+} from "../../design-system";
 import { formatCurrency, formatDateTime, formatNumber } from "./analytics-formatters";
 
 interface ActivityFeedItem {
@@ -17,67 +32,159 @@ interface TopAgentItem {
     revenue: number;
 }
 
+interface TopStorefrontItem {
+    storefrontId: string;
+    storefrontName: string;
+    businessName?: string;
+    agentName?: string;
+    totalOrders?: number;
+    netProfit?: number;
+    grossRevenue?: number;
+    orders: number;
+    revenue: number;
+}
+
+interface SelectOption {
+    value: string;
+    label: string;
+}
+
 interface AnalyticsActivityStageProps {
     loading: boolean;
+    performanceLoading?: boolean;
     activityFeed: ActivityFeedItem[];
     topAgents: TopAgentItem[];
+    topStorefronts?: TopStorefrontItem[];
+    performanceTimeframe: string;
+    performanceTimeOptions: SelectOption[];
+    onPerformanceTimeframeChange: (value: string) => void;
     pendingCommissionAmount: number;
     payoutQueueCount: number;
     netFlow: number;
+}
+
+type PerformanceMode = "agents" | "storefronts";
+
+interface PerformerRow {
+    id: string;
+    primary: string;
+    secondary: string;
+    orders: number;
+    value: number;
 }
 
 function getRankStyle(rank: number) {
     if (rank === 1) {
         return {
             label: "Gold",
-            badgeClass: "bg-amber-100 text-amber-800 border border-amber-300",
-            rowClass: "bg-amber-50/40",
+            badgeClass: "bg-amber-100 text-amber-900 border border-amber-300/40",
+            rowClass: "border-amber-300/35 bg-amber-50",
         };
     }
 
     if (rank === 2) {
         return {
             label: "Silver",
-            badgeClass: "bg-slate-100 text-slate-800 border border-slate-300",
-            rowClass: "bg-slate-50/50",
+            badgeClass: "bg-slate-100 text-slate-900 border border-slate-300/35",
+            rowClass: "border-slate-300/35 bg-slate-100",
         };
     }
 
     if (rank === 3) {
         return {
             label: "Bronze",
-            badgeClass: "bg-orange-100 text-orange-800 border border-orange-300",
-            rowClass: "bg-orange-50/40",
+            badgeClass: "bg-orange-100 text-orange-900 border border-orange-300/40",
+            rowClass: "border-orange-300/35 bg-orange-50",
         };
     }
 
     return {
         label: "",
-        badgeClass: "",
-        rowClass: "",
+        badgeClass: "bg-slate-100 text-slate-900 border border-slate-200",
+        rowClass: "border-slate-200 bg-slate-50",
     };
 }
 
 export function AnalyticsActivityStage({
     loading,
+    performanceLoading = false,
     activityFeed,
     topAgents,
+    topStorefronts = [],
+    performanceTimeframe,
+    performanceTimeOptions,
+    onPerformanceTimeframeChange,
     pendingCommissionAmount,
     payoutQueueCount,
     netFlow,
 }: AnalyticsActivityStageProps) {
-    const rankedTopAgents = [...topAgents].sort((a, b) => {
-        const orderDiff = (b.orders || 0) - (a.orders || 0);
-        if (orderDiff !== 0) {
-            return orderDiff;
+    const [performanceMode, setPerformanceMode] = useState<PerformanceMode>("agents");
+    const [topPerformersCount, setTopPerformersCount] = useState<number>(5);
+
+    const rankedTopAgents = useMemo(
+        () =>
+            [...topAgents].sort((a, b) => {
+                const orderDiff = (b.orders || 0) - (a.orders || 0);
+                if (orderDiff !== 0) {
+                    return orderDiff;
+                }
+
+                return (b.revenue || 0) - (a.revenue || 0);
+            }),
+        [topAgents]
+    );
+
+    const rankedTopStorefronts = useMemo(
+        () =>
+            [...topStorefronts].sort((a, b) => {
+                const orderDiff = (b.orders || 0) - (a.orders || 0);
+                if (orderDiff !== 0) {
+                    return orderDiff;
+                }
+
+                return (b.revenue || 0) - (a.revenue || 0);
+            }),
+        [topStorefronts]
+    );
+
+    const currentRows = useMemo<PerformerRow[]>(() => {
+        if (performanceMode === "storefronts") {
+            return rankedTopStorefronts.map((storefront) => ({
+                id: storefront.storefrontId,
+                primary: storefront.storefrontName,
+                secondary: storefront.agentName
+                    ? `Owner: ${storefront.agentName}`
+                    : storefront.businessName || "Storefront",
+                orders: storefront.totalOrders ?? storefront.orders ?? 0,
+                value: storefront.netProfit ?? storefront.revenue ?? 0,
+            }));
         }
 
-        return (b.revenue || 0) - (a.revenue || 0);
-    });
+        return rankedTopAgents.map((agent) => ({
+            id: agent.userId,
+            primary: agent.fullName,
+            secondary: String(agent.userType || "user").replace(/_/g, " "),
+            orders: agent.orders,
+            value: agent.revenue,
+        }));
+    }, [performanceMode, rankedTopAgents, rankedTopStorefronts]);
+
+    const valueColumnLabel =
+        performanceMode === "agents" ? "Revenue" : "Net Profit";
+
+    const ordersColumnLabel =
+        performanceMode === "agents" ? "Orders" : "Completed Orders";
+
+    const performanceEmptyText =
+        performanceMode === "agents"
+            ? "No top agents in this period."
+            : "No storefront performance in this period.";
+
+    const isPerformanceLoading = performanceLoading || loading;
 
     return (
-        <section className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-            <Card className="xl:col-span-2 rounded-3xl p-4 sm:p-5">
+        <section className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
+            <Card className="xl:col-span-2 p-4 sm:p-5">
                 <CardHeader className="pb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900">Recent Activity</h3>
                     <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -102,19 +209,19 @@ export function AnalyticsActivityStage({
                             {activityFeed.slice(0, 10).map((item) => (
                                 <div
                                     key={item.id}
-                                    className="rounded-3xl border border-slate-200 px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                                    className="rounded-xl border border-slate-200 px-3 py-2.5 flex items-start justify-between gap-3"
                                 >
-                                    <div className="space-y-2 min-w-0">
-                                        <p className="text-sm font-semibold text-slate-900">{item.message}</p>
-                                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                                    <div className="space-y-1 min-w-0">
+                                        <p className="text-sm font-medium text-slate-900">{item.message}</p>
+                                        <div className="flex items-center gap-2">
                                             <Badge variant="subtle" colorScheme="info" className="text-[10px] uppercase">
                                                 {item.type.replace(/_/g, " ")}
                                             </Badge>
-                                            <span>{formatDateTime(item.createdAt)}</span>
+                                            <p className="text-xs text-slate-500">{formatDateTime(item.createdAt)}</p>
                                         </div>
                                     </div>
                                     {typeof item.value === "number" ? (
-                                        <p className="text-sm font-semibold text-slate-700 shrink-0">
+                                        <p className="text-xs font-semibold text-slate-700 shrink-0">
                                             {formatCurrency(item.value)}
                                         </p>
                                     ) : null}
@@ -125,75 +232,156 @@ export function AnalyticsActivityStage({
                 </CardBody>
             </Card>
 
-            <div className="space-y-4 sm:space-y-6">
+            <div>
                 <Card className="rounded-3xl p-4 sm:p-5">
                     <CardHeader className="pb-3">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">Top Agents</h3>
-                        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                            Ranked by completed orders, then revenue.
-                        </p>
+                        <div className="flex flex-col gap-4 sm:items-start sm:justify-between">
+                            <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">Performance Leaderboard</h3>
+                                    <Badge variant="subtle" colorScheme="info">
+                                        {performanceMode === "agents" ? "Agents" : "Storefronts"}
+                                    </Badge>
+                                </div>
+                                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                                    Track the top performers for both agents and storefronts.
+                                </p>
+                            </div>
+
+                            <div className="grid gap-2 sm:grid-cols-2 min-w-[180px]">
+                                <Select
+                                    value={performanceTimeframe}
+                                    onChange={onPerformanceTimeframeChange}
+                                    options={performanceTimeOptions}
+                                />
+                                <Select
+                                    value={topPerformersCount.toString()}
+                                    onChange={(value) => setTopPerformersCount(Number(value))}
+                                    options={[
+                                        { value: "5", label: "Top 5" },
+                                        { value: "10", label: "Top 10" },
+                                        { value: "1000", label: "All" },
+                                    ]}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant={performanceMode === "agents" ? "primary" : "outline"}
+                                className="min-w-[110px]"
+                                onClick={() => setPerformanceMode("agents")}
+                            >
+                                Agents
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant={performanceMode === "storefronts" ? "primary" : "outline"}
+                                className="min-w-[110px]"
+                                onClick={() => setPerformanceMode("storefronts")}
+                            >
+                                Storefronts
+                            </Button>
+                        </div>
                     </CardHeader>
 
                     <CardBody>
-                        {loading ? (
-                            <div className="space-y-2">
-                                {Array.from({ length: 4 }).map((_, index) => (
-                                    <Skeleton key={index} height="1.2rem" />
+                        {isPerformanceLoading ? (
+                            <div className="space-y-3">
+                                {Array.from({ length: topPerformersCount }).map((_, index) => (
+                                    <Skeleton key={index} height="3rem" />
                                 ))}
                             </div>
-                        ) : topAgents.length === 0 ? (
-                            <p className="text-sm text-slate-500">No top performers in this period.</p>
+                        ) : currentRows.length === 0 ? (
+                            <p className="text-sm text-slate-500">{performanceEmptyText}</p>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <Table size="sm">
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHeaderCell>Rank</TableHeaderCell>
-                                            <TableHeaderCell>Agent</TableHeaderCell>
-                                            <TableHeaderCell>Orders</TableHeaderCell>
-                                            <TableHeaderCell>Revenue</TableHeaderCell>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {rankedTopAgents.slice(0, 10).map((agent, index) => {
-                                            const rank = index + 1;
-                                            const rankStyle = getRankStyle(rank);
+                            <>
+                                <div className="space-y-3 sm:hidden">
+                                    {currentRows.slice(0, topPerformersCount).map((row, index) => {
+                                        const rank = index + 1;
+                                        const rankStyle = getRankStyle(rank);
 
-                                            return (
-                                                <TableRow key={agent.userId} className={rankStyle.rowClass}>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
-                                                                {rank}
-                                                            </span>
-                                                            {rankStyle.label ? (
-                                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${rankStyle.badgeClass}`}>
-                                                                    {rankStyle.label}
+                                        return (
+                                            <article
+                                                key={row.id}
+                                                className={`rounded-3xl border p-4 ${rankStyle.rowClass}`}
+                                            >
+                                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-900">
+                                                            {rank}
+                                                        </span>
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-semibold text-slate-900 truncate">{row.primary}</p>
+                                                            <p className="text-xs text-slate-500 truncate">{row.secondary}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col items-end gap-1 text-right">
+                                                        <span className="text-sm font-semibold text-slate-900">{formatCurrency(row.value)}</span>
+                                                        <span className="text-xs text-slate-500">{ordersColumnLabel}: {formatNumber(row.orders)}</span>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="hidden sm:block overflow-x-auto">
+                                    <Table className="min-w-full">
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHeaderCell>Rank</TableHeaderCell>
+                                                <TableHeaderCell>Name</TableHeaderCell>
+                                                <TableHeaderCell>{ordersColumnLabel}</TableHeaderCell>
+                                                <TableHeaderCell>{valueColumnLabel}</TableHeaderCell>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {currentRows.slice(0, topPerformersCount).map((row, index) => {
+                                                const rank = index + 1;
+                                                const rankStyle = getRankStyle(rank);
+
+                                                return (
+                                                    <TableRow key={row.id} className={rankStyle.rowClass}>
+                                                        <TableCell>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-900">
+                                                                    {rank}
                                                                 </span>
-                                                            ) : null}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div>
-                                                            <p className="text-xs font-semibold text-slate-900">{agent.fullName}</p>
-                                                            <p className="text-[11px] text-slate-500 capitalize">
-                                                                {agent.userType.replace(/_/g, " ")}
-                                                            </p>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>{formatNumber(agent.orders)}</TableCell>
-                                                    <TableCell>{formatCurrency(agent.revenue)}</TableCell>
-                                                </TableRow>
-                                            );
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                                                {rankStyle.label ? (
+                                                                    <Badge
+                                                                        variant="solid"
+                                                                        colorScheme={rank === 1 ? "warning" : rank === 2 ? "gray" : "info"}
+                                                                        className="text-[11px]"
+                                                                    >
+                                                                        {rankStyle.label}
+                                                                    </Badge>
+                                                                ) : null}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="min-w-0">
+                                                                <p className="text-sm font-semibold text-slate-900 truncate">{row.primary}</p>
+                                                                <p className="text-xs text-slate-500 truncate">{row.secondary}</p>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>{formatNumber(row.orders)}</TableCell>
+                                                        <TableCell>{formatCurrency(row.value)}</TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </>
                         )}
                     </CardBody>
-                </Card>
-
-                <Card className="rounded-3xl p-4 sm:p-5">
+                </Card> 
+            </div>
+             <Card className="p-4 sm:p-5">
                     <CardHeader className="pb-3">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-900">Financial Summary</h3>
                     </CardHeader>
@@ -227,7 +415,6 @@ export function AnalyticsActivityStage({
                         )}
                     </CardBody>
                 </Card>
-            </div>
         </section>
     );
 }

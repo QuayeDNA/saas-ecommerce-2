@@ -1,6 +1,6 @@
 import { useRoutes } from "react-router-dom";
 import { routes } from "./routes";
-import { ThemeProvider, Button } from "./design-system";
+import { ThemeProvider } from "./design-system";
 import { ToastProvider } from "./design-system/components/toast";
 import "./App.css";
 import { AppProvider } from "./providers/app-provider";
@@ -13,7 +13,6 @@ import { MaintenanceBanner } from "./components/maintenance-banner";
 import { InstallPrompt } from "./components/install-prompt";
 import { AnnouncementPopupHandler } from "./components/announcements/announcement-popup-handler";
 import PushNotificationInitializer from "./components/PushNotificationInitializer";
-import ImpersonationService from "./utils/impersonation";
 
 function App() {
   const routeElement = useRoutes(routes);

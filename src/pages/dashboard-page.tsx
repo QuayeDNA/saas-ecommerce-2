@@ -19,18 +19,14 @@ import {
 import type { WalletTransaction } from "../types/wallet";
 import type { Order } from "../types/order";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend,
-  Filler,
-  BarElement,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
+  ResponsiveContainer,
+} from "recharts";
 
 // Add CSS keyframes for fade-in animation
 const fadeInKeyframes = `
@@ -52,19 +48,6 @@ if (typeof document !== "undefined") {
   style.textContent = fadeInKeyframes;
   document.head.appendChild(style);
 }
-
-// Register Chart.js components including Filler and Bar plugins
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  BarElement
-);
 
 // Define the 4 specific packages that should be displayed
 const quickActionPackages = [
@@ -496,64 +479,11 @@ export const DashboardPage = () => {
     }
   };
 
-  // Prepare order analytics chart data - Order completion trends
-  const prepareOrderAnalyticsChartData = () => {
-    const labels = ["Total Orders", "Completed", "Pending"];
-    const data = [
-      analyticsData.orders.total,
-      analyticsData.orders.completed,
-      analyticsData.orders.pending,
-    ];
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: "Orders",
-          data,
-          backgroundColor: [
-            "rgba(59, 130, 246, 0.8)", // Blue for total
-            "rgba(34, 197, 94, 0.8)", // Green for completed
-            "rgba(251, 191, 36, 0.8)", // Yellow for pending
-          ],
-          borderColor: [
-            "rgb(59, 130, 246)",
-            "rgb(34, 197, 94)",
-            "rgb(251, 191, 36)",
-          ],
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
-
-  const orderAnalyticsChartData = prepareOrderAnalyticsChartData();
-
-  const orderAnalyticsChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          label: function (context: any) {
-            return `${context.label}: ${context.parsed.y} orders`;
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
-  };
+  const orderAnalyticsChartData = [
+    { label: "Total Orders", value: analyticsData.orders.total },
+    { label: "Completed", value: analyticsData.orders.completed },
+    { label: "Pending", value: analyticsData.orders.pending },
+  ];
 
   return (
     <div className="dashboard-welcome space-y-4 sm:space-y-6">
@@ -864,10 +794,35 @@ export const DashboardPage = () => {
             </div>
           ) : (
             <div className="h-40 sm:h-48">
-              <Bar
-                data={orderAnalyticsChartData}
-                options={orderAnalyticsChartOptions}
-              />
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={orderAnalyticsChartData}
+                  margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "#6b7280", fontSize: 11 }}
+                    axisLine={{ stroke: "#d1d5db" }}
+                    tickLine={{ stroke: "#d1d5db" }}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fill: "#6b7280", fontSize: 11 }}
+                    axisLine={{ stroke: "#d1d5db" }}
+                    tickLine={{ stroke: "#d1d5db" }}
+                  />
+                  <Tooltip
+                    formatter={(value) => [`${value ?? 0} orders`, "Count"]}
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e5e7eb",
+                      backgroundColor: "#ffffff",
+                    }}
+                  />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           )}
         </CardBody>

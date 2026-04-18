@@ -1,14 +1,17 @@
 import {
-    ArcElement,
-    Chart as ChartJS,
-    Legend,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
     Tooltip,
-} from "chart.js";
-import { Doughnut } from "react-chartjs-2";
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Legend,
+} from "recharts";
 import { Card, CardBody, CardHeader, Skeleton } from "../../design-system";
 import { formatCurrency, formatNumber } from "./analytics-formatters";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface UserTypeBreakdown {
     agents: number;
@@ -35,28 +38,27 @@ export function AnalyticsBreakdownStage({
     userTypeBreakdown,
     orderTypeLeaders,
 }: AnalyticsBreakdownStageProps) {
-    const userTypesData = {
-        labels: ["Agents", "Super Agents", "Dealers", "Super Dealers", "Super Admins"],
-        datasets: [
-            {
-                data: [
-                    userTypeBreakdown.agents,
-                    userTypeBreakdown.super_agents,
-                    userTypeBreakdown.dealers,
-                    userTypeBreakdown.super_dealers,
-                    userTypeBreakdown.super_admins,
-                ],
-                backgroundColor: [
-                    "rgba(59, 130, 246, 0.85)",
-                    "rgba(16, 185, 129, 0.85)",
-                    "rgba(245, 158, 11, 0.85)",
-                    "rgba(239, 68, 68, 0.85)",
-                    "rgba(99, 102, 241, 0.85)",
-                ],
-                borderWidth: 1,
-            },
-        ],
-    };
+    const chartColors = [
+        "#3b82f6",
+        "#10b981",
+        "#f59e0b",
+        "#ef4444",
+        "#6366f1",
+    ];
+
+    const userTypesData = [
+        { name: "Agents", value: userTypeBreakdown.agents, color: chartColors[0], fill: chartColors[0] },
+        { name: "Super Agents", value: userTypeBreakdown.super_agents, color: chartColors[1], fill: chartColors[1] },
+        { name: "Dealers", value: userTypeBreakdown.dealers, color: chartColors[2], fill: chartColors[2] },
+        { name: "Super Dealers", value: userTypeBreakdown.super_dealers, color: chartColors[3], fill: chartColors[3] },
+        { name: "Super Admins", value: userTypeBreakdown.super_admins, color: chartColors[4], fill: chartColors[4] },
+    ];
+
+    const barData = orderTypeLeaders.map((item) => ({
+        category: item.orderType.replace(/_/g, " "),
+        orders: item.count,
+        revenue: item.revenue,
+    }));
 
     const maxLeaderCount = Math.max(...orderTypeLeaders.map((item) => item.count), 1);
 
@@ -76,19 +78,50 @@ export function AnalyticsBreakdownStage({
                             <Skeleton variant="rectangular" height="18rem" />
                         </div>
                     ) : (
-                        <div className="min-h-[18rem] flex items-center justify-center">
-                            <Doughnut
-                                data={userTypesData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: {
-                                            position: "bottom",
-                                            labels: { usePointStyle: true, padding: 14 },
-                                        },
-                                    },
-                                }}
-                            />
+                        <div className="space-y-4">
+                            <div className="h-[18rem] w-full min-w-0 min-h-[18rem]">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
+                                    <PieChart>
+                                        <Pie
+                                            data={userTypesData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={70}
+                                            outerRadius={100}
+                                            paddingAngle={4}
+                                            cornerRadius={12}
+                                        />
+                                        <Tooltip
+                                            formatter={(value, _name, item) => {
+                                                const numericValue = Number(value ?? 0);
+                                                const userType = String(item?.payload?.name ?? "Users");
+                                                return [formatNumber(numericValue), userType] as [string, string];
+                                            }}
+                                            contentStyle={{
+                                                borderRadius: 12,
+                                                borderColor: "rgba(148, 163, 184, 0.25)",
+                                                backgroundColor: "#ffffff",
+                                            }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                {userTypesData.map((item) => (
+                                    <div key={item.name} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div>
+                                                <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                                                <p className="text-xs text-slate-500">{formatNumber(item.value)} users</p>
+                                            </div>
+                                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </CardBody>
@@ -102,7 +135,7 @@ export function AnalyticsBreakdownStage({
                     </p>
                 </CardHeader>
 
-                <CardBody className="space-y-3">
+                <CardBody className="space-y-4">
                     {loading ? (
                         Array.from({ length: 4 }).map((_, index) => (
                             <div key={index} className="space-y-2">
@@ -113,35 +146,72 @@ export function AnalyticsBreakdownStage({
                     ) : orderTypeLeaders.length === 0 ? (
                         <p className="text-sm text-slate-500">No order type data available for this period.</p>
                     ) : (
-                        <div className="space-y-3">
-                            {orderTypeLeaders.map((row) => {
-                                const ratio = (row.count / maxLeaderCount) * 100;
+                        <div className="space-y-4">
+                            <div className="h-[22rem] w-full min-w-0 min-h-[22rem]">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={280}>
+                                    <BarChart data={barData} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                        <XAxis
+                                            dataKey="category"
+                                            tick={{ fill: "#475569", fontSize: 12 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            interval={0}
+                                        />
+                                        <YAxis
+                                            tickFormatter={(value: number | string) => formatNumber(Number(value))}
+                                            tick={{ fill: "#475569", fontSize: 12 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            formatter={(value, name) => {
+                                                const numericValue = Number(value ?? 0);
+                                                const seriesName = String(name ?? "").toLowerCase();
+                                                if (seriesName === "revenue") {
+                                                    return [formatCurrency(numericValue), "Revenue"] as [string, string];
+                                                }
+                                                return [formatNumber(numericValue), "Orders"] as [string, string];
+                                            }}
+                                            contentStyle={{
+                                                borderRadius: 12,
+                                                borderColor: "rgba(148, 163, 184, 0.25)",
+                                                backgroundColor: "#ffffff",
+                                            }}
+                                        />
+                                        <Legend wrapperStyle={{ paddingBottom: 8, fontSize: 12 }} />
+                                        <Bar dataKey="orders" name="Orders" fill="#3b82f6" radius={[12, 12, 0, 0]} />
+                                        <Bar dataKey="revenue" name="Revenue" fill="#10b981" radius={[12, 12, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
 
-                                return (
-                                    <div key={row.orderType} className="rounded-3xl border border-slate-200 p-4">
-                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                            <div>
-                                                <p className="text-sm font-semibold text-slate-900 capitalize">
-                                                    {row.orderType.replace(/_/g, " ")}
-                                                </p>
-                                                <p className="text-xs text-slate-500">
-                                                    {formatNumber(row.count)} orders
-                                                </p>
+                            <div className="grid gap-3">
+                                {orderTypeLeaders.map((row) => {
+                                    const ratio = (row.count / maxLeaderCount) * 100;
+
+                                    return (
+                                        <div key={row.orderType} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                <div>
+                                                    <p className="text-sm font-semibold text-slate-900 capitalize">
+                                                        {row.orderType.replace(/_/g, " ")}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500">
+                                                        {formatNumber(row.count)} orders • {formatCurrency(row.revenue)}
+                                                    </p>
+                                                </div>
+                                                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                                    {Math.round(ratio)}%
+                                                </span>
                                             </div>
-                                            <p className="text-sm font-semibold text-slate-900">
-                                                {formatCurrency(row.revenue)}
-                                            </p>
+                                            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                                                <div className="h-full rounded-full bg-slate-900" style={{ width: `${Math.max(8, ratio)}%` }} />
+                                            </div>
                                         </div>
-
-                                        <div className="mt-3 h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-                                            <div
-                                                className="h-full rounded-full bg-indigo-500"
-                                                style={{ width: `${Math.max(8, ratio)}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
                 </CardBody>
