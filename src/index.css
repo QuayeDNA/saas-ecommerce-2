@@ -6,6 +6,12 @@
 
 :root {
   --font-family-sans: 'Montserrat', 'Open Sans', 'Segoe UI', 'Helvetica Neue', Arial, system-ui, sans-serif;
+  /* Brand colors generated from public/logo.png */
+  --caskmaf-gold: #C0A670;
+  --caskmaf-gold-highlight: #F2E3B7;
+  --caskmaf-gold-dark: #A28752;
+  --caskmaf-navy: #252F36;
+  --caskmaf-navy-2: #324048;
 }
 
 html {

@@ -45,6 +45,15 @@ export default {
         contain: "contain",
         "200%": "200% 200%",
       },
+      colors: {
+        caskmaf: {
+          DEFAULT: "var(--caskmaf-gold)",
+          highlight: "var(--caskmaf-gold-highlight)",
+          dark: "var(--caskmaf-gold-dark)",
+          navy: "var(--caskmaf-navy)",
+          navy2: "var(--caskmaf-navy-2)",
+        },
+      },
     },
   },
   plugins: [],

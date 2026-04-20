@@ -74,7 +74,7 @@ function updateStorefrontOGTags(storefront: PublicStorefront['storefront'], bund
 
     const ogTitle = `${storeTitle} | Caskmaf Datahub`;
     const ogDesc = `${storeDesc} · ${bundleCount} bundles available on ${networks}`;
-    const imageUrl = storefront.branding?.logoUrl || '/logo-192.svg';
+    const imageUrl = storefront.branding?.logoUrl || '/logo.png';
 
     document.title = ogTitle;
     setOGMetaTag('og:title', ogTitle);

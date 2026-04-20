@@ -47,7 +47,7 @@ export const LoginPage = () => {
 
   // Set page title
   useEffect(() => {
-    document.title = "BryteLinks - Login";
+    document.title = "Caskmaf Datahub - Login";
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
