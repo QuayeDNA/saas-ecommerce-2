@@ -1,9 +1,9 @@
 /**
- * Sidebar — DirectData redesign
+ * Sidebar — Caskmaf Datahub redesign
  *
  * Visible only on md+ screens (desktop). Mobile uses BottomNav instead.
  * Retains all existing navigation logic but overhauls visual design to match
- * the DirectData blue (#0057FF) brand and DM Sans / Syne type system.
+ * the Caskmaf Datahub blue (#0057FF) brand and DM Sans / Syne type system.
  */
 
 import { Link, useLocation } from "react-router-dom";
@@ -18,7 +18,7 @@ import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubb
 import { Home, Plus, LogOut, ChevronRight, Check, X } from "lucide-react";
 import { Button, Badge } from "../design-system";
 import { useState } from "react";
-import { DirectDataLogo } from "./common/DirectDataLogo";
+import { CaskmafDatahubLogo } from "./common/CaskmafDatahubLogo";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -213,10 +213,10 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <div className="flex items-center justify-between gap-4 p-2 bg-slate-900/95 border-b border-slate-700">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-950 shadow-sm shadow-slate-950/20">
-            <DirectDataLogo width={26} height={26} />
+            <CaskmafDatahubLogo width={26} height={26} />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-base font-semibold text-white">DirectData</p>
+            <p className="truncate text-base font-semibold text-white">Caskmaf Datahub</p>
             <p className="truncate text-xs uppercase tracking-[0.24em] text-slate-500">User Portal</p>
           </div>
         </div>
@@ -272,7 +272,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         </Button>
 
         <div className="text-center text-[11px] text-slate-500">
-          {authState.user?.businessName ?? "DirectData"} · v1.0.0
+          {authState.user?.businessName ?? "Caskmaf Datahub"} · v1.0.0
         </div>
       </div>
     </aside>

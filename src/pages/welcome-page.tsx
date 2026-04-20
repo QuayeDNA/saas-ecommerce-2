@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { DirectDataLogo } from "../components/common/DirectDataLogo";
+import { CaskmafDatahubLogo } from "../components/common/CaskmafDatahubLogo";
 import { Button } from "../design-system/components/button";
 import { useAuth } from "../hooks";
 
@@ -22,12 +22,12 @@ export const WelcomePage = () => {
 
             <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-12 text-center sm:px-10">
                 <div className="flex items-center justify-center rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-                    <DirectDataLogo width={132} height={152} className="text-white" />
+                    <CaskmafDatahubLogo width={132} height={152} className="text-white" />
                 </div>
 
                 <div className="mt-10 max-w-2xl">
                     <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary-100/75">
-                        DirectData
+                        Caskmaf Datahub
                     </p>
                     <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
                         Welcome to fast mobile data.

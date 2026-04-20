@@ -13,9 +13,9 @@ import { SplashPage } from "../pages/splash-page";
 // LAZY LOADED COMPONENTS - PUBLIC PAGES
 // =============================================================================
 
-const DirectDataLogoShowcase = lazy(() =>
-  import("../components/common/DirectDataLogoShowcase").then((module) => ({
-    default: module.DirectDataLogoShowcase,
+const CaskmafDatahubLogoShowcase = lazy(() =>
+  import("../components/common/CaskmafDatahubLogoShowcase").then((module) => ({
+    default: module.CaskmafDatahubLogoShowcase,
   }))
 )
 
@@ -26,8 +26,8 @@ const WelcomePage = lazy(() =>
 );
 
 const LogoPage = lazy(() =>
-  import("../components/common/DirectDataLogoShowcase").then((module) => ({
-    default: module.DirectDataLogoShowcase,
+  import("../components/common/CaskmafDatahubLogoShowcase").then((module) => ({
+    default: module.CaskmafDatahubLogoShowcase,
   }))
 );
 const LoginPage = lazy(() =>
@@ -188,7 +188,7 @@ const publicRoutes: RouteObject[] = [
         path: "/logo",
         element: (
           <Suspense fallback={<PageLoader />}>
-            <DirectDataLogoShowcase />
+            <CaskmafDatahubLogoShowcase />
           </Suspense>
         ),
       },
@@ -326,8 +326,8 @@ const publicRoutes: RouteObject[] = [
   },
 
   // ── STOREFRONT ROUTES — never wrapped in SystemRouteElement ───────────────
-  // directdata.shop/store           → discovery / landing page
-  // directdata.shop/store/:name     → individual agent store
+  // caskmafdatahub.shop/store           → discovery / landing page
+  // caskmafdatahub.shop/store/:name     → individual agent store
   {
     path: "/store",
     element: (

@@ -10,14 +10,12 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: [
         'favicon.svg',
-        'favicon-16x16.png',
-        'favicon-32x32.png',
-        'android-chrome-192x192.png',
-        'android-chrome-512x512.png',
+        'logo-192.svg',
+        'logo-512.svg',
       ],
       manifest: {
-        name: 'DirectData — Instant Data Bundles',
-        short_name: 'DirectData',
+        name: 'Caskmaf Datahub — Powering smarter, connected data commerce',
+        short_name: 'Caskmaf Datahub',
         description:
           'A modern storefront for buying data bundles from trusted agents across Ghana.',
         theme_color: '#142850',
@@ -28,18 +26,14 @@ export default defineConfig({
         start_url: '/',
         icons: [
           { src: '/favicon.svg',               sizes: 'any',     type: 'image/svg+xml', purpose: 'any maskable' },
-          { src: '/favicon-16x16.png',          sizes: '16x16',   type: 'image/png' },
-          { src: '/favicon-32x32.png',          sizes: '32x32',   type: 'image/png' },
           { src: '/logo-192.svg',               sizes: '192x192', type: 'image/svg+xml' },
-          { src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: '/logo-512.svg',               sizes: '512x512', type: 'image/svg+xml' },
-          { src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
         ],
         categories: ['business', 'finance', 'utilities'],
         shortcuts: [
-          { name: 'Dashboard', short_name: 'Dashboard', url: '/dashboard',  icons: [{ src: '/favicon-32x32.png', sizes: '32x32' }] },
-          { name: 'Orders',    short_name: 'Orders',    url: '/orders',     icons: [{ src: '/favicon-32x32.png', sizes: '32x32' }] },
-          { name: 'Wallet',    short_name: 'Wallet',    url: '/wallet',     icons: [{ src: '/favicon-32x32.png', sizes: '32x32' }] },
+          { name: 'Dashboard', short_name: 'Dashboard', url: '/dashboard',  icons: [{ src: '/favicon.svg', sizes: 'any' }] },
+          { name: 'Orders',    short_name: 'Orders',    url: '/orders',     icons: [{ src: '/favicon.svg', sizes: 'any' }] },
+          { name: 'Wallet',    short_name: 'Wallet',    url: '/wallet',     icons: [{ src: '/favicon.svg', sizes: 'any' }] },
         ],
       },
       // Use injectManifest so your custom sw.ts is used as-is

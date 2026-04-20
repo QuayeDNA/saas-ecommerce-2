@@ -1,12 +1,12 @@
 import React from 'react';
 
-interface DirectDataLogoProps {
+interface CaskmafDatahubLogoProps {
   width?: number;
   height?: number;
   className?: string;
 }
 
-export const DirectDataLogo: React.FC<DirectDataLogoProps> = ({
+export const CaskmafDatahubLogo: React.FC<CaskmafDatahubLogoProps> = ({
   width = 80,
   height = 80,
   className = '',
@@ -51,24 +51,24 @@ export const DirectDataLogo: React.FC<DirectDataLogoProps> = ({
   );
 };
 
-export const DirectDataLogoCompact: React.FC<DirectDataLogoProps> = ({
+export const CaskmafDatahubLogoCompact: React.FC<CaskmafDatahubLogoProps> = ({
   width = 160,
   height = 40,
   className = '',
 }) => {
   return (
     <div className={`flex items-center gap-2.5 ${className}`} style={{ width }}>
-      <DirectDataLogo width={height} height={height} />
+      <CaskmafDatahubLogo width={height} height={height} />
       <div
         className="flex items-center tracking-tight leading-none"
         style={{ fontSize: height * 0.45 }}
       >
-        <span className="text-slate-900 dark:text-white font-extrabold">Direct</span>
-        <span className="text-[#0057FF] font-semibold">Data</span>
+        <span className="text-slate-900 dark:text-white font-extrabold">Caskmaf</span>
+        <span className="text-[#0057FF] font-semibold">Datahub</span>
       </div>
     </div>
   );
 };
 
-export const DirectDataIcon = DirectDataLogo;
-export const DirectDataBadge = DirectDataLogo;
+export const CaskmafDatahubIcon = CaskmafDatahubLogo;
+export const CaskmafDatahubBadge = CaskmafDatahubLogo;

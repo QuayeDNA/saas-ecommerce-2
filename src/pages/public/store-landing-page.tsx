@@ -2,15 +2,15 @@
  * StoreLandingPage — Clean & Modern redesign
  * Light, simple, minimal — no overkill.
  *
- * On the consolidated domain this is served at directdata.shop/store
- * Individual stores are at directdata.shop/store/:businessName
+ * On the consolidated domain this is served at caskmafdatahub.shop/store
+ * Individual stores are at caskmafdatahub.shop/store/:businessName
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { storefrontService } from '../../services/storefront.service';
 
-const PLATFORM_NAME = import.meta.env.VITE_STORE_PLATFORM_NAME ?? 'DirectData';
+const PLATFORM_NAME = import.meta.env.VITE_STORE_PLATFORM_NAME ?? 'Caskmaf Datahub';
 const OG_DESCRIPTION =
   'Get instant mobile data bundles from verified agents across Ghana. MTN, Vodafone, AirtelTigo and more. Fast, reliable, no hassle.';
 
@@ -40,13 +40,13 @@ export default function StoreLandingPage() {
     document.title = title;
     setMetaTag('og:title', title);
     setMetaTag('og:description', OG_DESCRIPTION);
-    setMetaTag('og:image', '/android-chrome-512x512.png');
+    setMetaTag('og:image', '/logo-512.svg');
     setMetaTag('og:url', window.location.href);
     setMetaTag('og:type', 'website');
     setMetaTag('twitter:card', 'summary_large_image');
     setMetaTag('twitter:title', title);
     setMetaTag('twitter:description', OG_DESCRIPTION);
-    setMetaTag('twitter:image', '/android-chrome-512x512.png');
+    setMetaTag('twitter:image', '/logo-512.svg');
   }, []);
 
   const loadStores = useCallback(async () => {
@@ -75,10 +75,10 @@ export default function StoreLandingPage() {
   const btnLabel = redirecting
     ? 'Finding a store…'
     : loading
-    ? 'Loading…'
-    : noStores
-    ? 'No stores available yet'
-    : 'Shop now';
+      ? 'Loading…'
+      : noStores
+        ? 'No stores available yet'
+        : 'Shop now';
 
   return (
     <>

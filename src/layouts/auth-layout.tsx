@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-    DirectDataLogo,
-    DirectDataLogoCompact,
-} from "../components/common/DirectDataLogo";
+    CaskmafDatahubLogo,
+    CaskmafDatahubLogoCompact,
+} from "../components/common/CaskmafDatahubLogo";
 import { Card, CardHeader, CardBody } from "../design-system";
 
 interface AuthLayoutProps {
@@ -34,11 +34,11 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             <div className="relative z-10 flex flex-col items-center justify-center px-6 py-8 text-center text-white sm:hidden min-h-[34vh]">
                 {showLogo && (
                     <div className="mb-3 rounded-[1.5rem] border border-white/10 bg-white/10 p-3 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-                        <DirectDataLogo width={60} height={60} className="text-white" />
+                        <CaskmafDatahubLogo width={60} height={60} className="text-white" />
                     </div>
                 )}
                 <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary-100/75">
-                    DirectData
+                    Caskmaf Datahub
                 </p>
                 <h1 className="mt-3 text-2xl font-bold text-white">{title}</h1>
                 {subtitle && (
@@ -55,7 +55,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                     <CardHeader className="hidden sm:block w-full border-b border-white/10 bg-gradient-to-br from-primary-900 to-primary-800 px-6 pt-8 pb-6 text-center text-white rounded-t-[24px]">
                         {showLogo && (
                             <div className="mb-4 flex justify-center items-center">
-                                <DirectDataLogoCompact width={220} height={54} />
+                                <CaskmafDatahubLogoCompact width={220} height={54} />
                             </div>
                         )}
                         <h1 className="mb-2 text-2xl font-bold text-white">{title}</h1>

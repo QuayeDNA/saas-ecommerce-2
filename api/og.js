@@ -17,7 +17,7 @@ function escapeHtml(value = "") {
 }
 
 function toAbsoluteUrl(value, origin) {
-  if (!value) return `${origin}/android-chrome-512x512.png`;
+  if (!value) return `${origin}/logo-512.svg`;
   if (/^https?:\/\//i.test(value)) return value;
   return `${origin}${value.startsWith("/") ? value : `/${value}`}`;
 }
@@ -114,7 +114,7 @@ function getRequestContext(req) {
   const origin = `${protocol}://${host}`;
   const rawPath = String(req.query.path || "").replace(/^\/+/, "");
   const pathname = rawPath ? `/${rawPath}` : "/";
-  const isStorefrontHost = /(^|\.)directdata\.shop$/i.test(host);
+  const isStorefrontHost = /(^|\.)caskmafdatahub\.shop$/i.test(host);
   const businessName =
     isStorefrontHost && rawPath && !rawPath.includes("/") ? rawPath : null;
 

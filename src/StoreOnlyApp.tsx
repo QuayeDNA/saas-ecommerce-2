@@ -7,7 +7,7 @@
  *
  * The second Vercel project that points to the custom domain builds with
  * VITE_STORE_ONLY=true set in its environment variables.
- * Dedicated to DirectData brand — no code duplication needed.
+ * Dedicated to Caskmaf Datahub brand — no code duplication needed.
  */
 
 import { lazy, Suspense } from "react";

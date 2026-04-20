@@ -1203,7 +1203,7 @@ export const StorefrontDashboardPage: React.FC = () => {
                       />
                       <div className="flex-1">
                         <div className="text-sm font-semibold text-gray-900 line-clamp-2">
-                          {storefront.displayName || storefront.businessName} | DirectData
+                          {storefront.displayName || storefront.businessName} | Caskmaf Datahub
                         </div>
                         <div className="text-xs text-gray-600 mt-1 line-clamp-2">
                           {storefront.description || 'Instant data bundles from trusted agents across Ghana.'}

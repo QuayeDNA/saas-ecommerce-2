@@ -1,5 +1,5 @@
 /**
- * DashboardLayout — DirectData mobile-first redesign
+ * DashboardLayout — Caskmaf Datahub mobile-first redesign
  *
  * Mobile (<md):
  *   ┌──────────────────────────┐

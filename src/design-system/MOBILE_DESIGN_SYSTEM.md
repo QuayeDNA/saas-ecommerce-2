@@ -1,4 +1,4 @@
-# Modern Mobile-First Design System: DirectData
+# Modern Mobile-First Design System: Caskmaf Datahub
 
 ## 1. Design Direction & Core Philosophy
 This UI system transforms the web app into a truly native-like Progressive Web App (PWA). The primary interface paradigm is moving away from a traditional desktop sidebar to a **Bottom Tab Navigation**, prioritizing thumb-reachability, gesture-based interactions, and ergonomics.
@@ -16,7 +16,7 @@ This UI system transforms the web app into a truly native-like Progressive Web A
 ## 2. Color System & Theming
 *Focus on high-contrast, accessible colors that support seamlessly switching between Light and Dark modes.*
 
-- **Primary**: DirectData Blue (The main brand color). Used for primary actions, active tab states, highlights, and primary gradients.
+- **Primary**: Caskmaf Datahub Blue (The main brand color). Used for primary actions, active tab states, highlights, and primary gradients.
 - **Backgrounds & Surfaces**: 
   - **App Background**: Soft off-white (Light) / Deep charcoal or pure black (Dark) to save battery on OLED screens.
   - **Surface/Card**: Pure white (Light) / Elevated dark gray (Dark) with subtle borders instead of heavy shadows.

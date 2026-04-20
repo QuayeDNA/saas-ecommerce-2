@@ -1,5 +1,5 @@
 /**
- * Header — DirectData redesign
+ * Header — Caskmaf Datahub redesign
  *
  * Mobile  (<md): compact blue bar with logo wordmark, notification bell,
  *                and avatar. Wallet card is REMOVED — it lives on the

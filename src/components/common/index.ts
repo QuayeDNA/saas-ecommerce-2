@@ -3,10 +3,10 @@ export type { SearchAndFilterProps, FilterOption } from "./SearchAndFilter";
 
 // Logo components export
 export {
-  DirectDataLogo,
-  DirectDataLogoCompact,
-  DirectDataIcon,
-} from "./DirectDataLogo";
+  CaskmafDatahubLogo,
+  CaskmafDatahubLogoCompact,
+  CaskmafDatahubIcon,
+} from "./CaskmafDatahubLogo";
 
 // Coming Soon component
 export { ComingSoon } from "./coming-soon";

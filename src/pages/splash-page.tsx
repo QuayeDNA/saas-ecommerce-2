@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
-import { DirectDataLogo } from "../components/common/DirectDataLogo";
+import { CaskmafDatahubLogo } from "../components/common/CaskmafDatahubLogo";
 import { useAuth } from "../hooks";
 
 export const SplashPage = () => {
@@ -29,7 +29,7 @@ export const SplashPage = () => {
 
             <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-12 sm:px-10">
                 <div className="flex items-center justify-center rounded-[2rem] bg-white/10 border border-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-                    <DirectDataLogo width={140} height={160} className="text-white" />
+                    <CaskmafDatahubLogo width={140} height={160} className="text-white" />
                 </div>
 
                 <div className="mt-10 max-w-2xl text-center">

@@ -34,8 +34,8 @@ self.addEventListener("push", (event: PushEvent) => {
 
   const options: ExtendedNotificationOptions = {
     body: data.body,
-    icon: "/android-chrome-192x192.png",
-    badge: "/favicon-32x32.png",
+    icon: "/logo-192.svg",
+    badge: "/favicon.svg",
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -46,7 +46,7 @@ self.addEventListener("push", (event: PushEvent) => {
       {
         action: "view",
         title: "View Details",
-        icon: "/favicon-32x32.png",
+        icon: "/favicon.svg",
       },
       {
         action: "dismiss",

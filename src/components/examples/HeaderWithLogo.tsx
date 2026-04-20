@@ -1,8 +1,8 @@
 import React from 'react';
-import { DirectDataLogoCompact } from '../common';
+import { CaskmafDatahubLogoCompact } from '../common';
 
 /**
- * Example of integrating the DirectData logo into the existing header component
+ * Example of integrating the Caskmaf Datahub logo into the existing header component
  * This shows how to replace or add the logo to your current navigation
  */
 export const HeaderWithLogo: React.FC = () => {
@@ -12,7 +12,7 @@ export const HeaderWithLogo: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <div className="flex items-center">
-            <DirectDataLogoCompact
+            <CaskmafDatahubLogoCompact
               width={160}
               height={45}
               className="hover:opacity-80 transition-opacity cursor-pointer"

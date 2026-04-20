@@ -1,5 +1,5 @@
 /**
- * Toast — DirectData design system
+ * Toast — Caskmaf Datahub design system
  *
  * Visual spec:
  *   • Dark #1a1a2e pill, border-radius 14px

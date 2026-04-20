@@ -160,7 +160,7 @@ export const usePushNotifications = () => {
         },
         body: JSON.stringify({
           title: "Test Notification",
-          body: "This is a test push notification from DirectData!",
+          body: "This is a test push notification from Caskmaf Datahub!",
         }),
       });
 

@@ -67,12 +67,12 @@ function setOGMetaTag(property: string, content: string) {
 }
 
 function updateStorefrontOGTags(storefront: PublicStorefront['storefront'], bundles: PublicBundle[]) {
-    const storeTitle = storefront.displayName || storefront.businessName || 'DirectData';
+    const storeTitle = storefront.displayName || storefront.businessName || 'Caskmaf Datahub';
     const storeDesc = storefront.description || 'Instant data bundles from trusted agents';
     const bundleCount = bundles.length;
     const networks = [...new Set(bundles.map(b => b.provider).filter(Boolean))].join(', ') || 'multiple networks';
 
-    const ogTitle = `${storeTitle} | DirectData`;
+    const ogTitle = `${storeTitle} | Caskmaf Datahub`;
     const ogDesc = `${storeDesc} · ${bundleCount} bundles available on ${networks}`;
     const imageUrl = storefront.branding?.logoUrl || '/logo-192.svg';
 
@@ -1125,7 +1125,7 @@ const PublicStore: React.FC = () => {
         if (storeData) {
             updateStorefrontOGTags(storeData.storefront, storeData.bundles);
         }
-        return () => { document.title = 'DirectData'; };
+        return () => { document.title = 'Caskmaf Datahub'; };
     }, [storeData]);
 
     // Public announcement persistence
@@ -1402,7 +1402,7 @@ const PublicStore: React.FC = () => {
             if (!PaystackPop) throw new Error('Paystack script failed to load');
             const handler = PaystackPop.setup({
                 key: publicKey,
-                email: storeData?.storefront.contactInfo?.email || `store-${businessName || 'unknown'}@directdata.shop`,
+                email: storeData?.storefront.contactInfo?.email || `store-${businessName || 'unknown'}@caskmafdatahub.shop`,
                 // customer email not required — agent's registered email receives Paystack receipts
                 amount: Math.round((amountGhs || 0) * 100),
                 currency: 'GHS',
