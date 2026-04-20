@@ -23,8 +23,6 @@ import {
   FaChevronUp,
   FaCheckCircle,
   FaMoneyBillAlt,
-  FaFilter,
-  FaSearch,
   FaTimes,
   FaReceipt,
 } from "react-icons/fa";
@@ -60,7 +58,7 @@ export const WalletPage = () => {
   const [txStartDate, setTxStartDate] = useState('');
   const [txEndDate, setTxEndDate] = useState('');
   const [txSearch, setTxSearch] = useState('');
-  const [showTxFilters, setShowTxFilters] = useState(false);
+
 
   // Commission state
   const [currentMonthAccumulating, setCurrentMonthAccumulating] = useState<
@@ -400,8 +398,8 @@ export const WalletPage = () => {
         )}
 
         {/* Wallet Balance Card (design-system) */}
-        <Card>
-          <CardHeader className="flex items-center justify-between">
+        <Card className="mb-6">
+          <CardHeader className="flex items-center justify-between pb-2">
             <div>
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Current Balance</h2>
             </div>
@@ -424,7 +422,7 @@ export const WalletPage = () => {
 
         {/* Transaction History */}
         <Card className="mb-6">
-          <CardHeader className="p-4 border-b border-gray-200">
+          <CardHeader className="border-b border-gray-200">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div>
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Transaction History</h2>
@@ -445,21 +443,6 @@ export const WalletPage = () => {
                   </button>
                 )}
                 <button
-                  onClick={() => setShowTxFilters((v) => !v)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${showTxFilters || hasActiveFilters
-                    ? 'bg-blue-50 border-blue-300 text-blue-700'
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <FaFilter className="text-xs" />
-                  Filter
-                  {hasActiveFilters && (
-                    <span className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-600 text-white text-xs">
-                      {[txTypeFilter, txStartDate, txEndDate, txSearch.trim()].filter(Boolean).length}
-                    </span>
-                  )}
-                </button>
-                <button
                   onClick={loadTransactions}
                   disabled={isLoadingTransactions}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
@@ -470,52 +453,42 @@ export const WalletPage = () => {
               </div>
             </div>
 
-            {/* Expandable filter panel */}
-            {showTxFilters && (
-              <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {/* Text search */}
-                <div className="relative">
-                  <FaSearch className="absolute left-2.5 top-2.5 text-gray-400 text-xs" />
-                  <input
-                    type="text"
-                    placeholder="Search description or ref…"
-                    value={txSearch}
-                    onChange={(e) => setTxSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                {/* Type filter */}
-                <select
-                  value={txTypeFilter}
-                  onChange={(e) => setTxTypeFilter(e.target.value as 'credit' | 'debit' | '')}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">All types</option>
-                  <option value="credit">Credits only</option>
-                  <option value="debit">Debits only</option>
-                </select>
-                {/* Start date */}
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">From</label>
-                  <input
-                    type="date"
-                    value={txStartDate}
-                    onChange={(e) => setTxStartDate(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                {/* End date */}
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">To</label>
-                  <input
-                    type="date"
-                    value={txEndDate}
-                    onChange={(e) => setTxEndDate(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            )}
+            {/* Search & filters (transaction history) using shared SearchAndFilter component */}
+            <div className="mt-3">
+              <SearchAndFilter
+                searchTerm={txSearch}
+                onSearchChange={(v) => setTxSearch(v)}
+                searchPlaceholder="Search description or ref…"
+                debounceDelay={500}
+                minSearchLength={0}
+                enableAutoSearch={true}
+                filters={{
+                  type: {
+                    value: txTypeFilter,
+                    label: 'Type',
+                    placeholder: 'All types',
+                    options: [
+                      { value: 'credit', label: 'Credits only' },
+                      { value: 'debit', label: 'Debits only' },
+                    ],
+                  },
+                }}
+                onFilterChange={(key, value) => {
+                  if (key === 'type') setTxTypeFilter(value as 'credit' | 'debit' | '');
+                }}
+                dateRange={{ startDate: txStartDate, endDate: txEndDate }}
+                onDateRangeChange={(start, end) => {
+                  setTxStartDate(start);
+                  setTxEndDate(end);
+                }}
+                onSearch={(e) => { e.preventDefault(); /* client-side search applied via txSearch */ }}
+                onClearFilters={() => clearTxFilters()}
+                showFilterToggle={true}
+                isLoading={isLoadingTransactions}
+                showSearchButton={false}
+                showClearButton={false}
+              />
+            </div>
 
             {/* Filter summary stats bar */}
             {filteredTransactions.length > 0 && (hasActiveFilters || transactions.length > 0) && (
