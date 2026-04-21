@@ -3,7 +3,7 @@ import { Edit, Key as KeyIcon, Eye, EyeOff, Smartphone, CreditCard, HelpCircle }
 import { Button } from "../../design-system/components/button";
 import { Card } from "../../design-system/components/card";
 import { Badge } from "../../design-system/components/badge";
-import { Spinner, Tabs, TabsList, TabsTrigger } from "../../design-system";
+import { Spinner, Tabs, TabsList, TabsTrigger, Switch } from "../../design-system";
 import { useToast } from "../../design-system/components/toast";
 import { ColorSchemeSelector } from "../../components/common/color-scheme-selector";
 import { useTutorial } from "../../hooks/use-tutorial";
@@ -174,6 +174,27 @@ export default function SuperAdminSettingsPage() {
     }
   }, [addToast]);
 
+  // MTN Wallet top-up toggle (exposed on the API settings card)
+  const handleToggleMtnWalletTopUp = useCallback(async (checked: boolean) => {
+    if (!data) return;
+    const prev = Boolean(data.apiSettings.mtnWalletTopUpEnabled);
+    // optimistic UI
+    setData(d => d ? { ...d, apiSettings: { ...d.apiSettings, mtnWalletTopUpEnabled: checked } } : d);
+    setBusy('mtnWalletTopUpToggle', true);
+    try {
+      const updated = await settingsService.updateApiSettings({ ...data.apiSettings, mtnWalletTopUpEnabled: checked });
+      setData(d => d ? { ...d, apiSettings: updated } : d);
+      addToast(`MTN Mobile Money top-ups ${updated.mtnWalletTopUpEnabled ? 'enabled' : 'disabled'}`, 'success');
+    } catch (err) {
+      // revert
+      setData(d => d ? { ...d, apiSettings: { ...d.apiSettings, mtnWalletTopUpEnabled: prev } } : d);
+      console.error('Failed to update MTN wallet top-up setting', err);
+      addToast('Failed to update MTN top-up setting', 'error');
+    } finally {
+      setBusy('mtnWalletTopUpToggle', false);
+    }
+  }, [data, setBusy, addToast]);
+
   // derived values for compact templates
   const siteOpen = data?.siteSettings?.isSiteOpen ?? false;
   const storefrontsOpen = data?.siteSettings?.storefrontsOpen ?? true;
@@ -275,6 +296,21 @@ export default function SuperAdminSettingsPage() {
                         <input type="checkbox" className="sr-only peer" checked={siteOpen} onChange={handleToggleSite} disabled={!!busyKeys['siteToggle']} />
                         <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-blue-600 relative transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
                       </label>
+                    </div>
+                  </div>
+                  {/* MTN Wallet Top-up toggle exposed on the API card */}
+                  <div className="p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">MTN Mobile Money (MoMo) Top-ups</div>
+                      <div className="text-xs text-gray-500 mt-1">Allow agents to top-up wallets using MTN Mobile Money (MoMo)</div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-sm font-medium ${data.apiSettings.mtnWalletTopUpEnabled ? 'text-green-600' : 'text-gray-500'}`}>{data.apiSettings.mtnWalletTopUpEnabled ? 'Enabled' : 'Disabled'}</span>
+                      <Switch
+                        checked={Boolean(data.apiSettings.mtnWalletTopUpEnabled)}
+                        onCheckedChange={handleToggleMtnWalletTopUp}
+                        isDisabled={!data.apiSettings.mtnApiKey}
+                      />
                     </div>
                   </div>
 

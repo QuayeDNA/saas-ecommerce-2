@@ -11,7 +11,7 @@ import {
   Switch,
 } from "../../design-system";
 import { Key, Smartphone, CreditCard, Eye, EyeOff } from "lucide-react";
-import { Badge } from "../../design-system/components/badge";
+import { Badge } from "../../design-system";
 import {
   settingsService,
   type ApiSettings,
@@ -273,6 +273,17 @@ export const ApiSettingsDialog: React.FC<ApiSettingsDialogProps> = ({
                     />
                     <span className={`text-sm ${formData.paystackEnabled ? 'text-gray-700' : 'text-gray-400'}`}>
                       Allow Paystack for wallet top-ups
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={formData.mtnWalletTopUpEnabled || false}
+                      onCheckedChange={(checked: boolean) => setFormData(prev => ({ ...prev, mtnWalletTopUpEnabled: checked }))}
+                      isDisabled={!formData.mtnApiKey}
+                    />
+                    <span className={`text-sm ${formData.mtnApiKey ? 'text-gray-700' : 'text-gray-400'}`}>
+                      Allow MTN Mobile Money for wallet top-ups
                     </span>
                   </div>
 

@@ -28,6 +28,8 @@ export interface ApiSettings {
   // Paystack
   paystackEnabled?: boolean;
   paystackWalletTopUpEnabled?: boolean;
+  // MTN Mobile Money wallet top-up enable flag
+  mtnWalletTopUpEnabled?: boolean;
   paystackStorefrontEnabled?: boolean;
   paystackTestPublicKey?: string;
   paystackTestSecretKey?: string; // returned only in non-production builds

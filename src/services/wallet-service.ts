@@ -13,6 +13,8 @@ import type {
   PayoutRequestItem,
   PayoutDestination,
   AdminPayoutSummary,
+  MomoInitiateResponse,
+  MomoVerifyResponse,
 } from "../types/wallet";
 import { canHaveWallet } from "../utils/userTypeHelpers";
 
@@ -137,6 +139,26 @@ export const walletService = {
    */
   verifyPaystackReference: async (reference: string) => {
     const response = await apiClient.get<{ success: boolean; message?: string }>(`/api/wallet/paystack/verify?reference=${encodeURIComponent(reference)}`);
+    return response.data;
+  },
+
+  /**
+   * Initiate MTN Mobile Money RequestToPay for wallet top-up
+   * @param amount Amount to top up (GHS)
+   * @param phoneNumber MSISDN or sandbox simulation number
+   * @returns backend response (expects { success, message, referenceId })
+   */
+  initiateMomoTopUp: async (amount: number, phoneNumber?: string): Promise<MomoInitiateResponse> => {
+    const payload = phoneNumber ? { amount, phoneNumber } : { amount };
+    const response = await apiClient.post<{ success: boolean; message?: string; referenceId?: string }>("/api/wallet/momo/initiate", payload);
+    return response.data;
+  },
+
+  /**
+   * Verify MTN MoMo top-up by reference (calls backend verify endpoint)
+   */
+  verifyMomoTopUp: async (referenceId: string): Promise<MomoVerifyResponse> => {
+    const response = await apiClient.get<{ success: boolean; message?: string; transaction?: WalletTransaction | null }>(`/api/wallet/momo/verify/${encodeURIComponent(referenceId)}`);
     return response.data;
   },
 
