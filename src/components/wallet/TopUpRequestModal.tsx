@@ -107,7 +107,7 @@ export const TopUpRequestModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, 
   const [paystackPublicKey, setPaystackPublicKey] = useState<string | null>(null);
   const [mtnEnabled, setMtnEnabled] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'paystack' | 'mtn'>('paystack');
-  const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone || user?.phoneNumber || "");
+  const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone ||"");
 
   const canUseWallet = useMemo(() => canHaveWallet(user?.userType ?? ''), [user]);
   const paystackMethodVisible = paystackEnabled && canUseWallet;
@@ -277,7 +277,7 @@ export const TopUpRequestModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, 
     setHasPendingRequest(false);
     setIsPaystackLoading(false);
     setSelectedPaymentMethod(paystackMethodVisible ? 'paystack' : mtnMethodVisible ? 'mtn' : 'paystack');
-    setPhoneNumber(user?.phone || user?.phoneNumber || '');
+    setPhoneNumber(user?.phone || '');
   };
 
   const handleClose = () => {
@@ -624,7 +624,7 @@ export const TopUpRequestModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, 
                 <Input
                   id="mtnPhone"
                   label="MTN Mobile Money number"
-                  placeholder={user?.phone || user?.phoneNumber || 'e.g. 024xxxxxxx'}
+                  placeholder={user?.phone || 'e.g. 024xxxxxxx'}
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                 />
