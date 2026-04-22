@@ -28,22 +28,22 @@ const SCHEME_CHECKED_BG: Record<
   Exclude<SwitchColorScheme, "default">,
   string
 > = {
-  success: "bg-green-500",
-  error: "bg-red-500",
-  warning: "bg-yellow-500",
-  info: "bg-blue-500",
-  gray: "bg-gray-500",
+  success: "bg-[var(--color-success)]",
+  error: "bg-[var(--color-error)]",
+  warning: "bg-[var(--color-warning)]",
+  info: "bg-[var(--color-info)]",
+  gray: "bg-[var(--color-border)]",
 };
 
 const SCHEME_RING_COLOR: Record<
   Exclude<SwitchColorScheme, "default">,
   string
 > = {
-  success: "focus:ring-green-500",
-  error: "focus:ring-red-500",
-  warning: "focus:ring-yellow-500",
-  info: "focus:ring-blue-500",
-  gray: "focus:ring-gray-500",
+  success: "focus:ring-[var(--color-success)]",
+  error: "focus:ring-[var(--color-error)]",
+  warning: "focus:ring-[var(--color-warning)]",
+  info: "focus:ring-[var(--color-info)]",
+  gray: "focus:ring-[var(--color-border)]",
 };
 
 export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
@@ -86,9 +86,9 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     let bgStyle: React.CSSProperties = {};
 
     if (isDisabled) {
-      bgClass = "bg-gray-300 cursor-not-allowed";
+      bgClass = "bg-[var(--color-border)] cursor-not-allowed";
     } else if (!checked) {
-      bgClass = "bg-gray-300";
+      bgClass = "bg-[var(--color-border)]";
     } else if (isDefault) {
       // Use CSS variable for theme-aware primary color (avoids Tailwind JIT purge)
       bgClass = "";
@@ -151,7 +151,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           />
         </button>
         {label && (
-          <span className="ml-3 text-sm font-medium text-gray-900">
+          <span className="ml-3 text-sm font-medium text-[var(--color-text)]">
             {label}
           </span>
         )}

@@ -1,4 +1,4 @@
-import { forwardRef, useState, useRef, useEffect } from 'react';
+import { forwardRef, useState, useRef, useEffect, useCallback } from 'react';
 import { FaChevronDown, FaCheck } from 'react-icons/fa';
 
 export interface SelectOption {
@@ -48,20 +48,20 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     };
 
     const variantClasses = {
-      default: 'border-gray-300 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 hover:border-gray-400',
-      outline: 'border-gray-300 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 hover:border-gray-400',
+      default: 'border-[var(--color-border)] focus:border-[var(--color-primary-500)] focus:ring-[3px] focus:ring-[var(--color-primary-100)] hover:border-[var(--color-secondary-text)]',
+      outline: 'border-[var(--color-border)] focus:border-[var(--color-primary-500)] focus:ring-[3px] focus:ring-[var(--color-primary-100)] hover:border-[var(--color-secondary-text)]',
     };
 
     const baseClasses = [
-      'w-full rounded-lg border bg-white transition-all duration-200 text-left',
+      'w-full rounded-lg border bg-[var(--color-surface)] transition-all duration-200 text-left text-[var(--color-text)]',
       'focus:outline-none',
-      'disabled:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-500',
+      'disabled:bg-[var(--color-control-bg)] disabled:cursor-not-allowed disabled:text-[var(--color-secondary-text)]',
       sizeClasses[size],
       variantClasses[variant],
     ];
 
     if (error) {
-      baseClasses.push('border-red-300 focus:border-red-500 focus:ring-red-500');
+      baseClasses.push('border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[var(--color-failed-bg)]');
     }
 
     if (disabled) {
@@ -71,7 +71,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     const selectClasses = [...baseClasses, className].join(' ');
 
     // Calculate dropdown position
-    const updateDropdownPosition = () => {
+    const updateDropdownPosition = useCallback(() => {
       if (selectRef.current) {
         const rect = selectRef.current.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -107,7 +107,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           width: dropdownWidth,
         });
       }
-    };
+    }, [options]);
 
     // Click outside to close
     useEffect(() => {
@@ -127,7 +127,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
       };
-    }, [isOpen]);
+    }, [isOpen, updateDropdownPosition]);
 
     // Update position on scroll and resize
     useEffect(() => {
@@ -143,7 +143,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           window.removeEventListener('resize', handleResize);
         };
       }
-    }, [isOpen]);
+    }, [isOpen, updateDropdownPosition]);
 
     // Keyboard navigation
     useEffect(() => {
@@ -208,7 +208,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     return (
       <div className="w-full" ref={ref}>
         {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
             {label}
           </label>
         )}
@@ -220,7 +220,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
             onClick={handleToggle}
             disabled={disabled}
           >
-            <span className={`${selectedOption ? 'text-gray-900' : 'text-gray-500'}`}>
+            <span className={`${selectedOption ? 'text-[var(--color-text)]' : 'text-[var(--color-secondary-text)]'}`}>
               {selectedOption ? selectedOption.label : placeholder}
             </span>
             <FaChevronDown
@@ -233,7 +233,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           {isOpen && (
             <div
               ref={dropdownRef}
-              className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto"
+              className="fixed z-50 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-lg max-h-60 overflow-auto"
               style={{
                 top: `${dropdownPosition.top}px`,
                 left: `${dropdownPosition.left}px`,
@@ -247,17 +247,17 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                     key={option.value}
                     type="button"
                     className={`w-full px-3 py-2 text-left flex items-center justify-between transition-colors duration-150 ${option.disabled
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : index === highlightedIndex
-                          ? 'bg-blue-50 text-blue-900'
-                          : 'text-gray-900 hover:bg-gray-50'
+                      ? 'text-[var(--color-secondary-text)] cursor-not-allowed'
+                      : index === highlightedIndex
+                        ? 'bg-[var(--color-control-bg)] text-[var(--color-text)]'
+                        : 'text-[var(--color-text)] hover:bg-[var(--color-control-bg)]'
                       }`}
                     onClick={() => handleOptionClick(option)}
                     disabled={option.disabled}
                   >
                     <span>{option.label}</span>
                     {option.value === value && (
-                      <FaCheck className="text-blue-600 text-sm" />
+                      <FaCheck className="text-[var(--color-primary-500)] text-sm" />
                     )}
                   </button>
                 ))}
@@ -267,10 +267,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         </div>
 
         {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
+          <p className="mt-1 text-sm text-[var(--color-error)]">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+          <p className="mt-1 text-sm text-[var(--color-secondary-text)]">{helperText}</p>
         )}
       </div>
     );

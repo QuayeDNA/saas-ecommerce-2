@@ -7,23 +7,23 @@ interface SpinnerProps {
   className?: string;
 }
 
-export const Spinner: React.FC<SpinnerProps> = ({ 
-  size = 'md', 
+export const Spinner: React.FC<SpinnerProps> = ({
+  size = 'md',
   color = 'primary',
-  className = '' 
+  className = ''
 }) => {
   const sizeClasses = {
     sm: 'w-4 h-4',
-    md: 'w-6 h-6', 
+    md: 'w-6 h-6',
     lg: 'w-8 h-8',
     xl: 'w-12 h-12'
   };
 
   const colorClasses = {
-    primary: 'text-blue-600',
-    secondary: 'text-gray-600',
+    primary: 'text-[var(--color-primary-500)]',
+    secondary: 'text-[var(--color-secondary-text)]',
     white: 'text-white',
-    gray: 'text-gray-400'
+    gray: 'text-[var(--color-muted-text)]'
   };
 
   return (
@@ -85,7 +85,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   return (
     <div
       className={`
-        bg-gray-200 
+        bg-[var(--color-border)]
         ${getVariantClasses()} 
         ${animation ? 'animate-pulse' : ''} 
         ${className}
@@ -107,7 +107,7 @@ export const LoadingCard: React.FC<LoadingCardProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`p-4 border border-gray-200 rounded-lg ${className}`}>
+    <div className={`p-4 border border-[var(--color-border)] rounded-lg ${className}`}>
       <div className="flex items-start space-x-4">
         {showAvatar && (
           <Skeleton variant="circular" width={40} height={40} />
@@ -115,10 +115,10 @@ export const LoadingCard: React.FC<LoadingCardProps> = ({
         <div className="flex-1 space-y-2">
           <Skeleton height="1.25rem" width="75%" />
           {Array.from({ length: lines }).map((_, index) => (
-            <Skeleton 
+            <Skeleton
               key={index}
-              height="1rem" 
-              width={index === lines - 1 ? '50%' : '100%'} 
+              height="1rem"
+              width={index === lines - 1 ? '50%' : '100%'}
             />
           ))}
         </div>
@@ -146,7 +146,7 @@ export const LoadingTable: React.FC<LoadingTableProps> = ({
           <Skeleton key={index} height="1.5rem" width="80%" />
         ))}
       </div>
-      
+
       {/* Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
         <div
@@ -173,10 +173,10 @@ export const FullPageLoading: React.FC<FullPageLoadingProps> = ({
   size = 'lg'
 }) => {
   return (
-    <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-[var(--color-surface)]/90 flex items-center justify-center z-50">
       <div className="text-center">
         <Spinner size={size} className="mx-auto mb-4" />
-        <p className="text-gray-600 text-sm">{message}</p>
+        <p className="text-[var(--color-secondary-text)] text-sm">{message}</p>
       </div>
     </div>
   );
@@ -196,7 +196,7 @@ export const InlineLoading: React.FC<InlineLoadingProps> = ({
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
       <Spinner size={size} />
-      <span className="text-gray-600 text-sm">{text}</span>
+      <span className="text-[var(--color-secondary-text)] text-sm">{text}</span>
     </div>
   );
 };

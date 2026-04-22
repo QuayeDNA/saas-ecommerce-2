@@ -1,123 +1,73 @@
 import React from "react";
 import { useTheme } from "../../hooks/use-theme";
-import type { ThemeColor } from "../../contexts/theme-context-value";
 
-interface ColorScheme {
-  id: ThemeColor;
-  name: string;
-  description: string;
-  primaryColor: string;
-  secondaryColor: string;
-}
-
-const colorSchemes: ColorScheme[] = [
+const themeOptions = [
   {
-    id: "blue",
-    name: "Ocean Blue",
-    description: "Professional and trustworthy",
-    primaryColor: "#3b82f6",
-    secondaryColor: "#60a5fa",
+    id: "light",
+    label: "Light mode",
+    description: "Clean, bright interface for daytime use",
+    bg: "#f8fafc",
+    accent: "#0f172a",
   },
   {
-    id: "black",
-    name: "Midnight Black",
-    description: "Bold and modern",
-    primaryColor: "#000000",
-    secondaryColor: "#1a1a1a",
+    id: "dark",
+    label: "Dark mode",
+    description: "Low-light friendly interface for night-time use",
+    bg: "#0f172a",
+    accent: "#e2e8f0",
   },
-];
+] as const;
+
+type ThemeMode = "light" | "dark";
 
 export const ColorSchemeSelector: React.FC = () => {
-  const { primaryColor, setPrimaryColor } = useTheme();
+  const { themeMode, setThemeMode } = useTheme();
 
-  const handleSchemeChange = (schemeId: ThemeColor) => {
-    setPrimaryColor(schemeId);
+  const handleModeChange = (mode: ThemeMode) => {
+    setThemeMode(mode);
   };
 
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900">Color Scheme</h3>
-        <p className="text-sm text-gray-600 mt-1">
-          Choose your preferred color theme for the interface
+        <h3 className="text-lg font-semibold text-[var(--color-text)]">Theme</h3>
+        <p className="text-sm text-[var(--color-muted-text)] mt-1">
+          Choose between light and dark appearance for the app.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {colorSchemes.map((scheme) => (
+        {themeOptions.map((option) => (
           <button
-            key={scheme.id}
-            onClick={() => handleSchemeChange(scheme.id)}
-            className={`
-              relative p-4 rounded-lg border-2 transition-all duration-200 text-left
-              ${
-                primaryColor === scheme.id
-                  ? "border-blue-500 bg-blue-50 shadow-md"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
-              }
-            `}
+            key={option.id}
+            type="button"
+            onClick={() => handleModeChange(option.id)}
+            className={`relative p-4 rounded-2xl border transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] ${themeMode === option.id
+                ? "border-[var(--color-primary-500)] bg-[var(--color-primary-50)] shadow-sm"
+                : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-slate-300"
+              }`}
           >
-            {/* Color Swatch */}
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-4">
               <div
-                className="w-12 h-12 rounded-lg shadow-inner"
-                style={{
-                  background: `linear-gradient(135deg, ${scheme.primaryColor} 0%, ${scheme.secondaryColor} 100%)`,
-                }}
+                className="w-12 h-12 rounded-xl border border-[var(--color-border)]"
+                style={{ backgroundColor: option.bg }}
               />
-              <div className="flex-1">
-                <div className="font-semibold text-gray-900">{scheme.name}</div>
-                <div className="text-xs text-gray-500">
-                  {scheme.description}
-                </div>
+              <div>
+                <div className="font-semibold text-[var(--color-text)]">{option.label}</div>
+                <div className="text-sm text-[var(--color-muted-text)]">{option.description}</div>
               </div>
             </div>
-
-            {/* Selected Indicator */}
-            {primaryColor === scheme.id && (
-              <div className="absolute top-3 right-3">
-                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-white"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
+            {themeMode === option.id && (
+              <div className="absolute top-4 right-4 inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white">
+                ✓
               </div>
             )}
-
-            {/* Preview Dots */}
-            <div className="flex gap-1.5 mt-3">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: scheme.primaryColor }}
-              />
-              <div
-                className="w-3 h-3 rounded-full opacity-80"
-                style={{ backgroundColor: scheme.primaryColor }}
-              />
-              <div
-                className="w-3 h-3 rounded-full opacity-60"
-                style={{ backgroundColor: scheme.primaryColor }}
-              />
-              <div
-                className="w-3 h-3 rounded-full opacity-40"
-                style={{ backgroundColor: scheme.primaryColor }}
-              />
-            </div>
           </button>
         ))}
       </div>
 
-      <div className="text-xs text-gray-500 mt-4">
-        Your color scheme preference is saved automatically and will be applied
-        across all pages.
+      <div className="text-xs text-[var(--color-muted-text)] mt-3">
+        Your theme preference is saved automatically and will be applied across the app.
       </div>
     </div>
   );

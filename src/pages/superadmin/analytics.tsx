@@ -275,10 +275,10 @@ export default function SuperAdminAnalyticsPage() {
         <CardBody>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text)]">
                 Analytics Dashboard
               </h1>
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-sm text-[var(--color-secondary-text)] mt-1">
                 Comprehensive insights into platform performance and activity.
               </p>
             </div>
@@ -315,9 +315,9 @@ export default function SuperAdminAnalyticsPage() {
       </Card>
 
       {error ? (
-        <Card className="rounded-3xl border border-rose-200 bg-rose-50 p-4">
+        <Card className="rounded-3xl border border-[var(--color-failed-text)] bg-[var(--color-failed-bg)] p-4">
           <CardBody>
-            <p className="text-sm text-rose-800">{error}</p>
+            <p className="text-sm text-[var(--color-failed-text)]">{error}</p>
           </CardBody>
         </Card>
       ) : null}

@@ -22,7 +22,7 @@ function App() {
     // marker can communicate via context regardless of which route is active.
     <StorefrontSessionProvider>
       <>
-        <ThemeProvider initialTheme="default">
+        <ThemeProvider initialMode="light">
           <ToastProvider>
             <AppProvider>
               <CommissionProvider>

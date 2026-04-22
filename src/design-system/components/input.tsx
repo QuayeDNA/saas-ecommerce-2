@@ -1,6 +1,5 @@
 import { forwardRef, useState } from "react";
 import type { ReactNode, InputHTMLAttributes } from "react";
-import { useTheme } from "../../hooks/use-theme";
 
 // Input sizes
 type InputSize = "xs" | "sm" | "md" | "lg";
@@ -58,9 +57,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    // Get the primary color from the theme context
-    const { primaryColor } = useTheme();
-
     // Focus state for enhanced focus styles
     const [isFocused, setIsFocused] = useState(false);
 
@@ -106,64 +102,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Variant specific styles
     const variantClasses = {
-      outline: "border border-primary-200 bg-white rounded-[14px] transition-all duration-200 hover:border-primary-300 focus:ring-[3px]",
-      filled: "border border-transparent bg-primary-50 rounded-[14px] transition-all duration-200 hover:bg-primary-100 focus:bg-white focus:ring-[3px]",
-      flushed: "border-b-2 border-primary-300 rounded-none px-0 transition-all duration-200 hover:border-primary-400 focus:border-primary-500",
+      outline: "border border-[var(--color-border)] bg-[var(--color-surface)] rounded-[14px] transition-all duration-200 hover:border-[var(--color-primary-300)] focus:ring-[3px] focus:ring-[var(--color-primary-100)]",
+      filled: "border border-transparent bg-[var(--color-control-bg)] rounded-[14px] transition-all duration-200 hover:bg-[var(--color-surface)] focus:bg-[var(--color-surface)] focus:ring-[3px] focus:ring-[var(--color-primary-100)]",
+      flushed: "border-b-2 border-[var(--color-border)] rounded-none px-0 transition-all duration-200 hover:border-[var(--color-primary-400)] focus:border-[var(--color-primary-500)]",
     };
 
     // Get theme color classes based on the current primary color from the theme
     const getThemeColorClasses = () => {
-      switch (primaryColor) {
-        case "blue":
-        case "default":
-          return {
-            border: "border-primary-500",
-            ring: "ring-primary-100",
-            focus: "focus:border-primary-500 focus:ring-primary-100",
-          };
-        case "black":
-          return {
-            border: "border-gray-900",
-            ring: "ring ring-gray-300",
-            focus: "focus:border-black focus:ring-gray-200",
-          };
-        case "teal":
-          return {
-            border: "border-teal-500",
-            ring: "ring ring-teal-200",
-            focus: "focus:border-teal-500 focus:ring-teal-100",
-          };
-        case "purple":
-          return {
-            border: "border-purple-500",
-            ring: "ring ring-purple-200",
-            focus: "focus:border-purple-500 focus:ring-purple-100",
-          };
-        case "green":
-          return {
-            border: "border-green-500",
-            ring: "ring ring-green-200",
-            focus: "focus:border-green-500 focus:ring-green-100",
-          };
-        case "orange":
-          return {
-            border: "border-orange-500",
-            ring: "ring ring-orange-200",
-            focus: "focus:border-orange-500 focus:ring-orange-100",
-          };
-        case "red":
-          return {
-            border: "border-red-500",
-            ring: "ring ring-red-200",
-            focus: "focus:border-red-500 focus:ring-red-100",
-          };
-        default:
-          return {
-            border: "border-primary-500",
-            ring: "ring ring-primary-200",
-            focus: "focus:border-primary-500 focus:ring-primary-100",
-          };
-      }
+      return {
+        border: "border-[var(--color-primary-500)]",
+        ring: "ring-[var(--color-primary-100)]",
+        focus: "focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-100)]",
+      };
     };
 
     const getSemanticColorClasses = (
@@ -172,33 +122,33 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       switch (scheme) {
         case "success":
           return {
-            border: "border-green-500",
-            ring: "ring ring-green-200",
-            focus: "focus:border-green-500 focus:ring-green-100",
+            border: "border-[var(--color-success-icon)]",
+            ring: "ring-[var(--color-success-bg)]",
+            focus: "focus:border-[var(--color-success-icon)] focus:ring-[var(--color-success-bg)]",
           };
         case "error":
           return {
-            border: "border-red-500",
-            ring: "ring ring-red-200",
-            focus: "focus:border-red-500 focus:ring-red-100",
+            border: "border-[var(--color-error)]",
+            ring: "ring-[var(--color-failed-bg)]",
+            focus: "focus:border-[var(--color-error)] focus:ring-[var(--color-failed-bg)]",
           };
         case "warning":
           return {
-            border: "border-yellow-500",
-            ring: "ring ring-yellow-200",
-            focus: "focus:border-yellow-500 focus:ring-yellow-100",
+            border: "border-[var(--color-warning)]",
+            ring: "ring-[var(--color-pending-bg)]",
+            focus: "focus:border-[var(--color-warning)] focus:ring-[var(--color-pending-bg)]",
           };
         case "info":
           return {
-            border: "border-primary-500",
-            ring: "ring ring-primary-200",
-            focus: "focus:border-primary-500 focus:ring-primary-100",
+            border: "border-[var(--color-primary-500)]",
+            ring: "ring-[var(--color-primary-100)]",
+            focus: "focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-100)]",
           };
         case "gray":
           return {
-            border: "border-gray-500",
-            ring: "ring ring-gray-200",
-            focus: "focus:border-gray-500 focus:ring-gray-100",
+            border: "border-[var(--color-border)]",
+            ring: "ring-[var(--color-gray-200)]",
+            focus: "focus:border-[var(--color-border)] focus:ring-[var(--color-gray-200)]",
           };
         case "default":
         default:
@@ -251,12 +201,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Add invalid state classes
     if (isInvalid) {
-      inputClasses.push("border-red-500 text-red-900 placeholder-red-300");
+      inputClasses.push("border-[var(--color-error)] text-[var(--color-error)] placeholder:text-[var(--color-error)]");
     }
 
     // Add disabled state classes
     if (isDisabled) {
-      inputClasses.push("bg-primary-50 text-slate-400 cursor-not-allowed");
+      inputClasses.push("bg-[var(--color-control-bg)] text-[var(--color-secondary-text)] cursor-not-allowed");
     }
 
     // Add custom classes
@@ -270,11 +220,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     // Helper function to determine helper/error text display
     const renderHelperText = () => {
       if (isInvalid && errorText) {
-        return <p className="text-red-600">{errorText}</p>;
+        return <p className="text-[var(--color-error)]">{errorText}</p>;
       }
 
       if (helperText) {
-        return <p className="text-slate-500">{helperText}</p>;
+        return <p className="text-[var(--color-secondary-text)]">{helperText}</p>;
       }
 
       return null;
@@ -286,10 +236,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={uniqueId}
-            className={`block ${sizeClasses.label[size]} font-medium text-slate-700 mb-1`}
+            className={`block ${sizeClasses.label[size]} font-medium text-[var(--color-text)] mb-1`}
           >
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="text-[var(--color-error)] ml-1">*</span>}
           </label>
         )}
 

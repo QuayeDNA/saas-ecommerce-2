@@ -88,9 +88,9 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
       <div className={containerClasses}>
         {/* Loading skeleton */}
         {isLoading && (
-          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+          <div className="absolute inset-0 bg-[var(--color-border)] animate-pulse" />
         )}
-        
+
         {/* Image */}
         <img
           ref={ref}
@@ -101,7 +101,7 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
           onError={handleError}
           {...props}
         />
-        
+
         {/* Overlay */}
         {overlay && (
           <div className="absolute inset-0 flex items-center justify-center">

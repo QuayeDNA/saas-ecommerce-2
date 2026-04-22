@@ -1,6 +1,5 @@
 import { forwardRef } from "react";
 import type { ReactNode, HTMLAttributes } from "react";
-import { useTheme } from "../../hooks/use-theme";
 
 // Badge variants
 type BadgeVariant = "solid" | "subtle" | "outline";
@@ -42,9 +41,6 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     },
     ref
   ) => {
-    // Access the theme's primary color
-    const { primaryColor } = useTheme();
-
     // Size styles
     const sizeClasses = {
       xs: "text-xs px-1.5 py-0.5",
@@ -55,54 +51,11 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
 
     // Helper function to get theme-based color classes
     const getThemeColorClasses = () => {
-      // Map theme colors to tailwind classes
-      switch (primaryColor) {
-        case "blue":
-          return {
-            solid: "bg-primary-500 text-white",
-            subtle: "bg-primary-100 text-primary-800",
-            outline: "bg-transparent border border-primary-500 text-primary-700",
-          };
-        case "black":
-          return {
-            solid: "bg-primary-500 text-white",
-            subtle: "bg-primary-100 text-primary-800",
-            outline: "bg-transparent border border-primary-500 text-primary-700",
-          };
-        case "teal":
-          return {
-            solid: "bg-teal-500 text-white",
-            subtle: "bg-teal-100 text-teal-800",
-            outline: "bg-transparent border border-teal-500 text-teal-700",
-          };
-        case "purple":
-          return {
-            solid: "bg-purple-500 text-white",
-            subtle: "bg-purple-100 text-purple-800",
-            outline: "bg-transparent border border-purple-500 text-purple-700",
-          };
-        case "green":
-          return {
-            solid: "bg-green-500 text-white",
-            subtle: "bg-green-100 text-green-800",
-            outline: "bg-transparent border border-green-500 text-green-700",
-          };
-        case "orange":
-          return {
-            solid: "bg-orange-500 text-white",
-            subtle: "bg-orange-100 text-orange-800",
-            outline: "bg-transparent border border-orange-500 text-orange-700",
-          };
-        case "red":
-          return {
-            solid: "bg-red-500 text-white",
-            subtle: "bg-red-100 text-red-800",
-            outline: "bg-transparent border border-red-500 text-red-700",
-          };
-        default:
-          // Reuse the blue theme as default
-          return getSemanticColorClasses("info");
-      }
+      return {
+        solid: "bg-[var(--color-primary-500)] text-white",
+        subtle: "bg-[var(--color-primary-100)] text-[var(--color-primary-800)]",
+        outline: "bg-transparent border border-[var(--color-primary-500)] text-[var(--color-primary-700)]",
+      };
     };
 
     // Helper function to get semantic color classes

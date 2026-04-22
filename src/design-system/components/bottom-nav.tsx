@@ -18,7 +18,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ items, className = '' }) =
 
     return (
         <div
-            className={`fixed bottom-0 left-0 right-0 h-[72px] bg-white border-t border-gray-100 px-2 pb-safe-area pt-2 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] sm:hidden ${className}`}
+            className={`fixed bottom-0 left-0 right-0 h-[72px] bg-[var(--color-surface)] border-t border-[var(--color-border)] px-2 pb-safe-area pt-2 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] sm:hidden ${className}`}
         >
             <div className="flex justify-between items-center max-w-md mx-auto">
                 {items.map((item) => {
@@ -34,13 +34,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ items, className = '' }) =
                             aria-current={isActive ? 'page' : undefined}
                         >
                             <div
-                                className={`flex items-center justify-center p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'text-primary-500 bg-primary-50 scale-110' : 'text-gray-400 hover:text-gray-600'
+                                className={`flex items-center justify-center p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'text-[var(--color-primary-500)] bg-[var(--color-primary-50)] scale-110' : 'text-[var(--color-muted-text)] hover:text-[var(--color-text)]'
                                     }`}
                             >
                                 {item.icon}
                             </div>
                             <span
-                                className={`text-[10px] font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-400'
+                                className={`text-[10px] font-medium transition-colors ${isActive ? 'text-[var(--color-primary-600)]' : 'text-[var(--color-muted-text)]'
                                     }`}
                             >
                                 {item.label}

@@ -11,21 +11,22 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-[var(--color-secondary-text)] mb-1">
             {label}
           </label>
         )}
         <textarea
           ref={ref}
           className={`
-            w-full px-4 py-3 border border-gray-300
+            w-full px-4 py-3 border border-[var(--color-border)]
             rounded-lg shadow-sm text-base min-h-[120px] transition-all duration-200
-            placeholder-gray-400
-            focus:outline-none focus:ring-[3px] focus:border-primary-500
-            disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500
+            placeholder:text-[var(--color-muted-text)]
+            bg-[var(--color-input-bg)] text-[var(--color-text)]
+            focus:outline-none focus:ring-[3px] focus:border-[var(--color-primary-500)]
+            disabled:bg-[var(--color-border)] disabled:cursor-not-allowed disabled:text-[var(--color-muted-text)]
             ${error
-              ? "border-red-500 focus:ring-red-200"
-              : "focus:ring-primary-100 hover:border-gray-400"
+              ? "border-[var(--color-error)] focus:ring-[var(--color-error)]"
+              : "focus:ring-[var(--color-primary-100)] hover:border-[var(--color-border)]"
             }
             ${className}
           `}
@@ -38,7 +39,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           }
           {...props}
         />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-sm text-[var(--color-error)]">{error}</p>}
       </div>
     );
   }

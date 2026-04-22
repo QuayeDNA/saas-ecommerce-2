@@ -45,56 +45,56 @@ const snapshotToneMap: Record<
     }
 > = {
     default: {
-        cardClass: "bg-slate-50 border border-slate-200",
-        iconClass: "text-slate-600",
-        titleClass: "text-slate-600",
-        valueClass: "text-slate-900",
-        subtitleClass: "text-slate-600",
+        cardClass: "bg-[var(--color-surface)] border border-[var(--color-border)]",
+        iconClass: "text-[var(--color-secondary-text)]",
+        titleClass: "text-[var(--color-secondary-text)]",
+        valueClass: "text-[var(--color-text)]",
+        subtitleClass: "text-[var(--color-secondary-text)]",
         subtitleText: "Current level",
         trendIcon: <FaMinus className="text-[10px]" />,
     },
     success: {
-        cardClass: "bg-emerald-50 border border-emerald-200",
-        iconClass: "text-emerald-600",
-        titleClass: "text-emerald-700",
-        valueClass: "text-emerald-950",
-        subtitleClass: "text-emerald-700",
+        cardClass: "bg-[var(--color-success-bg)] border border-[var(--color-success-text)]",
+        iconClass: "text-[var(--color-success-text)]",
+        titleClass: "text-[var(--color-success-text)]",
+        valueClass: "text-[var(--color-text)]",
+        subtitleClass: "text-[var(--color-success-text)]",
         subtitleText: "Healthy trend",
         trendIcon: <FaArrowUp className="text-[10px]" />,
     },
     warning: {
-        cardClass: "bg-amber-50 border border-amber-200",
-        iconClass: "text-amber-600",
-        titleClass: "text-amber-700",
-        valueClass: "text-amber-950",
-        subtitleClass: "text-amber-700",
+        cardClass: "bg-[var(--color-pending-bg)] border border-[var(--color-pending-icon)]",
+        iconClass: "text-[var(--color-pending-icon)]",
+        titleClass: "text-[var(--color-pending-text)]",
+        valueClass: "text-[var(--color-text)]",
+        subtitleClass: "text-[var(--color-pending-text)]",
         subtitleText: "Watch closely",
         trendIcon: <FaMinus className="text-[10px]" />,
     },
     error: {
-        cardClass: "bg-rose-50 border border-rose-200",
-        iconClass: "text-rose-600",
-        titleClass: "text-rose-700",
-        valueClass: "text-rose-950",
-        subtitleClass: "text-rose-700",
+        cardClass: "bg-[var(--color-failed-bg)] border border-[var(--color-failed-icon)]",
+        iconClass: "text-[var(--color-failed-icon)]",
+        titleClass: "text-[var(--color-failed-text)]",
+        valueClass: "text-[var(--color-text)]",
+        subtitleClass: "text-[var(--color-failed-text)]",
         subtitleText: "Needs action",
         trendIcon: <FaArrowDown className="text-[10px]" />,
     },
     info: {
-        cardClass: "bg-blue-50 border border-blue-200",
-        iconClass: "text-blue-600",
-        titleClass: "text-blue-700",
-        valueClass: "text-blue-950",
-        subtitleClass: "text-blue-700",
+        cardClass: "bg-[var(--color-primary-50)] border border-[var(--color-primary-200)]",
+        iconClass: "text-[var(--color-primary-500)]",
+        titleClass: "text-[var(--color-primary-600)]",
+        valueClass: "text-[var(--color-text)]",
+        subtitleClass: "text-[var(--color-primary-600)]",
         subtitleText: "Reference metric",
         trendIcon: <FaMinus className="text-[10px]" />,
     },
     gray: {
-        cardClass: "bg-slate-100 border border-slate-300",
-        iconClass: "text-slate-600",
-        titleClass: "text-slate-600",
-        valueClass: "text-slate-900",
-        subtitleClass: "text-slate-600",
+        cardClass: "bg-[var(--color-gray-100)] border border-[var(--color-gray-200)]",
+        iconClass: "text-[var(--color-secondary-text)]",
+        titleClass: "text-[var(--color-secondary-text)]",
+        valueClass: "text-[var(--color-text)]",
+        subtitleClass: "text-[var(--color-secondary-text)]",
         subtitleText: "Awaiting update",
         trendIcon: <FaMinus className="text-[10px]" />,
     },
@@ -117,17 +117,17 @@ export function AnalyticsCommandCenter({
                 <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <FaChartLine className="text-primary-600" />
-                            <h1 className="text-lg sm:text-xl font-semibold text-slate-900">
+                            <FaChartLine className="text-[var(--color-primary-500)]" />
+                            <h1 className="text-lg sm:text-xl font-semibold text-[var(--color-text)]">
                                 Sales & Operations Analytics
                             </h1>
                         </div>
-                        <p className="text-sm text-slate-500 max-w-2xl">
+                        <p className="text-sm text-[var(--color-muted-text)] max-w-2xl">
                             Monitor platform performance across revenue, orders, users, commissions, and payouts.
                         </p>
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted-text)]">
                             <span className="inline-flex items-center gap-1">
-                                <FaDotCircle className="text-slate-400" />
+                                <FaDotCircle className="text-[var(--color-secondary-text)]" />
                                 Last updated: {generatedAt ? formatDateTime(generatedAt) : "Awaiting data"}
                             </span>
                             {source ? (

@@ -102,102 +102,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Helper function to get theme-based color classes
     const getThemeColorClasses = () => {
-      // Map theme colors to tailwind classes — all cases have complete static classes
-      // so buttons render correctly even without inline style overrides.
-      // For "blue" and "default", inline styles from getThemeStyles() will override
-      // the bg-* classes with CSS variables for exact theme color matching.
-      switch (primaryColor) {
-        case "blue":
-        case "default":
-          return {
-            solid:
-              "bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-950 shadow-sm",
-            outline:
-              "bg-transparent border border-primary-600 text-primary-700 hover:bg-primary-50 active:bg-primary-100",
-            ghost:
-              "bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100",
-            link: "bg-transparent text-primary-700 hover:text-primary-600 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-primary-500",
-          };
-        case "black":
-          return {
-            solid:
-              "bg-black text-white hover:bg-gray-800 active:bg-gray-900 shadow-sm",
-            outline:
-              "bg-transparent border border-black text-black hover:bg-gray-50 active:bg-gray-100",
-            ghost:
-              "bg-transparent text-black hover:bg-gray-50 active:bg-gray-100",
-            link: "bg-transparent text-black hover:text-gray-800 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-gray-500",
-          };
-        case "teal":
-          return {
-            solid:
-              "bg-teal-600 text-white hover:bg-teal-700 active:bg-teal-800 shadow-sm",
-            outline:
-              "bg-transparent border border-teal-500 text-teal-700 hover:bg-teal-50 active:bg-teal-100",
-            ghost:
-              "bg-transparent text-teal-700 hover:bg-teal-50 active:bg-teal-100",
-            link: "bg-transparent text-teal-600 hover:text-teal-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-teal-500",
-          };
-        case "purple":
-          return {
-            solid:
-              "bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 shadow-sm",
-            outline:
-              "bg-transparent border border-purple-500 text-purple-700 hover:bg-purple-50 active:bg-purple-100",
-            ghost:
-              "bg-transparent text-purple-700 hover:bg-purple-50 active:bg-purple-100",
-            link: "bg-transparent text-purple-600 hover:text-purple-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-purple-500",
-          };
-        case "green":
-          return {
-            solid:
-              "bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-sm",
-            outline:
-              "bg-transparent border border-green-500 text-green-700 hover:bg-green-50 active:bg-green-100",
-            ghost:
-              "bg-transparent text-green-700 hover:bg-green-50 active:bg-green-100",
-            link: "bg-transparent text-green-600 hover:text-green-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-green-500",
-          };
-        case "orange":
-          return {
-            solid:
-              "bg-orange-600 text-white hover:bg-orange-700 active:bg-orange-800 shadow-sm",
-            outline:
-              "bg-transparent border border-orange-500 text-orange-700 hover:bg-orange-50 active:bg-orange-100",
-            ghost:
-              "bg-transparent text-orange-700 hover:bg-orange-50 active:bg-orange-100",
-            link: "bg-transparent text-orange-600 hover:text-orange-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-orange-500",
-          };
-        case "red":
-          return {
-            solid:
-              "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm",
-            outline:
-              "bg-transparent border border-red-500 text-red-700 hover:bg-red-50 active:bg-red-100",
-            ghost:
-              "bg-transparent text-red-700 hover:bg-red-50 active:bg-red-100",
-            link: "bg-transparent text-red-600 hover:text-red-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-red-500",
-          };
-        default:
-          // For any unrecognized theme, use the same blue/default classes
-          return {
-            solid:
-              "bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-950 shadow-sm",
-            outline:
-              "bg-transparent border border-primary-600 text-primary-700 hover:bg-primary-50 active:bg-primary-100",
-            ghost:
-              "bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100",
-            link: "bg-transparent text-primary-700 hover:text-primary-600 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-primary-500",
-          };
-      }
+      return {
+        solid:
+          "bg-[var(--color-primary-500)] text-white hover:bg-[var(--color-primary-600)] active:bg-[var(--color-primary-700)] shadow-sm",
+        outline:
+          "bg-transparent border border-[var(--color-primary-500)] text-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)] active:bg-[var(--color-primary-100)]",
+        ghost:
+          "bg-transparent text-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)] active:bg-[var(--color-primary-100)]",
+        link: "bg-transparent text-[var(--color-primary-500)] hover:text-[var(--color-primary-600)] hover:underline p-0 h-auto",
+        focusRing: "focus:ring-[var(--color-primary-500)]",
+      };
     };
 
     // Helper functions for semantic color classes
@@ -214,46 +128,46 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         case "success":
           return {
             solid:
-              "bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-sm",
+              "bg-[var(--color-success)] text-white hover:bg-[var(--color-success-icon)] active:bg-[var(--color-success-icon)] shadow-sm",
             outline:
-              "bg-transparent border border-green-500 text-green-700 hover:bg-green-50 active:bg-green-100",
+              "bg-transparent border border-[var(--color-success-icon)] text-[var(--color-success-icon)] hover:bg-[var(--color-success-bg)] active:bg-[var(--color-success-bg)]",
             ghost:
-              "bg-transparent text-green-700 hover:bg-green-50 active:bg-green-100",
-            link: "bg-transparent text-green-600 hover:text-green-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-green-500",
+              "bg-transparent text-[var(--color-success-icon)] hover:bg-[var(--color-success-bg)] active:bg-[var(--color-success-bg)]",
+            link: "bg-transparent text-[var(--color-success-icon)] hover:text-[var(--color-success-text)] hover:underline p-0 h-auto",
+            focusRing: "focus:ring-[var(--color-success-icon)]",
           };
         case "warning":
           return {
             solid:
-              "bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700 shadow-sm",
+              "bg-[var(--color-warning)] text-white hover:bg-[var(--color-warning)] active:bg-[var(--color-warning)] shadow-sm",
             outline:
-              "bg-transparent border border-yellow-500 text-yellow-700 hover:bg-yellow-50 active:bg-yellow-100",
+              "bg-transparent border border-[var(--color-warning)] text-[var(--color-warning)] hover:bg-[var(--color-pending-bg)] active:bg-[var(--color-pending-bg)]",
             ghost:
-              "bg-transparent text-yellow-700 hover:bg-yellow-50 active:bg-yellow-100",
-            link: "bg-transparent text-yellow-600 hover:text-yellow-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-yellow-500",
+              "bg-transparent text-[var(--color-warning)] hover:bg-[var(--color-pending-bg)] active:bg-[var(--color-pending-bg)]",
+            link: "bg-transparent text-[var(--color-warning)] hover:text-[var(--color-pending-text)] hover:underline p-0 h-auto",
+            focusRing: "focus:ring-[var(--color-warning)]",
           };
         case "error":
           return {
             solid:
-              "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm",
+              "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)] active:bg-[var(--color-error)] shadow-sm",
             outline:
-              "bg-transparent border border-red-500 text-red-700 hover:bg-red-50 active:bg-red-100",
+              "bg-transparent border border-[var(--color-error)] text-[var(--color-error)] hover:bg-[var(--color-failed-bg)] active:bg-[var(--color-failed-bg)]",
             ghost:
-              "bg-transparent text-red-700 hover:bg-red-50 active:bg-red-100",
-            link: "bg-transparent text-red-600 hover:text-red-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-red-500",
+              "bg-transparent text-[var(--color-error)] hover:bg-[var(--color-failed-bg)] active:bg-[var(--color-failed-bg)]",
+            link: "bg-transparent text-[var(--color-error)] hover:text-[var(--color-failed-text)] hover:underline p-0 h-auto",
+            focusRing: "focus:ring-[var(--color-error)]",
           };
         case "info":
           return {
             solid:
-              "bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm",
+              "bg-[var(--color-primary-600)] text-white hover:bg-[var(--color-primary-700)] active:bg-[var(--color-primary-800)] shadow-sm",
             outline:
-              "bg-transparent border border-primary-500 text-primary-700 hover:bg-primary-50 active:bg-primary-100",
+              "bg-transparent border border-[var(--color-primary-500)] text-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)] active:bg-[var(--color-primary-100)]",
             ghost:
-              "bg-transparent text-primary-700 hover:bg-primary-50 active:bg-primary-100",
-            link: "bg-transparent text-primary-600 hover:text-primary-700 hover:underline p-0 h-auto",
-            focusRing: "focus:ring-primary-500",
+              "bg-transparent text-[var(--color-primary-500)] hover:bg-[var(--color-primary-50)] active:bg-[var(--color-primary-100)]",
+            link: "bg-transparent text-[var(--color-primary-500)] hover:text-[var(--color-primary-600)] hover:underline p-0 h-auto",
+            focusRing: "focus:ring-[var(--color-primary-500)]",
           };
         case "default":
         default:
@@ -283,11 +197,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           return colors.solid;
 
         case "secondary":
-          return "bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800 shadow-sm";
+          return "bg-[var(--color-control-bg)] text-[var(--color-text)] hover:bg-[var(--color-surface)] active:bg-[var(--color-gray-200)] shadow-sm border border-[var(--color-border)]";
 
         case "accent":
-          // Use the secondary blue color as accent
-          return "text-white shadow-sm";
+          return "bg-[var(--color-secondary-500)] text-white hover:bg-[var(--color-secondary-600)] active:bg-[var(--color-secondary-700)] shadow-sm";
 
         case "outline":
           return colors.outline;

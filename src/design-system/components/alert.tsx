@@ -54,11 +54,11 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
       switch (statusType) {
         case "success":
           return {
-            bg: "bg-green-600",
-            subtleBg: "bg-green-50",
+            bg: "bg-[var(--color-success)]",
+            subtleBg: "bg-[var(--color-success-bg)]",
             textColor: "text-white",
-            subtleTextColor: "text-green-800",
-            borderColor: "border-green-600",
+            subtleTextColor: "text-[var(--color-success-text)]",
+            borderColor: "border-[var(--color-success)]",
             icon: (
               <svg
                 className="w-5 h-5"
@@ -76,11 +76,11 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
           };
         case "error":
           return {
-            bg: "bg-red-600",
-            subtleBg: "bg-red-50",
+            bg: "bg-[var(--color-error)]",
+            subtleBg: "bg-[var(--color-failed-bg)]",
             textColor: "text-white",
-            subtleTextColor: "text-red-800",
-            borderColor: "border-red-600",
+            subtleTextColor: "text-[var(--color-failed-text)]",
+            borderColor: "border-[var(--color-error)]",
             icon: (
               <svg
                 className="w-5 h-5"
@@ -98,11 +98,11 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
           };
         case "warning":
           return {
-            bg: "bg-yellow-500",
-            subtleBg: "bg-yellow-50",
+            bg: "bg-[var(--color-warning)]",
+            subtleBg: "bg-[var(--color-pending-bg)]",
             textColor: "text-white",
-            subtleTextColor: "text-yellow-800",
-            borderColor: "border-yellow-500",
+            subtleTextColor: "text-[var(--color-pending-text)]",
+            borderColor: "border-[var(--color-warning)]",
             icon: (
               <svg
                 className="w-5 h-5"
@@ -120,11 +120,11 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
           };
         case "info":
           return {
-            bg: "bg-primary-500",
-            subtleBg: "bg-primary-50",
+            bg: "bg-[var(--color-info)]",
+            subtleBg: "bg-[var(--color-primary-50)]",
             textColor: "text-white",
-            subtleTextColor: "text-primary-900",
-            borderColor: "border-primary-500",
+            subtleTextColor: "text-[var(--color-primary-900)]",
+            borderColor: "border-[var(--color-info)]",
             icon: (
               <svg
                 className="w-5 h-5"
@@ -142,11 +142,11 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
           };
         case "neutral":
           return {
-            bg: "bg-gray-600",
-            subtleBg: "bg-gray-50",
+            bg: "bg-[var(--color-gray-600)]",
+            subtleBg: "bg-[var(--color-gray-50)]",
             textColor: "text-white",
-            subtleTextColor: "text-gray-800",
-            borderColor: "border-gray-600",
+            subtleTextColor: "text-[var(--color-gray-800)]",
+            borderColor: "border-[var(--color-gray-600)]",
             icon: (
               <svg
                 className="w-5 h-5"
@@ -235,8 +235,8 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
               <button
                 type="button"
                 className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${variant === "solid"
-                    ? "bg-transparent text-white hover:bg-white hover:bg-opacity-10 focus:ring-white"
-                    : `bg-transparent hover:${statusStyles.bg} hover:bg-opacity-10 focus:ring-${statusStyles.borderColor}`
+                  ? "bg-transparent text-white hover:bg-white hover:bg-opacity-10 focus:ring-white"
+                  : `bg-transparent hover:${statusStyles.bg} hover:bg-opacity-10 focus:ring-[var(--color-border)]`
                   }`}
                 aria-label="Close"
                 onClick={onClose}

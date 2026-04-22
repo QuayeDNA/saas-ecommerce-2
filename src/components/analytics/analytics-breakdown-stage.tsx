@@ -66,8 +66,8 @@ export function AnalyticsBreakdownStage({
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
             <Card className="rounded-3xl p-4 sm:p-5">
                 <CardHeader className="pb-3">
-                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">User Type Distribution</h3>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">User Type Distribution</h3>
+                    <p className="text-xs sm:text-sm text-[var(--color-muted-text)] mt-1">
                         Distribution of users across platform roles.
                     </p>
                 </CardHeader>
@@ -101,8 +101,9 @@ export function AnalyticsBreakdownStage({
                                             }}
                                             contentStyle={{
                                                 borderRadius: 12,
-                                                borderColor: "rgba(148, 163, 184, 0.25)",
-                                                backgroundColor: "#ffffff",
+                                                borderColor: "var(--color-border)",
+                                                backgroundColor: "var(--color-surface)",
+                                                color: "var(--color-text)",
                                             }}
                                         />
                                     </PieChart>
@@ -111,11 +112,11 @@ export function AnalyticsBreakdownStage({
 
                             <div className="grid gap-3 sm:grid-cols-2">
                                 {userTypesData.map((item) => (
-                                    <div key={item.name} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                    <div key={item.name} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
                                         <div className="flex items-center justify-between gap-3">
                                             <div>
-                                                <p className="text-sm font-semibold text-slate-900">{item.name}</p>
-                                                <p className="text-xs text-slate-500">{formatNumber(item.value)} users</p>
+                                                <p className="text-sm font-semibold text-[var(--color-text)]">{item.name}</p>
+                                                <p className="text-xs text-[var(--color-secondary-text)]">{formatNumber(item.value)} users</p>
                                             </div>
                                             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
                                         </div>
@@ -129,8 +130,8 @@ export function AnalyticsBreakdownStage({
 
             <Card className="rounded-3xl p-4 sm:p-5">
                 <CardHeader className="pb-3">
-                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">Order Type Performance</h3>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Order Type Performance</h3>
+                    <p className="text-xs sm:text-sm text-[var(--color-muted-text)] mt-1">
                         Order volume and revenue by order category.
                     </p>
                 </CardHeader>
@@ -144,23 +145,23 @@ export function AnalyticsBreakdownStage({
                             </div>
                         ))
                     ) : orderTypeLeaders.length === 0 ? (
-                        <p className="text-sm text-slate-500">No order type data available for this period.</p>
+                        <p className="text-sm text-[var(--color-secondary-text)]">No order type data available for this period.</p>
                     ) : (
                         <div className="space-y-4">
                             <div className="h-[22rem] w-full min-w-0 min-h-[22rem]">
                                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={280}>
                                     <BarChart data={barData} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
                                         <XAxis
                                             dataKey="category"
-                                            tick={{ fill: "#475569", fontSize: 12 }}
+                                            tick={{ fill: "var(--color-secondary-text)", fontSize: 12 }}
                                             tickLine={false}
                                             axisLine={false}
                                             interval={0}
                                         />
                                         <YAxis
                                             tickFormatter={(value: number | string) => formatNumber(Number(value))}
-                                            tick={{ fill: "#475569", fontSize: 12 }}
+                                            tick={{ fill: "var(--color-secondary-text)", fontSize: 12 }}
                                             tickLine={false}
                                             axisLine={false}
                                         />
@@ -175,13 +176,14 @@ export function AnalyticsBreakdownStage({
                                             }}
                                             contentStyle={{
                                                 borderRadius: 12,
-                                                borderColor: "rgba(148, 163, 184, 0.25)",
-                                                backgroundColor: "#ffffff",
+                                                borderColor: "var(--color-border)",
+                                                backgroundColor: "var(--color-surface)",
+                                                color: "var(--color-text)",
                                             }}
                                         />
                                         <Legend wrapperStyle={{ paddingBottom: 8, fontSize: 12 }} />
-                                        <Bar dataKey="orders" name="Orders" fill="#3b82f6" radius={[12, 12, 0, 0]} />
-                                        <Bar dataKey="revenue" name="Revenue" fill="#10b981" radius={[12, 12, 0, 0]} />
+                                        <Bar dataKey="orders" name="Orders" fill="var(--color-primary-500)" radius={[12, 12, 0, 0]} />
+                                        <Bar dataKey="revenue" name="Revenue" fill="var(--color-success)" radius={[12, 12, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -191,22 +193,22 @@ export function AnalyticsBreakdownStage({
                                     const ratio = (row.count / maxLeaderCount) * 100;
 
                                     return (
-                                        <div key={row.orderType} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                        <div key={row.orderType} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
                                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                                 <div>
-                                                    <p className="text-sm font-semibold text-slate-900 capitalize">
+                                                    <p className="text-sm font-semibold text-[var(--color-text)] capitalize">
                                                         {row.orderType.replace(/_/g, " ")}
                                                     </p>
-                                                    <p className="text-xs text-slate-500">
+                                                    <p className="text-xs text-[var(--color-secondary-text)]">
                                                         {formatNumber(row.count)} orders • {formatCurrency(row.revenue)}
                                                     </p>
                                                 </div>
-                                                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                                <span className="rounded-full bg-[var(--color-gray-100)] px-3 py-1 text-xs font-semibold text-[var(--color-text)]">
                                                     {Math.round(ratio)}%
                                                 </span>
                                             </div>
-                                            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                                                <div className="h-full rounded-full bg-slate-900" style={{ width: `${Math.max(8, ratio)}%` }} />
+                                            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[var(--color-gray-100)]">
+                                                <div className="h-full rounded-full bg-[var(--color-text)]" style={{ width: `${Math.max(8, ratio)}%` }} />
                                             </div>
                                         </div>
                                     );

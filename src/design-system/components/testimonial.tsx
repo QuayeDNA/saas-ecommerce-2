@@ -28,7 +28,7 @@ export const Testimonial = forwardRef<HTMLDivElement, TestimonialProps>(
   }, ref) => {
     const variantClasses = {
       default: 'p-6',
-      card: 'bg-white p-6 rounded-lg shadow-sm border border-gray-100',
+      card: 'bg-[var(--color-surface)] p-6 rounded-lg shadow-sm border border-[var(--color-border)]',
       minimal: 'p-4',
     };
 
@@ -38,9 +38,8 @@ export const Testimonial = forwardRef<HTMLDivElement, TestimonialProps>(
           {[...Array(5)].map((_, i) => (
             <FaStar
               key={i}
-              className={`text-lg ${
-                i < rating ? 'text-yellow-400' : 'text-gray-300'
-              }`}
+              className={`text-lg ${i < rating ? 'text-[var(--color-warning)]' : 'text-[var(--color-border)]'
+                }`}
             />
           ))}
         </div>
@@ -49,12 +48,12 @@ export const Testimonial = forwardRef<HTMLDivElement, TestimonialProps>(
 
     const renderQuote = () => {
       if (variant === 'minimal') return null;
-      return <FaQuoteLeft className="text-blue-600 text-2xl mx-auto mb-4" />;
+      return <FaQuoteLeft className="text-[var(--color-primary-500)] text-2xl mx-auto mb-4" />;
     };
 
     const renderAuthor = () => {
       const displayRole = role && company ? `${role}, ${company}` : role || company;
-      
+
       return (
         <div className="flex items-center justify-center mt-6">
           {avatar && (
@@ -63,9 +62,9 @@ export const Testimonial = forwardRef<HTMLDivElement, TestimonialProps>(
             </div>
           )}
           <div className={variant === 'minimal' ? 'text-left' : 'text-center'}>
-            <div className="font-semibold text-gray-900">{author}</div>
+            <div className="font-semibold text-[var(--color-text)]">{author}</div>
             {displayRole && (
-              <div className="text-gray-500 text-sm">{displayRole}</div>
+              <div className="text-[var(--color-muted-text)] text-sm">{displayRole}</div>
             )}
           </div>
         </div>
@@ -80,7 +79,7 @@ export const Testimonial = forwardRef<HTMLDivElement, TestimonialProps>(
       >
         {variant !== 'minimal' && renderStars()}
         {renderQuote()}
-        <p className="text-gray-600 mb-6 leading-relaxed">
+        <p className="text-[var(--color-secondary-text)] mb-6 leading-relaxed">
           "{content}"
         </p>
         {renderAuthor()}

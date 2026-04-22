@@ -70,7 +70,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
         <div
           ref={ref}
           className={[
-            `relative w-full bg-white shadow-xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all pb-safe-area animate-slide-in-from-bottom`,
+            `relative w-full bg-[var(--color-surface)] shadow-xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all pb-safe-area animate-slide-in-from-bottom`,
             isBottomSheet ? 'rounded-t-[32px] rounded-b-none' : 'rounded-lg',
             sizeClasses[size],
             className,
@@ -80,7 +80,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(
         >
           {isBottomSheet && (
             <div className="w-full flex items-center justify-center pt-4 pb-2" aria-hidden="true" onClick={onClose} style={{ cursor: 'pointer' }}>
-              <div className="w-12 h-1.5 bg-gray-200 rounded-[10px]" />
+              <div className="w-12 h-1.5 bg-[var(--color-border)] rounded-[10px]" />
             </div>
           )}
           {children}

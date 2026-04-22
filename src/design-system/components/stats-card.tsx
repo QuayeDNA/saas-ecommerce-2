@@ -56,7 +56,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   const isWallet = variant === "wallet";
 
   const cardStyle = isWallet
-    ? { backgroundColor: "white", borderColor: "white", color: "var(--color-primary-900)" }
+    ? { backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)", color: "var(--color-text)" }
     : { backgroundColor: "var(--color-primary-500)", borderColor: "var(--color-primary-600)", color: "white" };
 
   return (
@@ -66,20 +66,20 @@ export const StatCard: React.FC<StatCardProps> = ({
     >
       {/* Decorative background element for wallet variant */}
       {isWallet && (
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary-50 rounded-full opacity-50 pointer-events-none" />
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-primary-50)] rounded-full opacity-50 pointer-events-none" />
       )}
 
       <CardBody className={`h-full relative z-10 flex flex-col gap-4 sm:gap-6`}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className={`${classes.title} mb-1 sm:mb-2 truncate ${isWallet ? 'text-gray-500' : 'text-primary-100'}`}>
+            <p className={`${classes.title} mb-1 sm:mb-2 truncate ${isWallet ? 'text-[var(--color-muted-text)]' : 'text-[var(--color-primary-100)]'}`}>
               {title}
             </p>
-            <p className={`${classes.value} leading-none ${isWallet ? 'text-gray-900' : 'text-white'}`}>{value}</p>
+            <p className={`${classes.value} leading-none ${isWallet ? 'text-[var(--color-text)]' : 'text-white'}`}>{value}</p>
             {subtitle && (
               <p
                 className={`${classes.subtitle} mt-1`}
-                style={{ color: isWallet ? "var(--color-gray-500, #6b7280)" : "var(--color-primary-200, #b0c9ff)" }}
+                style={{ color: isWallet ? "var(--color-muted-text)" : "var(--color-primary-200, #bfdbfe)" }}
               >
                 {subtitle}
               </p>
@@ -88,23 +88,23 @@ export const StatCard: React.FC<StatCardProps> = ({
               <p
                 className={`text-sm mt-2 flex items-center ${trendUp !== undefined
                   ? trendUp
-                    ? isWallet ? "text-primary-600" : "text-green-400"
-                    : "text-red-500"
-                  : isWallet ? "text-gray-500" : "text-primary-200"
+                    ? isWallet ? "text-[var(--color-primary-600)]" : "text-[var(--color-success)]"
+                    : "text-[var(--color-error)]"
+                  : isWallet ? "text-[var(--color-muted-text)]" : "text-[var(--color-primary-200)]"
                   }`}
               >
                 {trendUp !== undefined && trendUp && <span className="mr-1">↑</span>}
                 {trendUp !== undefined && !trendUp && <span className="mr-1">↓</span>}
                 {trend && <span>{trend}</span>}
                 {trendLabel && (
-                  <span className={`ml-1 ${isWallet ? "text-gray-500" : "text-primary-200"}`}>{trendLabel}</span>
+                  <span className={`ml-1 ${isWallet ? "text-[var(--color-muted-text)]" : "text-[var(--color-primary-200)]"}`}>{trendLabel}</span>
                 )}
               </p>
             )}
           </div>
           {!iconOnly && icon && (
             <div
-              className={`${classes.iconContainer} ${isWallet ? 'bg-primary-50 text-primary-500' : 'bg-white/20 text-white'} rounded-full flex-shrink-0 flex items-center justify-center`}
+              className={`${classes.iconContainer} ${isWallet ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-500)]' : 'bg-white/20 text-white'} rounded-full flex-shrink-0 flex items-center justify-center`}
             >
               <div className={`${classes.icon}`}>{icon}</div>
             </div>

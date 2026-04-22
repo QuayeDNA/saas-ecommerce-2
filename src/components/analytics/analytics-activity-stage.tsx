@@ -77,31 +77,31 @@ function getRankStyle(rank: number) {
     if (rank === 1) {
         return {
             label: "Gold",
-            badgeClass: "bg-amber-100 text-amber-900 border border-amber-300/40",
-            rowClass: "border-amber-300/35 bg-amber-50",
+            badgeClass: "bg-[var(--color-pending-bg)] text-[var(--color-pending-text)] border border-[var(--color-pending-icon)]",
+            rowClass: "border-[var(--color-pending-icon)]/30 bg-[var(--color-pending-bg)]",
         };
     }
 
     if (rank === 2) {
         return {
             label: "Silver",
-            badgeClass: "bg-slate-100 text-slate-900 border border-slate-300/35",
-            rowClass: "border-slate-300/35 bg-slate-100",
+            badgeClass: "bg-[var(--color-gray-100)] text-[var(--color-gray-900)] border border-[var(--color-gray-200)]",
+            rowClass: "border-[var(--color-gray-200)] bg-[var(--color-gray-100)]",
         };
     }
 
     if (rank === 3) {
         return {
             label: "Bronze",
-            badgeClass: "bg-orange-100 text-orange-900 border border-orange-300/40",
-            rowClass: "border-orange-300/35 bg-orange-50",
+            badgeClass: "bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border border-[var(--color-warning-icon)]",
+            rowClass: "border-[var(--color-warning-icon)]/30 bg-[var(--color-warning-bg)]",
         };
     }
 
     return {
         label: "",
-        badgeClass: "bg-slate-100 text-slate-900 border border-slate-200",
-        rowClass: "border-slate-200 bg-slate-50",
+        badgeClass: "bg-[var(--color-gray-100)] text-[var(--color-gray-900)] border border-[var(--color-gray-200)]",
+        rowClass: "border-[var(--color-gray-200)] bg-[var(--color-gray-100)]",
     };
 }
 
@@ -186,8 +186,8 @@ export function AnalyticsActivityStage({
         <section className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
             <Card className="xl:col-span-2 p-4 sm:p-5">
                 <CardHeader className="pb-3">
-                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">Recent Activity</h3>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Recent Activity</h3>
+                    <p className="text-xs sm:text-sm text-[var(--color-muted-text)] mt-1">
                         Latest events across users, orders, payouts, and commissions.
                     </p>
                 </CardHeader>
@@ -203,25 +203,25 @@ export function AnalyticsActivityStage({
                             ))}
                         </div>
                     ) : activityFeed.length === 0 ? (
-                        <p className="text-sm text-slate-500">No recent activity available.</p>
+                        <p className="text-sm text-[var(--color-secondary-text)]">No recent activity available.</p>
                     ) : (
                         <div className="space-y-3">
                             {activityFeed.slice(0, 10).map((item) => (
                                 <div
                                     key={item.id}
-                                    className="rounded-xl border border-slate-200 px-3 py-2.5 flex items-start justify-between gap-3"
+                                    className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 flex items-start justify-between gap-3"
                                 >
                                     <div className="space-y-1 min-w-0">
-                                        <p className="text-sm font-medium text-slate-900">{item.message}</p>
+                                        <p className="text-sm font-medium text-[var(--color-text)]">{item.message}</p>
                                         <div className="flex items-center gap-2">
                                             <Badge variant="subtle" colorScheme="info" className="text-[10px] uppercase">
                                                 {item.type.replace(/_/g, " ")}
                                             </Badge>
-                                            <p className="text-xs text-slate-500">{formatDateTime(item.createdAt)}</p>
+                                            <p className="text-xs text-[var(--color-secondary-text)]">{formatDateTime(item.createdAt)}</p>
                                         </div>
                                     </div>
                                     {typeof item.value === "number" ? (
-                                        <p className="text-xs font-semibold text-slate-700 shrink-0">
+                                        <p className="text-xs font-semibold text-[var(--color-text)] shrink-0">
                                             {formatCurrency(item.value)}
                                         </p>
                                     ) : null}
@@ -238,12 +238,12 @@ export function AnalyticsActivityStage({
                         <div className="flex flex-col gap-4 sm:items-start sm:justify-between">
                             <div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">Performance Leaderboard</h3>
+                                    <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Performance Leaderboard</h3>
                                     <Badge variant="subtle" colorScheme="info">
                                         {performanceMode === "agents" ? "Agents" : "Storefronts"}
                                     </Badge>
                                 </div>
-                                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                                <p className="text-xs sm:text-sm text-[var(--color-muted-text)] mt-1">
                                     Track the top performers for both agents and storefronts.
                                 </p>
                             </div>
@@ -296,7 +296,7 @@ export function AnalyticsActivityStage({
                                 ))}
                             </div>
                         ) : currentRows.length === 0 ? (
-                            <p className="text-sm text-slate-500">{performanceEmptyText}</p>
+                            <p className="text-sm text-[var(--color-secondary-text)]">{performanceEmptyText}</p>
                         ) : (
                             <>
                                 <div className="space-y-3 sm:hidden">
@@ -311,17 +311,17 @@ export function AnalyticsActivityStage({
                                             >
                                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                                     <div className="flex items-center gap-3 min-w-0">
-                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-900">
+                                                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-gray-100)] text-sm font-semibold text-[var(--color-text)]">
                                                             {rank}
                                                         </span>
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-slate-900 truncate">{row.primary}</p>
-                                                            <p className="text-xs text-slate-500 truncate">{row.secondary}</p>
+                                                            <p className="text-sm font-semibold text-[var(--color-text)] truncate">{row.primary}</p>
+                                                            <p className="text-xs text-[var(--color-secondary-text)] truncate">{row.secondary}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-col items-end gap-1 text-right">
-                                                        <span className="text-sm font-semibold text-slate-900">{formatCurrency(row.value)}</span>
-                                                        <span className="text-xs text-slate-500">{ordersColumnLabel}: {formatNumber(row.orders)}</span>
+                                                        <span className="text-sm font-semibold text-[var(--color-text)]">{formatCurrency(row.value)}</span>
+                                                        <span className="text-xs text-[var(--color-secondary-text)]">{ordersColumnLabel}: {formatNumber(row.orders)}</span>
                                                     </div>
                                                 </div>
                                             </article>
@@ -348,7 +348,7 @@ export function AnalyticsActivityStage({
                                                     <TableRow key={row.id} className={rankStyle.rowClass}>
                                                         <TableCell>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-900">
+                                                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-gray-100)] text-sm font-semibold text-[var(--color-text)]">
                                                                     {rank}
                                                                 </span>
                                                                 {rankStyle.label ? (
@@ -364,8 +364,8 @@ export function AnalyticsActivityStage({
                                                         </TableCell>
                                                         <TableCell>
                                                             <div className="min-w-0">
-                                                                <p className="text-sm font-semibold text-slate-900 truncate">{row.primary}</p>
-                                                                <p className="text-xs text-slate-500 truncate">{row.secondary}</p>
+                                                                <p className="text-sm font-semibold text-[var(--color-text)] truncate">{row.primary}</p>
+                                                                <p className="text-xs text-[var(--color-secondary-text)] truncate">{row.secondary}</p>
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>{formatNumber(row.orders)}</TableCell>
@@ -379,42 +379,42 @@ export function AnalyticsActivityStage({
                             </>
                         )}
                     </CardBody>
-                </Card> 
-            </div>
-             <Card className="p-4 sm:p-5">
-                    <CardHeader className="pb-3">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">Financial Summary</h3>
-                    </CardHeader>
-
-                    <CardBody className="space-y-3 text-sm">
-                        {loading ? (
-                            <>
-                                <Skeleton height="1rem" />
-                                <Skeleton height="1rem" />
-                                <Skeleton height="1rem" />
-                            </>
-                        ) : (
-                            <>
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-slate-600">Pending commission</span>
-                                    <span className="font-semibold text-slate-900">
-                                        {formatCurrency(pendingCommissionAmount)}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-slate-600">Payout queue</span>
-                                    <span className="font-semibold text-slate-900">
-                                        {formatNumber(payoutQueueCount)} requests
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-slate-600">Period net flow</span>
-                                    <span className="font-semibold text-slate-900">{formatCurrency(netFlow)}</span>
-                                </div>
-                            </>
-                        )}
-                    </CardBody>
                 </Card>
+            </div>
+            <Card className="p-4 sm:p-5">
+                <CardHeader className="pb-3">
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Financial Summary</h3>
+                </CardHeader>
+
+                <CardBody className="space-y-3 text-sm">
+                    {loading ? (
+                        <>
+                            <Skeleton height="1rem" />
+                            <Skeleton height="1rem" />
+                            <Skeleton height="1rem" />
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-[var(--color-secondary-text)]">Pending commission</span>
+                                <span className="font-semibold text-[var(--color-text)]">
+                                    {formatCurrency(pendingCommissionAmount)}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-[var(--color-secondary-text)]">Payout queue</span>
+                                <span className="font-semibold text-[var(--color-text)]">
+                                    {formatNumber(payoutQueueCount)} requests
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-[var(--color-secondary-text)]">Period net flow</span>
+                                <span className="font-semibold text-[var(--color-text)]">{formatCurrency(netFlow)}</span>
+                            </div>
+                        </>
+                    )}
+                </CardBody>
+            </Card>
         </section>
     );
 }

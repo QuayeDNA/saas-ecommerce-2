@@ -1,68 +1,47 @@
 import { useState, useEffect, useMemo, type ReactNode } from "react";
-import { ThemeContext, type ThemeColor } from "./theme-context-value";
+import { ThemeContext, type ThemeColor, type ThemeMode } from "./theme-context-value";
 
 interface ThemeProviderProps {
   children: ReactNode;
-  initialTheme?: ThemeColor;
+  initialMode?: ThemeMode;
 }
 
-// Map theme colors to their hex values for PWA
-const THEME_COLORS: Record<ThemeColor, string> = {
-  default: "#0057FF",
-  blue: "#0057FF",
-  black: "#000000",
-  teal: "#14b8a6",
-  purple: "#8b5cf6",
-  green: "#10b981",
-  orange: "#f59e0b",
-  red: "#ef4444",
+const DEFAULT_MODE: ThemeMode = "light";
+const MODE_STORAGE_KEY = "saas-telecom-theme-mode";
+
+const PWA_THEME_COLORS: Record<ThemeMode, string> = {
+  light: "#ffffff",
+  dark: "#020617",
 };
 
 export const ThemeProvider = ({
   children,
-  initialTheme = "default",
+  initialMode = DEFAULT_MODE,
 }: ThemeProviderProps) => {
-  // Get theme from local storage or use initialTheme
-  const [primaryColor, setPrimaryColor] = useState<ThemeColor>(() => {
-    const savedTheme = localStorage.getItem("saas-telecom-theme");
-    return (savedTheme as ThemeColor) || initialTheme;
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    const savedMode = localStorage.getItem(MODE_STORAGE_KEY);
+    return (savedMode as ThemeMode) || initialMode;
   });
 
-  // Apply theme class to body element and update PWA colors when theme changes
+  // Keep the legacy primaryColor property available with default only
+  const [primaryColor] = useState<ThemeColor>("default");
+
   useEffect(() => {
-    // Save to localStorage
-    localStorage.setItem("saas-telecom-theme", primaryColor);
+    localStorage.setItem(MODE_STORAGE_KEY, themeMode);
 
-    // Remove all theme classes
-    document.body.classList.remove(
-      "theme-blue",
-      "theme-black",
-      "theme-teal",
-      "theme-purple",
-      "theme-green",
-      "theme-orange",
-      "theme-red"
-    );
+    document.body.classList.remove("theme-light", "theme-dark");
+    document.body.classList.add(`theme-${themeMode}`);
 
-    // Add new theme class if not default
-    if (primaryColor !== "default") {
-      document.body.classList.add(`theme-${primaryColor}`);
-    }
-
-    // Update PWA theme color
-    const themeColor = THEME_COLORS[primaryColor];
+    const themeColor = PWA_THEME_COLORS[themeMode];
     updatePWAThemeColor(themeColor);
-  }, [primaryColor]);
+  }, [themeMode]);
 
-  // Function to update PWA theme color
   const updatePWAThemeColor = (color: string) => {
-    // Update theme-color meta tag
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) {
       themeColorMeta.setAttribute("content", color);
     }
 
-    // Update msapplication-TileColor meta tag
     const tileColorMeta = document.querySelector(
       'meta[name="msapplication-TileColor"]'
     );
@@ -70,7 +49,6 @@ export const ThemeProvider = ({
       tileColorMeta.setAttribute("content", color);
     }
 
-    // Update manifest link to include theme parameter for dynamic manifest
     const manifestLink = document.querySelector('link[rel="manifest"]');
     if (manifestLink) {
       manifestLink.setAttribute(
@@ -80,16 +58,21 @@ export const ThemeProvider = ({
     }
   };
 
-  // Memoize context value to prevent unnecessary re-renders
+  const toggleThemeMode = () => {
+    setThemeMode((current) => (current === "light" ? "dark" : "light"));
+  };
+
   const contextValue = useMemo(
     () => ({
+      themeMode,
+      setThemeMode,
+      toggleThemeMode,
       primaryColor,
-      setPrimaryColor,
+      setPrimaryColor: () => { },
     }),
-    [primaryColor]
+    [themeMode, primaryColor]
   );
 
-  // Provide theme context to children
   return (
     <ThemeContext.Provider value={contextValue}>
       {children}

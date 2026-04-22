@@ -26,11 +26,12 @@ import {
   FaCheck,
   FaPowerOff,
 } from "react-icons/fa";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Moon, Sun } from "lucide-react";
 import { NotificationDropdown } from "./notifications/NotificationDropdown";
 import { ImpersonationService } from "../utils/impersonation";
 import { canHaveWallet, isAdminUser } from "../utils/userTypeHelpers";
 import { Badge } from "../design-system/components/badge";
+import { useTheme } from "../hooks/use-theme";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -52,10 +53,10 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
   const isImpersonating = ImpersonationService.isImpersonating();
   const surfaceColor = "var(--color-surface)";
   const borderColor = "var(--color-border)";
-  const headerTextColor = isScrolled ? "#0f172a" : "#334155";
-  const mutedHeaderTextColor = isScrolled ? "#475569" : "#64748b";
-  const headerControlBg = isScrolled ? "var(--color-primary-50)" : "rgba(255,255,255,0.65)";
-  const headerControlBorder = isScrolled ? "var(--color-primary-200)" : "rgba(255,255,255,0.5)";
+  const headerTextColor = "var(--color-text)";
+  const mutedHeaderTextColor = "var(--color-muted-text)";
+  const headerControlBg = isScrolled ? "var(--color-control-bg)" : "rgba(255,255,255,0.65)";
+  const headerControlBorder = isScrolled ? "var(--color-border)" : "rgba(255,255,255,0.5)";
 
   const firstName = authState.user?.fullName.split(" ")[0] ?? "";
   const initials =
@@ -96,6 +97,8 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
       setIsTogglingSite(false);
     }
   };
+
+  const { themeMode, toggleThemeMode } = useTheme();
 
   const handleReturnToAdmin = async () => {
     try {
@@ -162,6 +165,17 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
 
         {/* Right: notifications + avatar */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={toggleThemeMode}
+            className="flex items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-[var(--color-text)] transition hover:bg-[var(--color-primary-50)]"
+            aria-label="Toggle theme"
+          >
+            {themeMode === "light" ? (
+              <Moon className="w-4 h-4" />
+            ) : (
+              <Sun className="w-4 h-4" />
+            )}
+          </button>
           {/* Notification bell */}
           <NotificationDropdown />
 
@@ -193,7 +207,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
       {isImpersonating && (
         <div
           className="flex items-center justify-center gap-2 py-1.5 text-xs font-semibold"
-          style={{ backgroundColor: "#f59e0b", color: "#1a1a2e" }}
+          style={{ backgroundColor: "var(--color-pending-bg)", color: "var(--color-text)" }}
         >
           <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
           Viewing as {authState.user?.fullName}
@@ -246,7 +260,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                   </Badge>
                 )}
               </div>
-              <div className="text-xs truncate mt-0.5" style={{ color: "#8891a7" }}>
+              <div className="text-xs truncate mt-0.5" style={{ color: "var(--color-muted-text)" }}>
                 {authState.user?.email}
               </div>
               {canShowWallet && (
@@ -278,20 +292,20 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
               <>
                 <Link
                   to="/agent/dashboard/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-gray-50"
-                  style={{ color: "#4a5270" }}
+                  className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[var(--color-control-bg)]"
+                  style={{ color: "var(--color-secondary-text)" }}
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <FaUser className="w-4 h-4" style={{ color: "#8891a7" }} />
+                  <FaUser className="w-4 h-4" style={{ color: "var(--color-muted-text)" }} />
                   My Profile
                 </Link>
                 <Link
                   to="/agent/dashboard/wallet"
-                  className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-gray-50"
-                  style={{ color: "#4a5270", borderBottom: `1px solid ${borderColor}` }}
+                  className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[var(--color-control-bg)]"
+                  style={{ color: "var(--color-secondary-text)", borderBottom: `1px solid ${borderColor}` }}
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <FaWallet className="w-4 h-4" style={{ color: "#8891a7" }} />
+                  <FaWallet className="w-4 h-4" style={{ color: "var(--color-muted-text)" }} />
                   My Wallet
                 </Link>
               </>
@@ -362,6 +376,19 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
 
           {/* Right actions */}
           <div className="flex items-center gap-3 flex-shrink-0">
+            <button
+              onClick={toggleThemeMode}
+              className="flex items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-[var(--color-text)] transition hover:bg-[var(--color-primary-50)]"
+              aria-label="Toggle theme"
+              title={`Switch to ${themeMode === "light" ? "dark" : "light"} mode`}
+            >
+              {themeMode === "light" ? (
+                <Moon className="w-4 h-4" />
+              ) : (
+                <Sun className="w-4 h-4" />
+              )}
+            </button>
+
             {/* Site toggle — admins only */}
             {isAdmin && (
               <button
@@ -452,7 +479,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                     }}
                   >
                     <div className="px-4 py-3" style={{ borderBottom: `1px solid ${borderColor}` }}>
-                      <div className="flex items-center gap-2 font-semibold text-sm" style={{ color: "#1a1a2e" }}>
+                      <div className="flex items-center gap-2 font-semibold text-sm" style={{ color: "var(--color-text)" }}>
                         <span className="truncate">{authState.user?.fullName}</span>
                         {authState.user?.agentCode && (
                           <Badge
@@ -466,7 +493,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                           </Badge>
                         )}
                       </div>
-                      <div className="text-xs mt-0.5" style={{ color: "#8891a7" }}>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--color-muted-text)" }}>
                         {authState.user?.email}
                       </div>
                       {canShowWallet && (
@@ -499,23 +526,23 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                       <>
                         <Link
                           to="/agent/dashboard/profile"
-                          className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                          style={{ color: "#4a5270" }}
+                          className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-[var(--color-control-bg)] transition-colors"
+                          style={{ color: "var(--color-secondary-text)" }}
                           onClick={() => setIsDropdownOpen(false)}
                         >
-                          <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "#f2f4f8" }}>
-                            <FaUser className="w-3.5 h-3.5" style={{ color: "#4a5270" }} />
+                          <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "var(--color-control-bg)" }}>
+                            <FaUser className="w-3.5 h-3.5" style={{ color: "var(--color-secondary-text)" }} />
                           </div>
                           My Profile
                         </Link>
                         <Link
                           to="/agent/dashboard/afa-registration"
-                          className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                          style={{ color: "#4a5270", borderBottom: `1px solid ${borderColor}` }}
+                          className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-[var(--color-control-bg)] transition-colors"
+                          style={{ color: "var(--color-secondary-text)", borderBottom: `1px solid ${borderColor}` }}
                           onClick={() => setIsDropdownOpen(false)}
                         >
-                          <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "#f2f4f8" }}>
-                            <FaUser className="w-3.5 h-3.5" style={{ color: "#4a5270" }} />
+                          <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "var(--color-control-bg)" }}>
+                            <FaUser className="w-3.5 h-3.5" style={{ color: "var(--color-secondary-text)" }} />
                           </div>
                           AFA Registration
                         </Link>

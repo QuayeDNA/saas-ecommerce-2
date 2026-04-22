@@ -61,28 +61,28 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 const TOAST_ICON_COLOR: Record<ToastType, string> = {
   success: "var(--color-success-icon)",
-  error:   "var(--color-error)",
+  error: "var(--color-error)",
   warning: "var(--color-warning)",
-  info:    "var(--color-info)",
+  info: "var(--color-info)",
 };
 
 const TOAST_BAR_COLOR: Record<ToastType, string> = {
   success: "var(--color-success-icon)",
-  error:   "var(--color-error)",
+  error: "var(--color-error)",
   warning: "var(--color-warning)",
-  info:    "var(--color-info)",
+  info: "var(--color-info)",
 };
 
 const TOAST_ICON: Record<ToastType, typeof CircleCheckBig> = {
   success: CircleCheckBig,
-  error:   CircleAlert,
+  error: CircleAlert,
   warning: TriangleAlert,
-  info:    Info,
+  info: Info,
 };
 
 // ─── Session queue (for toasts fired before the provider mounts) ──────────────
 
-const QUEUED_TOASTS_KEY   = "__dd_queued_toasts__";
+const QUEUED_TOASTS_KEY = "__dd_queued_toasts__";
 const QUEUED_TOASTS_EVENT = "toast:flush-queued";
 
 const readQueuedToasts = (): QueuedToast[] => {
@@ -102,7 +102,7 @@ const readQueuedToasts = (): QueuedToast[] => {
 export const queueToast = (message: string, type: ToastType, duration = 5000) => {
   if (typeof window === "undefined") return;
   try {
-    const raw      = sessionStorage.getItem(QUEUED_TOASTS_KEY);
+    const raw = sessionStorage.getItem(QUEUED_TOASTS_KEY);
     const existing = raw ? (JSON.parse(raw) as QueuedToast[]) : [];
     sessionStorage.setItem(
       QUEUED_TOASTS_KEY,
@@ -163,10 +163,10 @@ const ToastItem = ({ id, message, type, duration = 5000, onClose }: ToastItemPro
       aria-live="assertive"
       layout
       initial={{ opacity: 0, y: -14, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0,   scale: 1    }}
-      exit={{    opacity: 0, y: -10,  scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-      className="relative flex w-full items-center gap-3 overflow-hidden rounded-[14px] border border-white/10 bg-[#1a1a2e] px-3.5 py-3 text-white shadow-[0_8px_24px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.12)]"
+      className="relative flex w-full items-center gap-3 overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-3 text-[var(--color-text)] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)]"
       style={{ pointerEvents: "auto" }}
     >
       {/* Icon */}
@@ -177,7 +177,7 @@ const ToastItem = ({ id, message, type, duration = 5000, onClose }: ToastItemPro
       />
 
       {/* Message */}
-      <span className="min-w-0 flex-1 break-words text-[13px] font-medium leading-5 text-white/95">
+      <span className="min-w-0 flex-1 break-words text-[13px] font-medium leading-5 text-[var(--color-text)]">
         {message}
       </span>
 
@@ -186,7 +186,7 @@ const ToastItem = ({ id, message, type, duration = 5000, onClose }: ToastItemPro
         onClick={handleClose}
         type="button"
         aria-label="Dismiss"
-        className="ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+        className="ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-border)] text-[var(--color-secondary-text)] transition-colors hover:bg-[var(--color-border)]/90 hover:text-[var(--color-text)]"
       >
         <X className="h-4 w-4" strokeWidth={2.5} />
       </button>
@@ -206,7 +206,7 @@ const ToastItem = ({ id, message, type, duration = 5000, onClose }: ToastItemPro
         className="absolute bottom-0 left-0 h-0.5 rounded-b-[14px]"
         style={{ backgroundColor: TOAST_BAR_COLOR[type], opacity: 0.72 }}
         initial={{ width: "100%" }}
-        animate={{ width: "0%"   }}
+        animate={{ width: "0%" }}
         transition={{
           duration: duration / 1000, // ← ms → seconds
           ease: "linear",
@@ -270,8 +270,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         ...prev,
         ...queued.map((t) => ({
           id: Math.random().toString(36).substring(2),
-          message:  t.message,
-          type:     t.type,
+          message: t.message,
+          type: t.type,
           duration: t.duration,
         })),
       ]);

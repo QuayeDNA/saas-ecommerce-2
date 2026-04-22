@@ -18,11 +18,11 @@ export const Feature = forwardRef<HTMLDivElement, FeatureProps>(
       horizontal: 'flex items-start space-x-4 text-left',
     };
 
-    const iconClasses = variant === 'horizontal' 
-      ? 'flex-shrink-0 w-8 h-8 text-blue-600' 
+    const iconClasses = variant === 'horizontal'
+      ? 'flex-shrink-0 w-8 h-8 text-[var(--color-primary-500)]'
       : variant === 'centered'
-      ? 'mx-auto w-12 h-12 text-blue-600 mb-4'
-      : 'w-8 h-8 text-blue-600 mb-4';
+        ? 'mx-auto w-12 h-12 text-[var(--color-primary-500)] mb-4'
+        : 'w-8 h-8 text-[var(--color-primary-500)] mb-4';
 
     return (
       <div
@@ -35,12 +35,12 @@ export const Feature = forwardRef<HTMLDivElement, FeatureProps>(
             {icon}
           </div>
         )}
-        
+
         <div className={variant === 'horizontal' ? 'flex-1' : ''}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
             {title}
           </h3>
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-[var(--color-secondary-text)] leading-relaxed">
             {description}
           </p>
         </div>

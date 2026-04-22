@@ -6,7 +6,6 @@ import type {
   TdHTMLAttributes,
   ThHTMLAttributes,
 } from "react";
-import { useTheme } from "../../hooks/use-theme";
 
 // View Mode
 export type TableViewMode = "table" | "list" | "auto";
@@ -16,7 +15,7 @@ const TableContext = createContext<{ viewMode: TableViewMode }>({
   viewMode: "auto",
 });
 
-export const useTableContext = () => useContext(TableContext);
+const useTableContext = () => useContext(TableContext);
 
 // Table variants
 type TableVariant = "simple" | "striped" | "bordered";
@@ -106,8 +105,6 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
     },
     ref
   ) => {
-    const { primaryColor } = useTheme();
-
     // Size classes
     const sizeClasses = {
       sm: "text-xs",
@@ -117,73 +114,14 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
 
     // Helper function to get theme-based color classes
     const getThemeColorClasses = () => {
-      switch (primaryColor) {
-        case "blue":
-          return {
-            border: "border-blue-200",
-            headerBg: "bg-blue-50",
-            headerText: "text-blue-900",
-            stripedBg: "even:bg-blue-25",
-            selectedBg: "bg-blue-100",
-            hoverBg: "hover:bg-blue-50",
-          };
-        case "black":
-          return {
-            border: "border-gray-300",
-            headerBg: "bg-gray-100",
-            headerText: "text-gray-900",
-            stripedBg: "even:bg-gray-50",
-            selectedBg: "bg-gray-200",
-            hoverBg: "hover:bg-gray-100",
-          };
-        case "teal":
-          return {
-            border: "border-teal-200",
-            headerBg: "bg-teal-50",
-            headerText: "text-teal-900",
-            stripedBg: "even:bg-teal-25",
-            selectedBg: "bg-teal-100",
-            hoverBg: "hover:bg-teal-50",
-          };
-        case "purple":
-          return {
-            border: "border-purple-200",
-            headerBg: "bg-purple-50",
-            headerText: "text-purple-900",
-            stripedBg: "even:bg-purple-25",
-            selectedBg: "bg-purple-100",
-            hoverBg: "hover:bg-purple-50",
-          };
-        case "green":
-          return {
-            border: "border-green-200",
-            headerBg: "bg-green-50",
-            headerText: "text-green-900",
-            stripedBg: "even:bg-green-25",
-            selectedBg: "bg-green-100",
-            hoverBg: "hover:bg-green-50",
-          };
-        case "orange":
-          return {
-            border: "border-orange-200",
-            headerBg: "bg-orange-50",
-            headerText: "text-orange-900",
-            stripedBg: "even:bg-orange-25",
-            selectedBg: "bg-orange-100",
-            hoverBg: "hover:bg-orange-50",
-          };
-        case "red":
-          return {
-            border: "border-red-200",
-            headerBg: "bg-red-50",
-            headerText: "text-red-900",
-            stripedBg: "even:bg-red-25",
-            selectedBg: "bg-red-100",
-            hoverBg: "hover:bg-red-50",
-          };
-        default:
-          return getSemanticColorClasses("info");
-      }
+      return {
+        border: "border-[var(--color-border)]",
+        headerBg: "bg-[var(--color-primary-50)]",
+        headerText: "text-[var(--color-primary-900)]",
+        stripedBg: "even:bg-[var(--color-primary-50)]",
+        selectedBg: "bg-[var(--color-primary-100)]",
+        hoverBg: "hover:bg-[var(--color-primary-50)]",
+      };
     };
 
     const getSemanticColorClasses = (
@@ -264,7 +202,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
         case "simple":
           return "border-collapse";
         case "striped":
-          return `border-collapse [&_tbody_tr:nth-child(even)]:bg-gray-50`;
+          return `border-collapse [&_tbody_tr:nth-child(even)]:bg-[var(--color-primary-50)]`;
         case "bordered":
           return `border-collapse border ${colors.border}`;
         default:
@@ -295,7 +233,7 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
 
     return (
       <TableContext.Provider value={{ viewMode }}>
-        <div className={`rounded-[16px] overflow-hidden ${stickyHeader ? "overflow-auto" : ""} ${variant === "bordered" ? "border border-gray-200" : ""}`}>
+        <div className={`rounded-[16px] overflow-hidden ${stickyHeader ? "overflow-auto" : ""} ${variant === "bordered" ? "border border-[var(--color-border)]" : ""}`}>
           <table ref={ref} className={tableClasses} {...props}>
             {children}
           </table>
@@ -373,19 +311,19 @@ export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
     const getRowClasses = () => {
       switch (viewMode) {
         case "list":
-          return "block w-full p-4 mb-4 bg-white shadow-sm border border-gray-200 rounded-[16px] last:mb-0";
+          return "block w-full p-4 mb-4 bg-[var(--color-surface)] shadow-sm border border-[var(--color-border)] rounded-[16px] last:mb-0";
         case "table":
-          return "table-row border-b border-gray-200";
+          return "table-row border-b border-[var(--color-border)]";
         case "auto":
         default:
-          return "block w-full p-4 mb-4 bg-white shadow-sm border border-gray-200 rounded-[16px] last:mb-0 sm:table-row sm:bg-transparent sm:shadow-none sm:border sm:rounded-none sm:p-0 sm:mb-0 sm:border-b sm:border-gray-200";
+          return "block w-full p-4 mb-4 bg-[var(--color-surface)] shadow-sm border border-[var(--color-border)] rounded-[16px] last:mb-0 sm:table-row sm:bg-transparent sm:shadow-none sm:border sm:rounded-none sm:p-0 sm:mb-0 sm:border-b sm:border-[var(--color-border)]";
       }
     };
 
     const rowClasses = [
       getRowClasses(),
-      isHoverable ? "hover:bg-gray-50" : "",
-      isSelected ? "bg-blue-100" : "",
+      isHoverable ? "hover:bg-[var(--color-border)]/20" : "",
+      isSelected ? "bg-[var(--color-primary-100)]" : "",
       "transition-colors duration-150",
       className,
     ].join(" ");
@@ -414,28 +352,10 @@ export const TableHeaderCell = forwardRef<
     },
     ref
   ) => {
-    const { primaryColor } = useTheme();
     const { viewMode } = useTableContext();
 
     const getThemeColors = () => {
-      switch (primaryColor) {
-        case "blue":
-          return "bg-blue-50 text-blue-900";
-        case "black":
-          return "bg-gray-100 text-gray-900";
-        case "teal":
-          return "bg-teal-50 text-teal-900";
-        case "purple":
-          return "bg-purple-50 text-purple-900";
-        case "green":
-          return "bg-green-50 text-green-900";
-        case "orange":
-          return "bg-orange-50 text-orange-900";
-        case "red":
-          return "bg-red-50 text-red-900";
-        default:
-          return "bg-gray-50 text-gray-900";
-      }
+      return "bg-[var(--color-primary-50)] text-[var(--color-primary-900)]";
     };
 
     const getHeaderCellClasses = () => {
@@ -455,7 +375,7 @@ export const TableHeaderCell = forwardRef<
       "px-4 py-3",
       "text-left text-xs font-medium uppercase tracking-wider",
       getThemeColors(),
-      "border-b border-gray-200",
+      "border-b border-[var(--color-border)]",
       sortable ? "cursor-pointer hover:bg-opacity-80 select-none" : "",
       className,
     ].join(" ");
@@ -529,18 +449,18 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
     const getCellBaseClasses = () => {
       switch (viewMode) {
         case "list":
-          return "flex justify-between items-center w-full py-2 px-0 text-sm bg-transparent border-b border-gray-100 last:border-0";
+          return "flex justify-between items-center w-full py-2 px-0 text-sm bg-transparent border-b border-[var(--color-border)] last:border-0";
         case "table":
-          return "table-cell px-4 py-3 text-sm border-b border-gray-200";
+          return "table-cell px-4 py-3 text-sm border-b border-[var(--color-border)]";
         case "auto":
         default:
-          return "flex justify-between items-center py-2 px-0 text-sm border-b border-gray-100 last:border-0 sm:table-cell sm:px-4 sm:py-3 sm:border-gray-200 sm:last:border-b"; // flex on mobile, table-cell on desktop
+          return "flex justify-between items-center py-2 px-0 text-sm border-b border-[var(--color-border)] last:border-0 sm:table-cell sm:px-4 sm:py-3 sm:border-[var(--color-border)] sm:last:border-b"; // flex on mobile, table-cell on desktop
       }
     };
 
     const cellClasses = [
       getCellBaseClasses(),
-      "text-gray-900",
+      "text-[var(--color-text)]",
       numeric && viewMode !== "list" ? "sm:text-right font-mono" : "text-left",
       className,
     ].join(" ");
@@ -548,7 +468,7 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
     return (
       <td ref={ref} className={cellClasses} {...props}>
         {label && (
-          <span className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mr-4 ${viewMode === "list" ? "block" : viewMode === "auto" ? "block sm:hidden" : "hidden"}`}>
+          <span className={`text-xs font-semibold text-[var(--color-muted-text)] uppercase tracking-wide mr-4 ${viewMode === "list" ? "block" : viewMode === "auto" ? "block sm:hidden" : "hidden"}`}>
             {label}
           </span>
         )}
@@ -568,7 +488,7 @@ export const TableCaption = forwardRef<
   return (
     <caption
       ref={ref}
-      className={`text-sm text-gray-500 text-left py-2 ${className}`}
+      className={`text-sm text-[var(--color-muted-text)] text-left py-2 ${className}`}
       {...props}
     >
       {children}
