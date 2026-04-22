@@ -98,85 +98,85 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
     {
       value: "pending",
       label: "Pending",
-      color: "bg-yellow-100 text-yellow-800",
+      color: "bg-[var(--color-pending-bg)] text-[var(--color-pending-text)]",
     },
     {
       value: "confirmed",
       label: "Confirmed",
-      color: "bg-purple-100 text-purple-800",
+      color: "bg-[var(--color-primary-50)] text-[var(--color-primary-700)]",
     },
     {
       value: "processing",
       label: "Processing",
-      color: "bg-blue-100 text-blue-800",
+      color: "bg-[var(--color-primary-100)] text-[var(--color-primary-700)]",
     },
     {
       value: "completed",
       label: "Completed",
-      color: "bg-green-100 text-green-800",
+      color: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
     },
     {
       value: "cancelled",
       label: "Cancelled",
-      color: "bg-gray-100 text-gray-800",
+      color: "bg-[var(--color-control-bg)] text-[var(--color-muted-text)]",
     },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-600 text-white";
+        return "bg-[var(--color-success)] text-[var(--color-surface)]";
       case "processing":
-        return "bg-blue-600 text-white";
+        return "bg-[var(--color-primary-600)] text-[var(--color-surface)]";
       case "failed":
-        return "bg-red-600 text-white";
+        return "bg-[var(--color-error)] text-[var(--color-surface)]";
       case "cancelled":
-        return "bg-gray-500 text-white";
+        return "bg-[var(--color-gray-500)] text-[var(--color-surface)]";
       case "pending":
-        return "bg-yellow-500 text-white";
+        return "bg-[var(--color-warning)] text-[var(--color-surface)]";
       case "confirmed":
-        return "bg-purple-600 text-white";
+        return "bg-[var(--color-primary-700)] text-[var(--color-surface)]";
       case "draft":
-        return "bg-slate-400 text-white";
+        return "bg-[var(--color-gray-400)] text-[var(--color-surface)]";
       default:
-        return "bg-gray-600 text-white";
+        return "bg-[var(--color-gray-600)] text-[var(--color-surface)]";
     }
   };
 
   const getStatusBorderColor = (status: string) => {
     switch (status) {
-      case "completed": return "border-l-green-500";
-      case "processing": return "border-l-blue-500";
-      case "failed": return "border-l-red-500";
-      case "cancelled": return "border-l-gray-400";
-      case "pending": return "border-l-yellow-400";
-      case "confirmed": return "border-l-purple-500";
-      case "draft": return "border-l-slate-400";
-      default: return "border-l-gray-300";
+      case "completed": return "border-l-[var(--color-success)]";
+      case "processing": return "border-l-[var(--color-primary-600)]";
+      case "failed": return "border-l-[var(--color-error)]";
+      case "cancelled": return "border-l-[var(--color-gray-400)]";
+      case "pending": return "border-l-[var(--color-warning)]";
+      case "confirmed": return "border-l-[var(--color-primary-700)]";
+      case "draft": return "border-l-[var(--color-gray-400)]";
+      default: return "border-l-[var(--color-gray-300)]";
     }
   };
 
   const getPaymentStatusStyle = (paymentStatus: string) => {
     switch (paymentStatus) {
-      case "paid": return "bg-green-100 text-green-700";
-      case "failed": return "bg-red-100 text-red-700";
-      case "pending": return "bg-yellow-100 text-yellow-700";
-      default: return "bg-gray-100 text-gray-600";
+      case "paid": return "bg-[var(--color-success-bg)] text-[var(--color-success)]";
+      case "failed": return "bg-[var(--color-failed-bg)] text-[var(--color-failed-text)]";
+      case "pending": return "bg-[var(--color-pending-bg)] text-[var(--color-pending-text)]";
+      default: return "bg-[var(--color-control-bg)] text-[var(--color-muted-text)]";
     }
   };
 
   const getReceptionStatusColor = (receptionStatus: string) => {
     switch (receptionStatus) {
       case "received":
-        return "bg-green-600/90 text-white";
+        return "bg-[var(--color-success)] text-[var(--color-surface)]";
       case "not_received":
-        return "bg-red-500 text-white";
+        return "bg-[var(--color-error)] text-[var(--color-surface)]";
       case "checking":
-        return "bg-blue-400 text-white";
+        return "bg-[var(--color-primary-400)] text-[var(--color-surface)]";
       case "resolved":
-        return "bg-blue-500 text-white";
+        return "bg-[var(--color-primary-500)] text-[var(--color-surface)]";
       default:
-        return "bg-gray-500 text-gray-800";
+        return "bg-[var(--color-gray-500)] text-[var(--color-surface)]";
     }
   };
 
@@ -407,7 +407,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 border-l-4 ${getStatusBorderColor(order.status)} hover:shadow-md transition-shadow`}>
+    <div className={`bg-[var(--color-surface)] rounded-lg shadow-sm border border-[var(--color-border)] border-l-4 ${getStatusBorderColor(order.status)} hover:shadow-md transition-shadow`}>
       <div className="p-4">
         {/* Header - Order Number, Date, Status, Payment */}
         <div className="flex items-start justify-between mb-3">
@@ -417,15 +417,15 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
                 type="checkbox"
                 checked={isSelected}
                 onChange={() => onSelect(order._id!)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 h-4 w-4"
+                className="rounded border-[var(--color-border)] text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)] flex-shrink-0 h-4 w-4"
                 aria-label={`Select order ${order.orderNumber}`}
               />
             )}
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 leading-tight">
+              <h3 className="text-sm font-semibold text-[var(--color-text)] leading-tight">
                 {order.orderNumber}
               </h3>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-[var(--color-muted-text)] mt-0.5">
                 {formatDate(order.createdAt)}
               </p>
             </div>
@@ -457,15 +457,15 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
               )}
 
               {canAdminChangeStatus(order) && statusDropdownOpen && (
-                <div className="absolute z-20 mt-1 right-0 bg-white rounded-lg shadow-xl border border-gray-200 status-dropdown min-w-36">
+                <div className="absolute z-20 mt-1 right-0 bg-[var(--color-surface)] rounded-lg shadow-xl border border-[var(--color-border)] status-dropdown min-w-36">
                   <div className="py-1 flex flex-col">
                     {statusOptions.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => handleStatusChange(option.value)}
-                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center gap-2 ${option.value === order.status
-                            ? "bg-blue-50 text-blue-700 font-medium"
-                            : "text-gray-700"
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-[var(--color-background)] border-b border-[var(--color-border)] last:border-b-0 flex items-center gap-2 ${option.value === order.status
+                          ? "bg-[var(--color-primary-50)] text-[var(--color-primary-700)] font-medium"
+                          : "text-[var(--color-muted-text)]"
                           }`}
                       >
                         <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${option.color}`} />
@@ -486,7 +486,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
 
             {/* Locked indicator chip (mobile-visible) */}
             {isOrderLocked(order) && !canAdminChangeStatus(order) && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-control-bg)] text-[var(--color-muted-text)]">
                 <FaLock className="text-[9px]" />
                 Locked
               </span>
@@ -498,22 +498,22 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
         <div className="space-y-2 mb-3">
           {/* Network */}
           <div className="flex items-center gap-2 text-sm">
-            <FaWifi className="text-gray-400 w-4 h-4 flex-shrink-0" />
-            <span className="text-gray-700 font-medium min-w-0 w-16">
+            <FaWifi className="text-[var(--color-muted-text)] w-4 h-4 flex-shrink-0" />
+            <span className="text-[var(--color-text)] font-medium min-w-0 w-16">
               Network:
             </span>
-            <span className="text-gray-900 truncate">
+            <span className="text-[var(--color-text)] truncate">
               {getOrderProvider(order)}
             </span>
           </div>
 
           {/* Recipient */}
           <div className="flex items-center gap-2 text-sm">
-            <FaPhone className="text-gray-400 w-4 h-4 flex-shrink-0" />
-            <span className="text-gray-700 font-medium min-w-0 w-16">
+            <FaPhone className="text-[var(--color-muted-text)] w-4 h-4 flex-shrink-0" />
+            <span className="text-[var(--color-text)] font-medium min-w-0 w-16">
               Recipient:
             </span>
-            <span className="text-gray-900 truncate">
+            <span className="text-[var(--color-text)] truncate">
               {getOrderRecipient(order)}
             </span>
           </div>
@@ -521,11 +521,11 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
           {/* Customer Name (for AFA orders) */}
           {isAfaOrder(order) && (
             <div className="flex items-center gap-2 text-sm">
-              <FaUser className="text-gray-400 w-4 h-4 flex-shrink-0" />
-              <span className="text-gray-700 font-medium min-w-0 w-16">
+              <FaUser className="text-[var(--color-muted-text)] w-4 h-4 flex-shrink-0" />
+              <span className="text-[var(--color-text)] font-medium min-w-0 w-16">
                 Name:
               </span>
-              <span className="text-gray-900 truncate">
+              <span className="text-[var(--color-text)] truncate">
                 {getAfaCustomerName(order)}
               </span>
             </div>
@@ -533,11 +533,11 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
 
           {/* Volume or AFA Service Info */}
           <div className="flex items-center gap-2 text-sm">
-            <FaDatabase className="text-gray-400 w-4 h-4 flex-shrink-0" />
-            <span className="text-gray-700 font-medium min-w-0 w-16">
+            <FaDatabase className="text-[var(--color-muted-text)] w-4 h-4 flex-shrink-0" />
+            <span className="text-[var(--color-text)] font-medium min-w-0 w-16">
               {isAfaOrder(order) ? getAfaOrderInfo(order).label : "Volume:"}
             </span>
-            <span className="text-gray-900">
+            <span className="text-[var(--color-text)]">
               {isAfaOrder(order)
                 ? getAfaOrderInfo(order).value
                 : getOrderVolume(order)}
@@ -547,11 +547,11 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
           {/* Total — for storefront orders show the tier cost (agent's cost to fulfil),
                not the customer-facing charge amount stored in order.total */}
           <div className="flex items-center gap-2 text-sm">
-            <FaMoneyBillWave className="text-gray-400 w-4 h-4 flex-shrink-0" />
-            <span className="text-gray-700 font-medium min-w-0 w-16">
+            <FaMoneyBillWave className="text-[var(--color-muted-text)] w-4 h-4 flex-shrink-0" />
+            <span className="text-[var(--color-text)] font-medium min-w-0 w-16">
               Total:
             </span>
-            <span className="text-gray-900 font-semibold">
+            <span className="text-[var(--color-text)] font-semibold">
               {formatCurrency(
                 order.orderType === 'storefront' && order.storefrontData?.totalTierCost != null
                   ? order.storefrontData.totalTierCost
@@ -562,17 +562,17 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
 
           {/* Type */}
           <div className="flex items-center gap-2 text-sm">
-            <FaTag className="text-gray-400 w-4 h-4 flex-shrink-0" />
-            <span className="text-gray-700 font-medium min-w-0 w-16">
+            <FaTag className="text-[var(--color-muted-text)] w-4 h-4 flex-shrink-0" />
+            <span className="text-[var(--color-text)] font-medium min-w-0 w-16">
               Type:
             </span>
-            <span className="text-gray-900">
+            <span className="text-[var(--color-text)]">
               {order.orderType === "storefront"
                 ? "Storefront Sale"
                 : order.orderType === "bulk"
                   ? "Bulk"
                   : "Regular"}{" "}
-              <span className="text-gray-500 text-xs">• {order.items?.length || 0} item{order.items?.length !== 1 ? "s" : ""}</span>
+              <span className="text-[var(--color-muted-text)] text-xs">• {order.items?.length || 0} item{order.items?.length !== 1 ? "s" : ""}</span>
             </span>
           </div>
         </div>
@@ -585,7 +585,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
                 size="sm"
                 variant="outline"
                 onClick={() => onCancel(order._id!)}
-                className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400 px-3 py-1 text-xs"
+                className="text-[var(--color-error)] hover:text-[var(--color-error)] border-[var(--color-error)] hover:border-[var(--color-error)] px-3 py-1 text-xs"
               >
                 <FaTimes className="w-3 h-3 mr-1" />
                 {order.status === "draft" ? "Delete Draft" : "Cancel Order"}
@@ -597,7 +597,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
                 size="sm"
                 variant="outline"
                 onClick={handleReportClick}
-                className="text-orange-600 hover:text-orange-700 border-orange-300 hover:border-orange-400 px-3 py-1 text-xs"
+                className="text-[var(--color-warning)] hover:text-[var(--color-warning)] border-[var(--color-warning)] hover:border-[var(--color-warning)] px-3 py-1 text-xs"
               >
                 <FaExclamationTriangle className="w-3 h-3 mr-1" />
                 Report Issue
@@ -605,7 +605,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
             )}
 
             {order.reported && !isAdmin && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--color-pending-bg)] text-[var(--color-pending-text)]">
                 <FaExclamationTriangle className="w-3 h-3" />
                 Issue Reported
               </span>
@@ -619,7 +619,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
           shouldShowReceptionStatusEditor(order) && (
             <div className="flex justify-start mt-2">
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-[var(--color-text)]">
                   Reception Status:
                 </span>
                 <Select

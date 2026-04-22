@@ -144,7 +144,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           <span
             className={`
               pointer-events-none inline-block transform rounded-full shadow ring-0
-              transition duration-200 ease-in-out bg-white
+              transition duration-200 ease-in-out bg-[var(--color-surface)]
               ${config.knob}
               ${checked ? config.translate : "translate-x-0"}
             `}

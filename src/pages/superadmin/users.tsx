@@ -28,7 +28,6 @@ import { Button } from "../../design-system/components/button";
 import { StatCard } from "../../design-system/components/stats-card";
 import { Pagination } from "../../design-system/components/pagination";
 import { Skeleton, LoadingCard } from "../../design-system/components/loading";
-import { colors } from "../../design-system/tokens";
 
 const userTypeOptions = [
   { value: "", label: "All Users", icon: FaUser },
@@ -44,12 +43,18 @@ const statusOptions = [
   {
     value: "pending",
     label: "Pending Approval",
-    color: "text-yellow-600 bg-yellow-100",
+    color: "text-[var(--color-warning)] bg-[var(--color-pending-bg)]",
   },
-  { value: "active", label: "Active", color: "text-green-600 bg-green-100" },
-  { value: "rejected", label: "Rejected", color: "text-red-600 bg-red-100" },
-];
-
+  {
+    value: "active",
+    label: "Active",
+    color: "text-[var(--color-success)] bg-[var(--color-success-bg)]",
+  },
+  {
+    value: "rejected",
+    label: "Rejected",
+    color: "text-[var(--color-error)] bg-[var(--color-failed-bg)]",
+  }];
 export default function SuperAdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -182,13 +187,13 @@ export default function SuperAdminUsersPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "text-yellow-600 bg-yellow-100";
+        return "text-[var(--color-warning)] bg-[var(--color-pending-bg)]";
       case "active":
-        return "text-green-600 bg-green-100";
+        return "text-[var(--color-success)] bg-[var(--color-success-bg)]";
       case "rejected":
-        return "text-red-600 bg-red-100";
+        return "text-[var(--color-error)] bg-[var(--color-failed-bg)]";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "text-[var(--color-secondary-text)] bg-[var(--color-control-bg)]";
     }
   };
 
@@ -208,17 +213,17 @@ export default function SuperAdminUsersPage() {
   const getUserTypeIcon = (userType: string) => {
     switch (userType) {
       case "agent":
-        return <FaStore className="text-blue-600" />;
+        return <FaStore className="text-[var(--color-primary-600)]" />;
       case "super_agent":
-        return <FaStore className="text-indigo-600" />;
+        return <FaStore className="text-[var(--color-secondary-text)]" />;
       case "dealer":
-        return <FaStore className="text-green-600" />;
+        return <FaStore className="text-[var(--color-success)]" />;
       case "super_dealer":
-        return <FaStore className="text-emerald-600" />;
+        return <FaStore className="text-[var(--color-info)]" />;
       case "super_admin":
-        return <FaShieldAlt className="text-purple-600" />;
+        return <FaShieldAlt className="text-[var(--color-warning)]" />;
       default:
-        return <FaUser className="text-gray-600" />;
+        return <FaUser className="text-[var(--color-secondary-text)]" />;
     }
   };
 
@@ -252,23 +257,23 @@ export default function SuperAdminUsersPage() {
     {
       key: "pending",
       label: "Pending",
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100",
-      iconColor: "text-yellow-600",
+      color: "text-[var(--color-warning)]",
+      bgColor: "bg-[var(--color-pending-bg)]",
+      iconColor: "text-[var(--color-warning)]",
     },
     {
       key: "active",
       label: "Active",
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      iconColor: "text-green-600",
+      color: "text-[var(--color-success)]",
+      bgColor: "bg-[var(--color-success-bg)]",
+      iconColor: "text-[var(--color-success)]",
     },
     {
       key: "rejected",
       label: "Rejected",
-      color: "text-red-600",
-      bgColor: "bg-red-100",
-      iconColor: "text-red-600",
+      color: "text-[var(--color-error)]",
+      bgColor: "bg-[var(--color-failed-bg)]",
+      iconColor: "text-[var(--color-error)]",
     },
   ];
 
@@ -278,29 +283,29 @@ export default function SuperAdminUsersPage() {
       key: "totalAgents",
       label: "Agents",
       icon: <FaUserTie className="text-white text-sm sm:text-lg lg:text-xl" />,
-      color: "text-gray-300",
-      bgColor: "bg-secondary-500/20",
+      color: "text-[var(--color-secondary-text)]",
+      bgColor: "bg-[var(--color-primary-50)]",
     },
     {
       key: "superAgents",
       label: "Super Agents",
       icon: <FaUserShield className="text-white text-sm sm:text-lg lg:text-xl" />,
-      color: "text-gray-300",
-      bgColor: "bg-secondary-500/20",
+      color: "text-[var(--color-secondary-text)]",
+      bgColor: "bg-[var(--color-primary-50)]",
     },
     {
       key: "dealers",
       label: "Dealers",
       icon: <FaUserCheck className="text-white text-sm sm:text-lg lg:text-xl" />,
-      color: "text-gray-300",
-      bgColor: "bg-secondary-500/20",
+      color: "text-[var(--color-secondary-text)]",
+      bgColor: "bg-[var(--color-primary-50)]",
     },
     {
       key: "superDealers",
       label: "Super Dealers",
       icon: <FaUserCog className="text-white text-sm sm:text-lg lg:text-xl" />,
-      color: "text-gray-300",
-      bgColor: "bg-secondary-500/20",
+      color: "text-[var(--color-secondary-text)]",
+      bgColor: "bg-[var(--color-primary-50)]",
     },
   ];
 
@@ -349,11 +354,11 @@ export default function SuperAdminUsersPage() {
                 aria-label={`Show ${statusCarousel[i].label}`}
                 className={`w-2 h-2 rounded-full transition-colors duration-200 ${i === statusCarouselIndex
                   ? statusCarousel[i].key === "pending"
-                    ? "bg-yellow-600"
+                    ? "bg-[var(--color-warning)]"
                     : statusCarousel[i].key === "active"
-                      ? "bg-green-600"
-                      : "bg-red-600"
-                  : "bg-gray-200"
+                      ? "bg-[var(--color-success)]"
+                      : "bg-[var(--color-error)]"
+                  : "bg-[var(--color-border)]"
                   }`}
               />
             ))}
@@ -391,7 +396,7 @@ export default function SuperAdminUsersPage() {
                 key={idx}
                 onClick={() => setUserTypeCarouselIndex(idx)}
                 aria-label={`Go to ${userTypeCarousel[idx].label}`}
-                className={`w-2 h-2 rounded-full transition-colors duration-200 ${idx === userTypeCarouselIndex ? "bg-white" : "bg-white/40"
+                className={`w-2 h-2 rounded-full transition-colors duration-200 ${idx === userTypeCarouselIndex ? "bg-[var(--color-text)]" : "bg-[var(--color-text)]/40"
                   }`}
               />
             ))}
@@ -406,16 +411,13 @@ export default function SuperAdminUsersPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <div className="bg-[var(--color-surface)] rounded-lg shadow p-4 sm:p-6 border border-[var(--color-border)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h1
-              className="text-xl sm:text-2xl font-bold mb-2"
-              style={{ color: colors.brand.primary }}
-            >
+            <h1 className="text-xl sm:text-2xl font-bold mb-2 text-[var(--color-text)]">
               User Management
             </h1>
-            <p className="text-sm sm:text-base text-gray-600">
+            <p className="text-sm sm:text-base text-[var(--color-secondary-text)]">
               Manage agent registrations and user accounts
             </p>
           </div>
@@ -449,27 +451,27 @@ export default function SuperAdminUsersPage() {
               // Loading skeletons
               <>
                 {/* Full-width carousel skeleton */}
-                <div className="col-span-2 bg-gray-200 rounded-lg shadow p-4 sm:p-6 animate-pulse">
+                <div className="col-span-2 bg-[var(--color-control-bg)] rounded-lg shadow p-4 sm:p-6 animate-pulse">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
-                      <div className="h-8 bg-gray-300 rounded w-20 mb-2"></div>
-                      <div className="h-3 bg-gray-300 rounded w-16"></div>
+                      <div className="h-4 bg-[var(--color-gray-300)] rounded w-24 mb-2"></div>
+                      <div className="h-8 bg-[var(--color-gray-300)] rounded w-20 mb-2"></div>
+                      <div className="h-3 bg-[var(--color-gray-300)] rounded w-16"></div>
                     </div>
-                    <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                    <div className="w-12 h-12 bg-[var(--color-gray-300)] rounded-full"></div>
                   </div>
                 </div>
                 {/* Other card skeletons */}
                 {Array.from({ length: 2 }).map((_, index) => (
-                  <div key={index + 1} className="bg-white rounded-lg shadow p-4 sm:p-6">
+                  <div key={index + 1} className="bg-[var(--color-surface)] rounded-lg shadow p-4 sm:p-6">
                     <div className="animate-pulse">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
-                          <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-24"></div>
+                          <div className="h-4 bg-[var(--color-gray-200)] rounded w-20 mb-2"></div>
+                          <div className="h-8 bg-[var(--color-gray-200)] rounded w-16 mb-2"></div>
+                          <div className="h-3 bg-[var(--color-gray-200)] rounded w-24"></div>
                         </div>
-                        <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                        <div className="w-8 h-8 bg-[var(--color-gray-200)] rounded"></div>
                       </div>
                     </div>
                   </div>
@@ -502,18 +504,18 @@ export default function SuperAdminUsersPage() {
       )}
 
       {/* View Mode Toggle and Search */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <div className="bg-[var(--color-surface)] rounded-lg shadow p-4 sm:p-6 border border-[var(--color-border)]">
         <div className="grid grid-cols-1 gap-4">
           {/* View Mode Toggle (top-right) */}
           <div className="flex justify-end">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">View:</span>
-              <div className="flex bg-gray-100 rounded-lg p-1">
+              <span className="text-sm font-medium text-[var(--color-secondary-text)]">View:</span>
+              <div className="flex bg-[var(--color-control-bg)] rounded-lg p-1">
                 <button
                   onClick={() => handleViewModeChange("card")}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "card"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm"
+                    : "text-[var(--color-secondary-text)] hover:text-[var(--color-text)]"
                     }`}
                 >
                   <FaTh className="w-4 h-4" />
@@ -522,8 +524,8 @@ export default function SuperAdminUsersPage() {
                 <button
                   onClick={() => handleViewModeChange("list")}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "list"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm"
+                    : "text-[var(--color-secondary-text)] hover:text-[var(--color-text)]"
                     }`}
                 >
                   <FaList className="w-4 h-4" />
@@ -553,13 +555,13 @@ export default function SuperAdminUsersPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800 text-sm sm:text-base">{error}</p>
+        <div className="bg-[var(--color-failed-bg)] border border-[var(--color-error)] rounded-lg p-4">
+          <p className="text-[var(--color-failed-text)] text-sm sm:text-base">{error}</p>
         </div>
       )}
 
       {/* Users List */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-[var(--color-surface)] rounded-lg shadow overflow-hidden border border-[var(--color-border)]">
         {loading ? (
           <div className="p-4 sm:p-6">
             {viewMode === "card" ? (
@@ -571,9 +573,9 @@ export default function SuperAdminUsersPage() {
               </div>
             ) : (
               // List view skeleton
-              <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="bg-[var(--color-surface)] rounded-lg shadow overflow-hidden border border-[var(--color-border)]">
                 {/* Table Header Skeleton */}
-                <div className="bg-gray-50 px-4 sm:px-6 py-3 border-b border-gray-200">
+                <div className="bg-[var(--color-surface)] px-4 sm:px-6 py-3 border-b border-[var(--color-border)]">
                   <div className="grid grid-cols-12 gap-4">
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Skeleton key={index} height="1rem" width="80%" />
@@ -582,7 +584,7 @@ export default function SuperAdminUsersPage() {
                 </div>
 
                 {/* Table Body Skeleton */}
-                <div className="divide-y divide-gray-200">
+                <div className="divide-y divide-[var(--color-border)]">
                   {Array.from({ length: itemsPerPage }).map((_, index) => (
                     <div key={index} className="px-4 sm:px-6 py-4">
                       {/* Mobile Skeleton */}
@@ -600,7 +602,7 @@ export default function SuperAdminUsersPage() {
                           <Skeleton height="0.75rem" width="70%" />
                           <Skeleton height="0.75rem" width="50%" />
                         </div>
-                        <div className="flex gap-2 justify-end pt-2 border-t border-gray-100">
+                        <div className="flex gap-2 justify-end pt-2 border-t border-[var(--color-border)]">
                           <Skeleton width={60} height={28} className="rounded" />
                           <Skeleton width={60} height={28} className="rounded" />
                         </div>
@@ -642,17 +644,17 @@ export default function SuperAdminUsersPage() {
           </div>
         ) : users.length === 0 ? (
           <div className="p-6 sm:p-8 text-center">
-            <FaUser className="mx-auto text-gray-400 text-3xl sm:text-4xl mb-4" />
-            <p className="text-sm sm:text-base text-gray-500">
+            <FaUser className="mx-auto text-[var(--color-secondary-text)] text-3xl sm:text-4xl mb-4" />
+            <p className="text-sm sm:text-base text-[var(--color-secondary-text)]">
               No users found matching your criteria.
             </p>
           </div>
         ) : viewMode === "list" ? (
           // List View - Table-like layout
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-[var(--color-surface)] rounded-lg shadow overflow-hidden border border-[var(--color-border)]">
             {/* Table Header */}
-            <div className="bg-gray-50 px-4 sm:px-6 py-3 border-b border-gray-200 hidden md:block">
-              <div className="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div className="bg-[var(--color-control-bg)] px-4 sm:px-6 py-3 border-b border-[var(--color-border)] hidden md:block">
+              <div className="grid grid-cols-12 gap-4 text-xs font-medium text-[var(--color-secondary-text)] uppercase tracking-wider">
                 <div className="col-span-4">User</div>
                 <div className="col-span-3">Contact</div>
                 <div className="col-span-2">Type</div>
@@ -662,24 +664,24 @@ export default function SuperAdminUsersPage() {
             </div>
 
             {/* Table Body */}
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-[var(--color-border)]">
               {users.map((user) => (
-                <div key={user._id} className="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div key={user._id} className="px-4 sm:px-6 py-4 hover:bg-[var(--color-control-bg)] transition-colors">
                   {/* Mobile Layout */}
                   <div className="md:hidden space-y-3">
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-10 h-10 bg-[var(--color-primary-500)] rounded-full flex items-center justify-center text-[var(--color-surface)] font-semibold text-sm">
                           {user.fullName.charAt(0).toUpperCase()}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">
+                        <div className="text-sm font-medium text-[var(--color-text)] truncate">
                           {user.fullName}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                           {getUserTypeIcon(user.userType)}
-                          <span className="text-xs text-gray-600 font-medium">
+                          <span className="text-xs text-[var(--color-secondary-text)] font-medium">
                             {getUserTypeLabel(user.userType)}
                           </span>
                         </div>
@@ -698,7 +700,7 @@ export default function SuperAdminUsersPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 text-sm text-gray-600">
+                    <div className="space-y-2 text-sm text-[var(--color-secondary-text)]">
                       <div className="flex items-center gap-2">
                         <FaEnvelope className="w-4 h-4 flex-shrink-0" />
                         <span className="truncate">{user.email}</span>
@@ -713,7 +715,7 @@ export default function SuperAdminUsersPage() {
                           <span>{user.agentCode}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-[var(--color-secondary-text)]">
                         <FaCalendar className="w-3 h-3" />
                         <span>Joined {formatDate(user.createdAt || "")}</span>
                         {user.businessName && (
@@ -726,7 +728,7 @@ export default function SuperAdminUsersPage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 justify-end pt-2 border-t border-gray-100">
+                    <div className="flex gap-2 justify-end pt-2 border-t border-[var(--color-border)]">
                       {user.userType === "agent" &&
                         user.status === "pending" && (
                           <>
@@ -784,19 +786,19 @@ export default function SuperAdminUsersPage() {
                       {/* User Info */}
                       <div className="col-span-4 flex items-center space-x-3">
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          <div className="w-10 h-10 bg-[var(--color-primary-500)] rounded-full flex items-center justify-center text-[var(--color-surface)] font-semibold text-sm">
                             {user.fullName.charAt(0).toUpperCase()}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-gray-900 truncate">
+                          <div className="text-sm font-medium text-[var(--color-text)] truncate">
                             {user.fullName}
                           </div>
-                          <div className="text-xs text-gray-500 truncate">
+                          <div className="text-xs text-[var(--color-secondary-text)] truncate">
                             Joined {formatDate(user.createdAt || "")}
                           </div>
                           {user.businessName && (
-                            <div className="text-xs text-gray-500 truncate flex items-center gap-1">
+                            <div className="text-xs text-[var(--color-secondary-text)] truncate flex items-center gap-1">
                               <FaBuilding className="w-3 h-3" />
                               {user.businessName}
                             </div>
@@ -806,16 +808,16 @@ export default function SuperAdminUsersPage() {
 
                       {/* Contact Info */}
                       <div className="col-span-3 space-y-1">
-                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                        <div className="flex items-center gap-1 text-xs text-[var(--color-secondary-text)]">
                           <FaEnvelope className="w-3 h-3 flex-shrink-0" />
                           <span className="truncate">{user.email}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                        <div className="flex items-center gap-1 text-xs text-[var(--color-secondary-text)]">
                           <FaPhone className="w-3 h-3 flex-shrink-0" />
                           <span className="truncate">{user.phone}</span>
                         </div>
                         {user.agentCode && (
-                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <div className="flex items-center gap-1 text-xs text-[var(--color-secondary-text)]">
                             <FaIdCard className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate">{user.agentCode}</span>
                           </div>
@@ -826,7 +828,7 @@ export default function SuperAdminUsersPage() {
                       <div className="col-span-2">
                         <div className="flex items-center gap-2">
                           {getUserTypeIcon(user.userType)}
-                          <span className="text-xs font-medium text-gray-900">
+                          <span className="text-xs font-medium text-[var(--color-text)]">
                             {getUserTypeLabel(user.userType)}
                           </span>
                         </div>
@@ -906,23 +908,23 @@ export default function SuperAdminUsersPage() {
               {users.map((user) => (
                 <div
                   key={user._id}
-                  className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                  className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
                 >
                   {/* Card Header */}
-                  <div className="p-4 sm:p-5 border-b border-gray-100">
+                  <div className="p-4 sm:p-5 border-b border-[var(--color-border)]">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--color-primary-500)] rounded-full flex items-center justify-center text-[var(--color-surface)] font-semibold text-sm sm:text-base">
                           {user.fullName.charAt(0).toUpperCase()}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                        <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] truncate">
                           {user.fullName}
                         </h3>
                         <div className="flex items-center gap-2 mt-1">
                           {getUserTypeIcon(user.userType)}
-                          <span className="text-xs sm:text-sm text-gray-600 font-medium">
+                          <span className="text-xs sm:text-sm text-[var(--color-secondary-text)] font-medium">
                             {getUserTypeLabel(user.userType)}
                           </span>
                         </div>
@@ -946,17 +948,17 @@ export default function SuperAdminUsersPage() {
                   <div className="p-4 sm:p-5 space-y-3">
                     {/* Contact Info */}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FaEnvelope className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                      <div className="flex items-center gap-2 text-sm text-[var(--color-secondary-text)]">
+                        <FaEnvelope className="w-4 h-4 flex-shrink-0 text-[var(--color-muted-text)]" />
                         <span className="truncate">{user.email}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FaPhone className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                      <div className="flex items-center gap-2 text-sm text-[var(--color-secondary-text)]">
+                        <FaPhone className="w-4 h-4 flex-shrink-0 text-[var(--color-muted-text)]" />
                         <span className="truncate">{user.phone}</span>
                       </div>
                       {user.agentCode && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <FaIdCard className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                        <div className="flex items-center gap-2 text-sm text-[var(--color-secondary-text)]">
+                          <FaIdCard className="w-4 h-4 flex-shrink-0 text-[var(--color-muted-text)]" />
                           <span className="truncate">{user.agentCode}</span>
                         </div>
                       )}
@@ -964,15 +966,14 @@ export default function SuperAdminUsersPage() {
 
                     {/* Business Name */}
                     {user.businessName && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FaBuilding className="w-4 h-4 flex-shrink-0 text-gray-400" />
-                        <span className="truncate">{user.businessName}</span>
+                      <div className="flex items-center gap-2 text-sm text-[var(--color-secondary-text)]">
+                        <FaBuilding className="w-4 h-4 flex-shrink-0 text-[var(--color-muted-text)]" />
                       </div>
                     )}
 
                     {/* Registration Date */}
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-                      <FaCalendar className="w-3 h-3 flex-shrink-0" />
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[var(--color-secondary-text)]">
+                      <FaCalendar className="w-3 h-3 flex-shrink-0 text-[var(--color-muted-text)]" />
                       <span>Joined {formatDate(user.createdAt || "")}</span>
                     </div>
                   </div>

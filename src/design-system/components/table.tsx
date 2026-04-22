@@ -173,12 +173,12 @@ export const Table = forwardRef<HTMLTableElement, TableProps>(
           };
         case "gray":
           return {
-            border: "border-gray-200",
-            headerBg: "bg-gray-50",
-            headerText: "text-gray-900",
-            stripedBg: "even:bg-gray-25",
-            selectedBg: "bg-gray-100",
-            hoverBg: "hover:bg-gray-50",
+            border: "border-[var(--color-border)]",
+            headerBg: "bg-[var(--color-control-bg)]",
+            headerText: "text-[var(--color-text)]",
+            stripedBg: "even:bg-[var(--color-border)]/50",
+            selectedBg: "bg-[var(--color-border)]/50",
+            hoverBg: "hover:bg-[var(--color-border)]/60",
           };
         case "default":
         default:

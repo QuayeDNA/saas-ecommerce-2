@@ -279,7 +279,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {/* Right icon */}
           {rightIcon && (
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <div className={`text-gray-400 ${sizeClasses.iconSize[size]}`}>
+              <div className={`text-[var(--color-muted-text)] ${sizeClasses.iconSize[size]}`}>
                 {rightIcon}
               </div>
             </div>

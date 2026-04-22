@@ -713,8 +713,8 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     return (
       <Card>
         <CardBody>
-          <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">
+          <div className="p-6 bg-[var(--color-failed-bg)] border border-[var(--color-error)] rounded-lg">
+            <p className="text-[var(--color-failed-text)]">
               Error:{" "}
               {activeTab === "reported"
                 ? "Failed to load reported orders"
@@ -734,7 +734,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
         <CardBody>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-gray-900">
+              <h1 className="text-2xl font-bold mb-2 text-[var(--color-text)]">
                 {isAdmin
                   ? "Order Management"
                   : isAgent
@@ -779,16 +779,16 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
       )}
       {/* Draft Orders Notification - Only show for agents when there are draft orders */}
       {(isAgent || !isAdmin) && hasDraftOrders && (
-        <Card className="border-yellow-400 bg-yellow-50">
+        <Card className="border-[var(--color-warning)] bg-[var(--color-warning-bg)]">
           <CardBody>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-3">
-                <FaExclamationTriangle className="text-yellow-600 text-xl flex-shrink-0 mt-0.5" />
+                <FaExclamationTriangle className="text-[var(--color-warning)] text-xl flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-yellow-800 mb-1">
+                  <h3 className="font-semibold text-[var(--color-warning)] mb-1">
                     Draft Orders Need Attention
                   </h3>
-                  <p className="text-yellow-700 text-sm">
+                  <p className="text-[var(--color-muted-text)] text-sm">
                     You have {draftOrders.length} draft order
                     {draftOrders.length !== 1 ? "s" : ""} waiting to be
                     processed. These orders require sufficient wallet balance to
@@ -819,15 +819,15 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* View Mode Section */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <span className="text-sm font-medium text-gray-700 flex-shrink-0">
+              <span className="text-sm font-medium text-[var(--color-secondary-text)] flex-shrink-0">
                 View Mode:
               </span>
-              <div className="flex bg-gray-100 rounded-lg p-1 w-full sm:w-auto">
+              <div className="flex bg-[var(--color-control-bg)] rounded-lg p-1 w-full sm:w-auto">
                 <button
                   onClick={() => setViewMode("cards")}
                   className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-md transition-colors ${viewMode === "cards"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm"
+                    : "text-[var(--color-muted-text)] hover:text-[var(--color-text)]"
                     }`}
                 >
                   Cards
@@ -836,8 +836,8 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                 <button
                   onClick={() => setViewMode("table")}
                   className={`hidden lg:block px-3 py-1 text-sm font-medium rounded-md transition-colors ${viewMode === "table"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm"
+                    : "text-[var(--color-muted-text)] hover:text-[var(--color-text)]"
                     }`}
                 >
                   Table
@@ -846,8 +846,8 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                   <button
                     onClick={() => setViewMode("excel")}
                     className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-md transition-colors ${viewMode === "excel"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm"
+                      : "text-[var(--color-muted-text)] hover:text-[var(--color-text)]"
                       }`}
                   >
                     Excel
@@ -876,13 +876,13 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                       onClick={handleDeselectAll}
                       className="flex items-center gap-2 flex-1 sm:flex-none justify-center"
                     >
-                      <FaTimes className="text-gray-600" />
+                      <FaTimes className="text-[var(--color-muted-text)]" />
                       <span className="text-xs sm:text-sm">Deselect All</span>
                     </Button>
                   )}
                 </div>
                 {selectedOrders.length > 0 && (
-                  <span className="text-xs sm:text-sm text-gray-600 flex-shrink-0">
+                  <span className="text-xs sm:text-sm text-[var(--color-muted-text)] flex-shrink-0">
                     {selectedOrders.length} selected
                   </span>
                 )}
@@ -956,9 +956,9 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
       {selectedOrders.length > 0 && isAdmin && activeTab === "reported" && (
         <Card>
           <CardBody>
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div className="bg-[var(--color-primary-50)] border border-[var(--color-primary-200)] rounded-lg p-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <span className="text-sm text-purple-800 font-medium">
+                <span className="text-sm text-[var(--color-primary-800)] font-medium">
                   {selectedOrders.length} order(s) selected for reception status
                   update
                 </span>
@@ -967,7 +967,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                     size="sm"
                     variant="outline"
                     onClick={() => handleBulkReceptionStatus("received")}
-                    className="flex-1 sm:flex-none border-green-300 text-green-700 hover:bg-green-50"
+                    className="flex-1 sm:flex-none border-[var(--color-success)] text-[var(--color-success)] hover:bg-[var(--color-success-bg)]"
                   >
                     <FaCheck className="mr-1" />
                     <span className="hidden sm:inline">Mark Received</span>
@@ -977,7 +977,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                     size="sm"
                     variant="outline"
                     onClick={() => handleBulkReceptionStatus("checking")}
-                    className="flex-1 sm:flex-none border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+                    className="flex-1 sm:flex-none border-[var(--color-warning)] text-[var(--color-warning)] hover:bg-[var(--color-pending-bg)]"
                   >
                     <FaClock className="mr-1" />
                     <span className="hidden sm:inline">Mark Checking</span>
@@ -1014,12 +1014,12 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
       {(isAdmin || isAgent) && (
         <Card>
           <CardBody>
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-[var(--color-border)]">
               <button
                 onClick={() => setActiveTab("all")}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "all"
-                  ? "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "text-[var(--color-muted-text)] hover:text-[var(--color-text)] hover:border-[var(--color-border)]"
+                  : "border-transparent text-[var(--color-muted-text)] hover:text-[var(--color-text)] hover:border-[var(--color-border)]"
                   }`}
                 style={
                   activeTab === "all"
@@ -1035,8 +1035,8 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
               <button
                 onClick={() => setActiveTab("reported")}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "reported"
-                  ? "text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "text-[var(--color-muted-text)] hover:text-[var(--color-text)] hover:border-[var(--color-border)]"
+                  : "border-transparent text-[var(--color-muted-text)] hover:text-[var(--color-text)] hover:border-[var(--color-border)]"
                   }`}
                 style={
                   activeTab === "reported"
@@ -1059,7 +1059,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           <CardBody>
             <div className="flex justify-center items-center p-8">
               <Spinner />
-              <span className="ml-3 text-gray-600">
+              <span className="ml-3 text-[var(--color-muted-text)]">
                 {activeTab === "reported"
                   ? "Loading reported orders..."
                   : "Loading orders..."}
@@ -1071,15 +1071,15 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
         <Card>
           <CardBody>
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaChartBar className="h-8 w-8 text-gray-400" />
+              <div className="w-16 h-16 bg-[var(--color-control-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaChartBar className="h-8 w-8 text-[var(--color-muted-text)]" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-[var(--color-text)] mb-2">
                 {activeTab === "reported"
                   ? "No reported orders found"
                   : "No orders found"}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-[var(--color-muted-text)]">
                 {activeTab === "reported"
                   ? isAdmin
                     ? "No orders have been reported yet."
@@ -1168,7 +1168,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
         size="md"
       >
         <DialogHeader>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-[var(--color-text)]">
             Confirm Bulk Action
           </h2>
         </DialogHeader>
@@ -1176,7 +1176,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               {pendingBulkAction === "cancel" && (
-                <FaTimes className="text-red-500 text-xl" />
+                <FaTimes className="text-[var(--color-error)] text-xl" />
               )}
               {pendingBulkAction === "process" && (
                 <FaSync
@@ -1185,15 +1185,15 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                 />
               )}
               {pendingBulkAction === "complete" && (
-                <FaCheck className="text-green-500 text-xl" />
+                <FaCheck className="text-[var(--color-success)] text-xl" />
               )}
               <div>
-                <h3 className="font-medium text-gray-900">
+                <h3 className="font-medium text-[var(--color-text)]">
                   {pendingBulkAction === "cancel" && "Cancel Orders"}
                   {pendingBulkAction === "process" && "Process Orders"}
                   {pendingBulkAction === "complete" && "Complete Orders"}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-[var(--color-muted-text)] mt-1">
                   {pendingBulkAction === "cancel" &&
                     `Are you sure you want to cancel ${selectedOrders.length} selected order(s)?`}
                   {pendingBulkAction === "process" &&
@@ -1205,9 +1205,9 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
             </div>
 
             {/* Show selected orders info */}
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="bg-[var(--color-background)] rounded-lg p-3">
               <h4
-                style={{ color: "var(--color-accent-orange, #374151)" }}
+                style={{ color: "var(--color-secondary-text, #374151)" }}
                 className="font-medium text-sm mb-2"
               >
                 Selected Orders:
@@ -1267,7 +1267,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
         size="md"
       >
         <DialogHeader>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-[var(--color-text)]">
             Confirm Reception Status Update
           </h2>
         </DialogHeader>
@@ -1275,10 +1275,10 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               {pendingReceptionStatus === "received" && (
-                <FaCheck className="text-green-500 text-xl" />
+                <FaCheck className="text-[var(--color-success)] text-xl" />
               )}
               {pendingReceptionStatus === "checking" && (
-                <FaClock className="text-yellow-500 text-xl" />
+                <FaClock className="text-[var(--color-warning)] text-xl" />
               )}
               {pendingReceptionStatus === "resolved" && (
                 <FaCheck
@@ -1287,13 +1287,13 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                 />
               )}
               <div>
-                <h3 className="font-medium text-gray-900">
+                <h3 className="font-medium text-[var(--color-text)]">
                   Update Reception Status to{" "}
                   {pendingReceptionStatus &&
                     pendingReceptionStatus.charAt(0).toUpperCase() +
                     pendingReceptionStatus.slice(1).replace("_", " ")}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-[var(--color-muted-text)] mt-1">
                   Are you sure you want to update the reception status for{" "}
                   {selectedOrders.length} selected order(s) to "
                   {pendingReceptionStatus?.replace("_", " ")}"?
@@ -1302,8 +1302,8 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
             </div>
 
             {/* Show selected orders info */}
-            <div className="bg-purple-50 rounded-lg p-3">
-              <h4 className="font-medium text-sm text-purple-700 mb-2">
+            <div className="bg-[var(--color-primary-50)] rounded-lg p-3">
+              <h4 className="font-medium text-sm text-[var(--color-primary-700)] mb-2">
                 Selected Orders:
               </h4>
               <div className="space-y-1">

@@ -104,7 +104,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           </div>
           {!iconOnly && icon && (
             <div
-              className={`${classes.iconContainer} ${isWallet ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-500)]' : 'bg-white/20 text-white'} rounded-full flex-shrink-0 flex items-center justify-center`}
+              className={`${classes.iconContainer} ${isWallet ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-500)]' : 'bg-[var(--color-surface)]/20 text-[var(--color-text)]'} rounded-full flex-shrink-0 flex items-center justify-center`}
             >
               <div className={`${classes.icon}`}>{icon}</div>
             </div>

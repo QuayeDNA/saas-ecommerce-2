@@ -89,9 +89,9 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
           };
         case "gray":
           return {
-            solid: "bg-gray-500 text-white",
-            subtle: "bg-gray-100 text-gray-800",
-            outline: "bg-transparent border border-gray-500 text-gray-700",
+            solid: "bg-[var(--color-secondary-text)] text-[var(--color-surface)]",
+            subtle: "bg-[var(--color-control-bg)] text-[var(--color-secondary-text)]",
+            outline: "bg-transparent border border-[var(--color-border)] text-[var(--color-secondary-text)]",
           };
         default:
           return getThemeColorClasses(); // Use theme colors as default

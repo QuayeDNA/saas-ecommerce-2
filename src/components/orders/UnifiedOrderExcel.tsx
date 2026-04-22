@@ -343,7 +343,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
             type="checkbox"
             checked={selectedOrderIds.includes(row.id)}
             onChange={() => toggleRowSelection(row.id)}
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="rounded border-[var(--color-border)] text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
             onClick={(e) => e.stopPropagation()}
           />
         ),
@@ -583,25 +583,25 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
   return (
     <div className="space-y-3 sm:space-y-4 w-full h-full flex flex-col">
       {/* Mobile notice — DataGrid needs a wide viewport */}
-      <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg sm:hidden">
-        <FaTabletAlt className="text-blue-500 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-blue-700 leading-snug">
+      <div className="flex items-start gap-3 p-3 bg-[var(--color-primary-50)] border border-[var(--color-primary-200)] rounded-lg sm:hidden">
+        <FaTabletAlt className="text-[var(--color-primary-700)] mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-[var(--color-primary-700)] leading-snug">
           Excel view is optimised for wider screens. Switch to{" "}
           <strong>Cards view</strong> on mobile for a better experience.
         </p>
       </div>
-      <div className="flex flex-col bg-white p-3 sm:p-4 rounded-lg border border-gray-200 gap-3">
+      <div className="flex flex-col bg-[var(--color-surface)] p-3 sm:p-4 rounded-lg border border-[var(--color-border)] gap-3">
         {/* Title and Count */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2">
-            <FaFileExcel className="text-green-600 text-lg flex-shrink-0" />
-            <h3 className="text-base font-semibold text-gray-900">Excel View</h3>
-            <span className="text-xs text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
+            <FaFileExcel className="text-[var(--color-success)] text-lg flex-shrink-0" />
+            <h3 className="text-base font-semibold text-[var(--color-text)]">Excel View</h3>
+            <span className="text-xs text-[var(--color-muted-text)] bg-[var(--color-control-bg)] rounded-full px-2 py-0.5">
               {sortedRows.length} orders
             </span>
           </div>
           {selectedOrderIds.length > 0 && (
-            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-medium text-[var(--color-primary-700)] bg-[var(--color-primary-50)] px-2.5 py-1 rounded-full">
               {selectedOrderIds.length} selected
             </span>
           )}
@@ -611,7 +611,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleSelectAllPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[var(--color-primary-50)] text-[var(--color-primary-700)] rounded-lg hover:bg-[var(--color-primary-100)] transition-colors border border-[var(--color-primary-200)]"
           >
             <FaCheckSquare className="text-xs" />
             Select Pending
@@ -619,7 +619,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
           <button
             onClick={handleDeselectAll}
             disabled={selectedOrderIds.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[var(--color-control-bg)] text-[var(--color-muted-text)] rounded-lg hover:bg-[var(--color-background)] transition-colors border border-[var(--color-border)] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <FaSquare className="text-xs" />
             Deselect All
@@ -634,13 +634,13 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
             disabled={isProcessing || selectedAFAOrders.length === 0}
             title={selectedAFAOrders.length === 0 ? "Select AFA orders first" : undefined}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isProcessing || selectedAFAOrders.length === 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                : "bg-purple-600 hover:bg-purple-700 text-white"
+              ? "bg-[var(--color-control-bg)] text-[var(--color-muted-text)] cursor-not-allowed border border-[var(--color-border)]"
+              : "bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-700)] text-[var(--color-surface)]"
               }`}
           >
             <FaCopy className="text-xs" />
             AFA
-            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedAFAOrders.length === 0 ? "bg-gray-200 text-gray-500" : "bg-white/20 text-white"
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedAFAOrders.length === 0 ? "bg-[var(--color-border)] text-[var(--color-muted-text)]" : "bg-[var(--color-primary-600)] text-[var(--color-surface)]"
               }`}>
               {selectedAFAOrders.length}
             </span>
@@ -652,13 +652,13 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
             disabled={isProcessing || selectedMTNOrders.length === 0}
             title={selectedMTNOrders.length === 0 ? "Select MTN orders first" : undefined}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isProcessing || selectedMTNOrders.length === 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                : "bg-yellow-500 hover:bg-yellow-600 text-white"
+              ? "bg-[var(--color-control-bg)] text-[var(--color-muted-text)] cursor-not-allowed border border-[var(--color-border)]"
+              : "bg-[var(--color-warning)] hover:bg-[var(--color-warning)] text-[var(--color-surface)]"
               }`}
           >
             <FaCopy className="text-xs" />
             MTN
-            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedMTNOrders.length === 0 ? "bg-gray-200 text-gray-500" : "bg-white/20 text-white"
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedMTNOrders.length === 0 ? "bg-[var(--color-border)] text-[var(--color-muted-text)]" : "bg-[var(--color-warning)] text-[var(--color-surface)]"
               }`}>
               {selectedMTNOrders.length}
             </span>
@@ -670,13 +670,13 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
             disabled={isProcessing || selectedTelecelOrders.length === 0}
             title={selectedTelecelOrders.length === 0 ? "Select TELECEL orders first" : undefined}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isProcessing || selectedTelecelOrders.length === 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                : "bg-red-600 hover:bg-red-700 text-white"
+              ? "bg-[var(--color-control-bg)] text-[var(--color-muted-text)] cursor-not-allowed border border-[var(--color-border)]"
+              : "bg-[var(--color-error)] hover:bg-[var(--color-error)] text-[var(--color-surface)]"
               }`}
           >
             <FaCopy className="text-xs" />
             TELECEL
-            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedTelecelOrders.length === 0 ? "bg-gray-200 text-gray-500" : "bg-white/20 text-white"
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedTelecelOrders.length === 0 ? "bg-[var(--color-border)] text-[var(--color-muted-text)]" : "bg-[var(--color-error)] text-[var(--color-surface)]"
               }`}>
               {selectedTelecelOrders.length}
             </span>
@@ -688,13 +688,13 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
             disabled={isProcessing || selectedATOrders.length === 0}
             title={selectedATOrders.length === 0 ? "Select AT orders first" : undefined}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isProcessing || selectedATOrders.length === 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
+              ? "bg-[var(--color-control-bg)] text-[var(--color-muted-text)] cursor-not-allowed border border-[var(--color-border)]"
+              : "bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-700)] text-[var(--color-surface)]"
               }`}
           >
             <FaCopy className="text-xs" />
             AT
-            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedATOrders.length === 0 ? "bg-gray-200 text-gray-500" : "bg-white/20 text-white"
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${selectedATOrders.length === 0 ? "bg-[var(--color-border)] text-[var(--color-muted-text)]" : "bg-[var(--color-primary-600)] text-[var(--color-surface)]"
               }`}>
               {selectedATOrders.length}
             </span>
@@ -702,7 +702,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium ml-auto"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[var(--color-success)] text-[var(--color-surface)] rounded-lg hover:bg-[var(--color-success)] transition-colors text-xs font-medium ml-auto"
           >
             <FaDownload className="text-xs" />
             Export CSV
@@ -711,7 +711,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
       </div>
 
       {/* Excel Grid */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1">
+      <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] overflow-hidden w-full flex-1">
         <div className="w-full h-full">
           <DataGrid
             columns={columns}
@@ -719,19 +719,19 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
             className="rdg-light w-full h-full"
             style={
               {
-                "--rdg-color": "#374151",
-                "--rdg-summary-border-color": "#d1d5db",
-                "--rdg-border-color": "#e5e7eb",
-                "--rdg-summary-background-color": "#f9fafb",
-                "--rdg-background-color": "#ffffff",
-                "--rdg-header-background-color": "#f3f4f6",
-                "--rdg-row-hover-background-color": "#f9fafb",
-                "--rdg-row-selected-background-color": "#dbeafe",
-                "--rdg-row-selected-hover-background-color": "#bfdbfe",
-                "--rdg-checkbox-color": "#3b82f6",
-                "--rdg-checkbox-focus-color": "#1d4ed8",
-                "--rdg-checkbox-disabled-color": "#9ca3af",
-                "--rdg-selection-color": "#3b82f6",
+                "--rdg-color": "var(--color-text)",
+                "--rdg-summary-border-color": "var(--color-border)",
+                "--rdg-border-color": "var(--color-border)",
+                "--rdg-summary-background-color": "var(--color-background)",
+                "--rdg-background-color": "var(--color-surface)",
+                "--rdg-header-background-color": "var(--color-control-bg)",
+                "--rdg-row-hover-background-color": "var(--color-background)",
+                "--rdg-row-selected-background-color": "var(--color-primary-100)",
+                "--rdg-row-selected-hover-background-color": "var(--color-primary-200)",
+                "--rdg-checkbox-color": "var(--color-primary-500)",
+                "--rdg-checkbox-focus-color": "var(--color-primary-600)",
+                "--rdg-checkbox-disabled-color": "var(--color-muted-text)",
+                "--rdg-selection-color": "var(--color-primary-500)",
                 "--rdg-font-size": "14px",
               } as React.CSSProperties
             }
@@ -740,7 +740,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
       </div>
 
       {/* Excel Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-gray-500 bg-gray-50 p-3 rounded-lg gap-2 sm:gap-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-[var(--color-muted-text)] bg-[var(--color-background)] p-3 rounded-lg gap-2 sm:gap-0">
         <div>
           Showing {sortedRows.length} of {sortedRows.length} orders
         </div>
@@ -773,17 +773,17 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
       >
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <FaCopy className="text-blue-600 text-lg" />
+            <div className="flex-shrink-0 w-10 h-10 bg-[var(--color-primary-100)] rounded-full flex items-center justify-center">
+              <FaCopy className="text-[var(--color-primary-700)] text-lg" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-[var(--color-text)]">
                 Process {processingType === "afa" ? "AFA" :
                   processingType === "mtn" ? "MTN" :
                     processingType === "telecel" ? "TELECEL" :
                       processingType === "at" ? "AT" : "Data"} Orders
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[var(--color-muted-text)]">
                 {processingType === "afa"
                   ? `Selected: ${selectedAFAOrders.length} AFA orders`
                   : processingType === "mtn"
@@ -799,11 +799,11 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
 
           {/* Copy Format Preview */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text)] mb-2">
               Copy Format Preview:
             </label>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto">
-              <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap">
+            <div className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg p-3 max-h-40 overflow-y-auto">
+              <pre className="text-xs font-mono text-[var(--color-muted-text)] whitespace-pre-wrap">
                 {processingType === "afa"
                   ? selectedAFAOrders
                     .slice(0, 3)
@@ -853,7 +853,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
 
           {/* Status Update Options */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text)] mb-2">
               Update Status After Copy:
             </label>
             <div className="space-y-2">
@@ -864,9 +864,9 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                   value="none"
                   checked={statusUpdate === "none"}
                   onChange={(e) => setStatusUpdate(e.target.value as "none" | "processing" | "completed")}
-                  className="text-blue-600 focus:ring-blue-500"
+                  className="text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                 />
-                <span className="text-sm text-gray-700">Don't update status</span>
+                <span className="text-sm text-[var(--color-text)]">Don't update status</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -875,9 +875,9 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                   value="processing"
                   checked={statusUpdate === "processing"}
                   onChange={(e) => setStatusUpdate(e.target.value as "none" | "processing" | "completed")}
-                  className="text-blue-600 focus:ring-blue-500"
+                  className="text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                 />
-                <span className="text-sm text-gray-700">Mark as Processing</span>
+                <span className="text-sm text-[var(--color-text)]">Mark as Processing</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -886,9 +886,9 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                   value="completed"
                   checked={statusUpdate === "completed"}
                   onChange={(e) => setStatusUpdate(e.target.value as "none" | "processing" | "completed")}
-                  className="text-blue-600 focus:ring-blue-500"
+                  className="text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                 />
-                <span className="text-sm text-gray-700">Mark as Completed</span>
+                <span className="text-sm text-[var(--color-text)]">Mark as Completed</span>
               </label>
             </div>
           </div>
@@ -896,7 +896,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
           {/* Batch Size */}
           {statusUpdate !== "none" && (
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--color-text)] mb-2">
                 Batch Size: {batchSize} orders at a time
               </label>
               <input
@@ -908,7 +908,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                 onChange={(e) => setBatchSize(Number(e.target.value))}
                 className="w-full"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[var(--color-muted-text)] mt-1">
                 Smaller batches work better on slow networks
               </p>
             </div>
@@ -918,7 +918,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
           <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => setShowProcessDialog(false)}
-              className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+              className="flex-1 px-4 py-2.5 bg-[var(--color-control-bg)] text-[var(--color-text)] rounded-lg hover:bg-[var(--color-background)] transition-colors text-sm font-medium"
             >
               Cancel
             </button>
@@ -934,7 +934,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                   true
                 )
               }
-              className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              className="flex-1 px-4 py-2.5 bg-[var(--color-primary-600)] text-[var(--color-surface)] rounded-lg hover:bg-[var(--color-primary-700)] transition-colors text-sm font-medium"
             >
               Copy Only
             </button>
@@ -950,7 +950,7 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                   false
                 )
               }
-              className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+              className="flex-1 px-4 py-2.5 bg-[var(--color-success)] text-[var(--color-surface)] rounded-lg hover:bg-[var(--color-success)] transition-colors text-sm font-medium"
             >
               Copy &amp; Process
             </button>
@@ -966,14 +966,14 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
       >
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <FaSpinner className="text-blue-600 text-lg animate-spin" />
+            <div className="flex-shrink-0 w-10 h-10 bg-[var(--color-primary-100)] rounded-full flex items-center justify-center">
+              <FaSpinner className="text-[var(--color-primary-600)] text-lg animate-spin" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-[var(--color-text)]">
                 Processing Orders...
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-[var(--color-muted-text)]">
                 Updating order status...
               </p>
             </div>
@@ -981,13 +981,13 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
 
           {/* Progress Bar */}
           <div className="mb-4">
-            <div className="flex justify-between text-sm text-gray-700 mb-2">
+            <div className="flex justify-between text-sm text-[var(--color-muted-text)] mb-2">
               <span>Progress: {processingProgress.current}/{processingProgress.total} orders</span>
               <span>{Math.round((processingProgress.current / processingProgress.total) * 100)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-[var(--color-border)] rounded-full h-3 overflow-hidden">
               <div
-                className="bg-blue-600 h-full transition-all duration-300 ease-out"
+                className="bg-[var(--color-primary-600)] h-full transition-all duration-300 ease-out"
                 style={{
                   width: `${(processingProgress.current / processingProgress.total) * 100}%`,
                 }}
@@ -1007,15 +1007,15 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                 <div
                   key={index}
                   className={`flex items-center gap-2 p-2 rounded ${isComplete
-                      ? "bg-green-50 text-green-700"
-                      : isCurrent
-                        ? "bg-blue-50 text-blue-700"
-                        : "bg-gray-50 text-gray-500"
+                    ? "bg-[var(--color-success-bg)] text-[var(--color-success)]"
+                    : isCurrent
+                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
+                      : "bg-[var(--color-background)] text-[var(--color-muted-text)]"
                     }`}
                 >
-                  {isComplete && <FaCheck className="text-green-600" />}
-                  {isCurrent && <FaSpinner className="text-blue-600 animate-spin" />}
-                  {isPending && <FaClock className="text-gray-400" />}
+                  {isComplete && <FaCheck className="text-[var(--color-success)]" />}
+                  {isCurrent && <FaSpinner className="text-[var(--color-primary-700)] animate-spin" />}
+                  {isPending && <FaClock className="text-[var(--color-muted-text)]" />}
                   <span>
                     Batch {batchNum} ({batchSize} orders) -{" "}
                     {isComplete ? "Complete" : isCurrent ? "Processing..." : "Pending"}
