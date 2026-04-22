@@ -1,4 +1,4 @@
-import siteMetadata from "../siteMetadata.json" assert { type: "json" };
+import siteMetadata from "../siteMetadata.json";
 
 const DEFAULT_META = {
   title: siteMetadata.title,
