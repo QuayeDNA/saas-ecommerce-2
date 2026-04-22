@@ -832,10 +832,9 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
                 >
                   Cards
                 </button>
-                {/* Table view only visible on desktop (lg and above) */}
                 <button
                   onClick={() => setViewMode("table")}
-                  className={`hidden lg:block px-3 py-1 text-sm font-medium rounded-md transition-colors ${viewMode === "table"
+                  className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${viewMode === "table"
                     ? "bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm"
                     : "text-[var(--color-muted-text)] hover:text-[var(--color-text)]"
                     }`}
@@ -1113,7 +1112,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           ))}
         </div>
       ) : viewMode === "table" ? (
-        <div className="hidden lg:block">
+        <div>
           <UnifiedOrderTable
             orders={currentOrders}
             isAdmin={isAdmin}
