@@ -1,4 +1,13 @@
-import siteMetadata from "../siteMetadata.json";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+// Resolve siteMetadata.json relative to this file — works in all Node versions
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const siteMetadata = JSON.parse(
+  readFileSync(join(__dirname, "../siteMetadata.json"), "utf-8")
+);
 
 const DEFAULT_META = {
   title: siteMetadata.title,
