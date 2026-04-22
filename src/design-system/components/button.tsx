@@ -1,6 +1,5 @@
 import { forwardRef } from "react";
 import type { ReactNode, ButtonHTMLAttributes } from "react";
-import { useTheme } from "../../hooks/use-theme";
 import { Loader2 } from "lucide-react";
 
 // Button variants
@@ -79,8 +78,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Access theme
-    const { primaryColor } = useTheme();
+
 
     // Size styles for regular buttons
     const sizeClasses = {
