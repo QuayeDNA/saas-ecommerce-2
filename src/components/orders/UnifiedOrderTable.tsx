@@ -8,9 +8,12 @@ import {
   FaChevronRight,
   FaChevronDown,
   FaChevronUp,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import type { Order } from "../../types/order";
 import { isOrderLocked } from "../../utils/order-lock";
+import { ReportModal } from "./ReportModal";
+import { apiClient } from "../../utils/api-client";
 
 interface ReceptionStatusDropdownProps {
   orderId: string;
@@ -100,6 +103,7 @@ interface UnifiedOrderTableProps {
   onSelect?: (orderId: string) => void;
   selectedOrders: string[];
   onSelectAll: () => void;
+  onRefresh?: () => void;
   loading?: boolean;
 }
 
@@ -113,12 +117,16 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
   onSelect,
   selectedOrders,
   onSelectAll,
+  onRefresh,
   loading = false,
 }) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [statusDropdowns, setStatusDropdowns] = useState<Set<string>>(
     new Set()
   );
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [selectedReportOrder, setSelectedReportOrder] = useState<Order | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
 
   // Click outside handler to close dropdowns
   React.useEffect(() => {
@@ -209,6 +217,34 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
     setStatusDropdowns(newDropdowns);
   };
 
+  const handleReportClick = (order: Order) => {
+    if (order.reported) {
+      alert("This order has already been reported for data delivery issues.");
+      return;
+    }
+    setSelectedReportOrder(order);
+    setReportModalOpen(true);
+  };
+
+  const handleReportSubmit = async () => {
+    if (!selectedReportOrder?._id) return;
+
+    setIsReporting(true);
+    try {
+      await apiClient.post(`/api/orders/${selectedReportOrder._id}/report`, {});
+      setReportModalOpen(false);
+      setSelectedReportOrder(null);
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      throw error;
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
   const getOrderProvider = (order: Order) => {
     if (order.items && order.items.length > 0) {
       return order.items[0].packageDetails?.provider || "Unknown";
@@ -292,6 +328,32 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
       if (createdById === currentUserId) {
         return true;
       }
+    }
+
+    return false;
+  };
+
+  const canUserReportOrder = (order: Order) => {
+    // Only completed orders can be reported
+    if (order.status !== "completed") return false;
+
+    // Check if order is already reported
+    if (order.reported) return false;
+
+    // Check if order is older than 2 hours
+    const orderDate = new Date(order.createdAt);
+    const twoHoursAgo = new Date();
+    twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
+
+    if (orderDate < twoHoursAgo) return false;
+
+    // Business users can only report their own orders
+    if (currentUserId) {
+      const createdById =
+        typeof order.createdBy === "string"
+          ? order.createdBy
+          : (order.createdBy as { _id: string })?._id;
+      return createdById === currentUserId;
     }
 
     return false;
@@ -524,6 +586,26 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
                           </Button>
                         )}
 
+                        {/* Report issue action */}
+                        {canUserReportOrder(order) && (
+                          <Button
+                            size="xs"
+                            variant="outline"
+                            onClick={() => handleReportClick(order)}
+                            title="Report delivery issue"
+                            className="text-[var(--color-warning)] border-[var(--color-warning)] hover:bg-[var(--color-warning-bg)]"
+                          >
+                            <FaExclamationTriangle className="w-3 h-3" />
+                          </Button>
+                        )}
+
+                        {order.reported && !isAdmin && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[var(--color-warning)] text-xs border border-[var(--color-warning)]">
+                            <FaExclamationTriangle className="w-3 h-3" />
+                            Reported
+                          </span>
+                        )}
+
                         {/* Expand/Collapse button */}
                         {order.items && order.items.length > 0 && (
                           <Button
@@ -597,6 +679,42 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      <ReportModal
+        isOpen={reportModalOpen}
+        onClose={() => {
+          setReportModalOpen(false);
+          setSelectedReportOrder(null);
+        }}
+        onSubmit={handleReportSubmit}
+        isSubmitting={isReporting}
+        orderNumber={selectedReportOrder?.orderNumber || ""}
+        phoneNumber={
+          selectedReportOrder?.items?.[0]?.customerPhone ||
+          selectedReportOrder?.customerInfo?.phone ||
+          "N/A"
+        }
+        packageVolume={
+          selectedReportOrder?.items?.[0]?.bundleSize
+            ? `${selectedReportOrder.items[0].bundleSize.value} ${selectedReportOrder.items[0].bundleSize.unit}`
+            : selectedReportOrder?.items?.[0]?.packageDetails?.dataVolume
+              ? `${selectedReportOrder.items[0].packageDetails.dataVolume} GB`
+              : undefined
+        }
+        provider={selectedReportOrder?.items?.[0]?.packageDetails?.provider || undefined}
+        orderDate={
+          selectedReportOrder?.createdAt
+            ? new Date(selectedReportOrder.createdAt).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+            : undefined
+        }
+      />
     </div>
   );
 };
