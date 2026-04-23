@@ -26,12 +26,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
     showLogo = true,
 }) => {
     return (
-        <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-background)] text-[var(--color-text)] flex flex-col sm:flex sm:items-center sm:justify-center">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.16),transparent_28%)]" />
-            <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-[var(--color-primary-500)]/20 blur-[90px]" />
-            <div className="absolute bottom-0 right-0 h-[24rem] w-[24rem] rounded-full bg-[var(--color-surface)]/10 blur-[110px]" />
+        <div className="relative min-h-[100dvh] overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-slate-950 flex flex-col sm:flex sm:items-center sm:justify-center">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(0,87,255,0.16),transparent_28%)]" />
+            <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary-500/20 blur-[90px]" />
+            <div className="absolute bottom-0 right-0 h-[24rem] w-[24rem] rounded-full bg-white/5 blur-[110px]" />
 
-            <div className="relative z-10 flex flex-col items-center justify-center px-6 py-8 text-center text-[var(--color-surface)] sm:hidden min-h-[34vh]">
+            <div className="relative z-10 flex flex-col items-center justify-center px-6 py-8 text-center text-white sm:hidden min-h-[34vh]">
                 {showLogo && (
                     <div className="mb-3 rounded-[1.5rem] border border-white/10 bg-white/10 p-3 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
                         <CaskmafDatahubLogo width={60} height={60} className="text-white" />
@@ -52,7 +52,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                     noPadding
                     className="border border-white/10 bg-white/96 backdrop-blur-xl"
                 >
-                    <CardHeader className="hidden sm:block w-full border-b border-[var(--color-border)] bg-[linear-gradient(135deg,var(--color-primary-900),var(--color-primary-700))] px-6 pt-8 pb-6 text-center text-[var(--color-surface)] rounded-t-[24px]">
+                    <CardHeader className="hidden sm:block w-full border-b border-white/10 bg-gradient-to-br from-primary-900 to-primary-800 px-6 pt-8 pb-6 text-center text-white rounded-t-[24px]">
                         {showLogo && (
                             <div className="mb-4 flex justify-center items-center">
                                 <CaskmafDatahubLogoCompact width={220} height={54} />
@@ -72,8 +72,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                         )}
                     </CardHeader>
 
-                    <CardBody className="px-6 pb-8 pt-8 sm:px-8 sm:pt-6 bg-[var(--color-surface)] text-[var(--color-text)]">
-                        <div className="sm:hidden mb-6 text-center">
+<CardBody className="px-6 pb-8 pt-8 sm:px-8 sm:pt-6 bg-[var(--color-surface)] text-[var(--color-text)]">                        <div className="sm:hidden mb-6 text-center">
                             {footerText && footerLinkText && footerLinkTo && (
                                 <p className="text-[15px] text-slate-600">
                                     {footerText}{" "}

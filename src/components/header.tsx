@@ -197,7 +197,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
             {isImpersonating && (
               <span
                 className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white animate-pulse"
-                style={{ backgroundColor: "#f59e0b" }}
+                style={{ backgroundColor: "var(--color-pending-icon)" }}
               />
             )}
           </button>
@@ -209,11 +209,12 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
           className="flex items-center justify-center gap-2 py-1.5 text-xs font-semibold"
           style={{ backgroundColor: "var(--color-pending-bg)", color: "var(--color-text)" }}
         >
-          <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-[var(--color-surface)] animate-pulse" />
           Viewing as {authState.user?.fullName}
           <button
             onClick={handleReturnToAdmin}
             className="underline underline-offset-2 ml-1"
+            style={{ color: "var(--color-pending-text)" }}
           >
             Return to Admin
           </button>
@@ -554,13 +555,13 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                         onClick={handleReturnToAdmin}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold"
                         style={{
-                          color: "#d97706",
-                          backgroundColor: "#fff8e6",
+                          color: "var(--color-pending-text)",
+                          backgroundColor: "var(--color-pending-bg)",
                           borderBottom: `1px solid ${borderColor}`,
                         }}
                       >
-                        <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "#fef3c7" }}>
-                          <FaSignOutAlt className="w-3.5 h-3.5" style={{ color: "#d97706" }} />
+                        <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: "var(--color-pending-bg)" }}>
+                          <FaSignOutAlt className="w-3.5 h-3.5" style={{ color: "var(--color-pending-icon)" }} />
                         </div>
                         Return to Admin
                       </button>
