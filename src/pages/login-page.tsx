@@ -20,8 +20,8 @@ import { motion } from "framer-motion";
 import {
   FaEye,
   FaEyeSlash,
-  FaExclamationTriangle,
   FaSpinner,
+  FaWhatsapp,
 } from "react-icons/fa";
 import {
   Button,
@@ -112,7 +112,6 @@ export const LoginPage = () => {
             variant="solid"
             className="flex items-start text-sm rounded-xl"
           >
-            <FaExclamationTriangle className="mt-0.5 mr-2.5 flex-shrink-0" />
             <div>
               <div className="font-bold">
                 {(localError ?? authState.error)?.includes("Too many")
@@ -231,12 +230,13 @@ export const LoginPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
             <a
-              href="https://wa.me/+233548983019"
+              href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-[var(--color-primary-700)] hover:text-[var(--color-primary-800)] font-semibold px-3 py-1.5 rounded-full bg-[var(--color-primary-100)] transition-colors"
+              className="flex items-center text-[var(--color-success-text)] hover:text-[var(--color-success)] font-semibold px-3 py-1.5 rounded-full bg-[var(--color-success-bg)] transition-colors"
             >
-              📞 +233 54 898 3019
+              <FaWhatsapp className="mr-2" />
+              Join our WhatsApp Community
             </a>
           </div>
         </div>

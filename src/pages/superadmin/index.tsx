@@ -202,27 +202,27 @@ export default function SuperAdminDashboard() {
       {/* Header */}
       {/* Today's Snapshot */}
       <div className="space-y-3">
-        <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
+        <div className="rounded-3xl border border-[var(--caskmaf-gold-highlight)] bg-[var(--caskmaf-gold)] overflow-hidden">
           <button
             type="button"
-            className="w-full px-4 py-3 sm:px-5 sm:py-4 bg-[var(--color-primary-600)] text-[var(--color-surface)] text-left"
+            className="w-full p-2 sm:p-4 text-[var(--color-text)] text-left"
             onClick={() => setSnapshotOpen((prev) => !prev)}
             aria-expanded={snapshotOpen}
           >
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-primary-50)]/90 text-[var(--color-primary-700)]">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--caskmaf-navy)]/90 text-[var(--color-text)]">
                 <FaChartLine className="h-5 w-5" />
               </span>
-              <p className="text-sm sm:text-base font-semibold text-[var(--color-surface)]">Today's Snapshot</p>
+              <p className="text-sm sm:text-base font-semibold text-[var(--color-surface)]">Today's Activities</p>
             </div>
 
-            <div className="mt-3 overflow-hidden">
-              <div className="inline-block animate-marquee whitespace-nowrap text-sm text-[var(--color-surface)] opacity-80">
+            <div className="mt-1 overflow-hidden">
+              <div className="inline-block animate-marquee whitespace-nowrap text-sm text-[var(--color-surface)]">
                 Orders: {stats ? stats.orders.today.total : '...'} • Revenue: {stats ? formatCurrency(stats.revenue.today) : '...'} • New Users: {stats ? stats.users.newThisWeek : '...'} • Success: {stats ? `${stats.orders.successRate}%` : '...'}
               </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="mt-1 flex items-center justify-between gap-3">
               <span className="text-xs text-[var(--color-secondary-text)]">{new Date().toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric',

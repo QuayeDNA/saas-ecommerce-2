@@ -1,334 +1,598 @@
 // src/components/notifications/NotificationDropdown.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useNotifications } from '../../contexts/NotificationContext';
-import { FaBell, FaCheck, FaTimes, FaSpinner, FaExternalLinkAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { Button, Badge } from '../../design-system';
+import {
+  FaBell,
+  FaCheck,
+  FaTimes,
+  FaSpinner,
+  FaExternalLinkAlt,
+  FaChevronDown,
+  FaChevronUp,
+  FaExclamationTriangle,
+  FaInfoCircle,
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { NotificationManagementModal } from './NotificationManagementModal';
 
+// ─── types ────────────────────────────────────────────────────────────────────
+
+interface Notification {
+  _id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  metadata?: {
+    navigationLink?: string;
+    creatorName?: string;
+    creatorAgentCode?: string;
+    [key: string]: string | undefined;
+  };
+}
+
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+function timeAgo(dateString: string): string {
+  const diff = Math.floor((Date.now() - new Date(dateString).getTime()) / 60000);
+  if (diff < 1) return 'Just now';
+  if (diff < 60) return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+  return `${Math.floor(diff / 1440)}d ago`;
+}
+
+type IconMeta = { icon: React.ReactNode; dotColor: string };
+
+function getTypeMeta(type: string): IconMeta {
+  switch (type) {
+    case 'success':
+      return { icon: <FaCheck />, dotColor: 'var(--color-success)' };
+    case 'error':
+      return { icon: <FaTimes />, dotColor: 'var(--color-error)' };
+    case 'warning':
+      return { icon: <FaExclamationTriangle />, dotColor: 'var(--color-warning)' };
+    default:
+      return { icon: <FaInfoCircle />, dotColor: 'var(--color-info)' };
+  }
+}
+
+// ─── notification item ────────────────────────────────────────────────────────
+
+interface ItemProps {
+  notification: Notification;
+  expanded: boolean;
+  onToggleExpand: () => void;
+  onClick: () => void;
+}
+
+const NotificationItem: React.FC<ItemProps> = ({
+  notification,
+  expanded,
+  onToggleExpand,
+  onClick,
+}) => {
+  const meta = getTypeMeta(notification.type);
+  const shouldTruncate = notification.message.length > 100;
+  const creatorName = notification.metadata?.creatorName;
+  const creatorCode = notification.metadata?.creatorAgentCode;
+  const creatorLabel =
+    creatorName && creatorCode
+      ? `${creatorName} (${creatorCode})`
+      : creatorName || creatorCode || null;
+
+  return (
+    <div className="nd-item" data-unread={!notification.read ? 'true' : undefined}>
+      {!notification.read && (
+        <span className="nd-item__bar" style={{ background: meta.dotColor }} />
+      )}
+
+      {/* type icon */}
+      <span
+        className="nd-item__icon"
+        style={{ color: meta.dotColor, background: `color-mix(in srgb, ${meta.dotColor} 12%, transparent)` }}
+      >
+        {meta.icon}
+      </span>
+
+      {/* content */}
+      <div className="nd-item__body">
+        <div className="nd-item__top">
+          <button className="nd-item__title" onClick={onClick}>
+            {notification.title}
+            {notification.metadata?.navigationLink && (
+              <FaExternalLinkAlt className="nd-item__link-icon" />
+            )}
+          </button>
+          <div className="nd-item__meta">
+            <time className="nd-item__time">{timeAgo(notification.createdAt)}</time>
+            {!notification.read && (
+              <span className="nd-item__dot" style={{ background: meta.dotColor }} />
+            )}
+          </div>
+        </div>
+
+        {creatorLabel && (
+          <p className="nd-item__creator">{creatorLabel}</p>
+        )}
+
+        <p className="nd-item__message">
+          {expanded || !shouldTruncate
+            ? notification.message
+            : `${notification.message.substring(0, 100)}…`}
+        </p>
+
+        {shouldTruncate && (
+          <button
+            className="nd-item__expand"
+            onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
+          >
+            {expanded ? 'Show less' : 'Show more'}
+            {expanded ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── main component ───────────────────────────────────────────────────────────
+
 export const NotificationDropdown: React.FC = () => {
-  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } =
+    useNotifications();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [showManagementModal, setShowManagementModal] = useState(false);
-  const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
+  const [showModal, setShowModal] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
+  // close on outside click
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Close dropdown on escape key
+  // close on Escape
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
         buttonRef.current?.focus();
       }
     };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [isOpen]);
 
-  // Handle keyboard navigation within notifications
-  interface Notification {
-    _id: string;
-    metadata?: {
-      navigationLink?: string;
-      [key: string]: string | undefined;
-    };
-    type: string;
-    title: string;
-    message: string;
-    read: boolean;
-    createdAt: string;
-  }
+  const toggleExpand = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
 
-  const handleNotificationClick = async (notification: Notification) => {
-    await markAsRead(notification._id);
-
-    // Navigate to the appropriate page if navigation link exists
-    if (notification.metadata?.navigationLink) {
-      navigate(notification.metadata.navigationLink);
+  const handleClick = async (n: Notification) => {
+    await markAsRead(n._id);
+    if (n.metadata?.navigationLink) {
+      navigate(n.metadata.navigationLink);
       setIsOpen(false);
     }
   };
 
-  const getCreatorLabel = (notification: Notification) => {
-    const creatorName = notification.metadata?.creatorName;
-    const creatorAgentCode = notification.metadata?.creatorAgentCode;
-    if (!creatorName && !creatorAgentCode) return null;
-    if (creatorName && creatorAgentCode) {
-      return `${creatorName} (${creatorAgentCode})`;
-    }
-    return creatorName || creatorAgentCode || null;
-  };
-
-  const toggleNotificationExpansion = (notificationId: string) => {
-    setExpandedNotifications(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(notificationId)) {
-        newSet.delete(notificationId);
-      } else {
-        newSet.add(notificationId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleMarkAllAsRead = async () => {
-    await markAllAsRead();
-  };
-
-  const handleViewAllNotifications = () => {
-    setIsOpen(false);
-    setShowManagementModal(true);
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
-  };
-
-  const getNotificationIcon = (type: string) => {
-    const iconClasses = "w-5 h-5 flex-shrink-0";
-    switch (type) {
-      case 'success':
-        return <FaCheck className={`${iconClasses} text-green-500`} />;
-      case 'error':
-        return <FaTimes className={`${iconClasses} text-red-500`} />;
-      case 'warning':
-        return <FaTimes className={`${iconClasses} text-amber-500`} />;
-      case 'info':
-        return <FaBell className={`${iconClasses} text-blue-500`} />;
-      default:
-        return <FaBell className={`${iconClasses} text-gray-500`} />;
-    }
-  };
-
-  const getNotificationBgColor = (type: string, isRead: boolean) => {
-    if (isRead) return 'bg-white hover:bg-gray-50';
-
-    switch (type) {
-      case 'success':
-        return 'bg-green-50 hover:bg-green-100';
-      case 'error':
-        return 'bg-red-50 hover:bg-red-100';
-      case 'warning':
-        return 'bg-amber-50 hover:bg-amber-100';
-      case 'info':
-        return 'bg-blue-50 hover:bg-blue-100';
-      default:
-        return 'bg-blue-50 hover:bg-blue-100';
-    }
-  };
+  const visibleNotifications = notifications.slice(0, 10);
+  const overflow = notifications.length - 10;
 
   return (
     <>
-      <div className="relative">
-        {/* Notification Bell Button */}
-        <Button
+      {/* scoped styles */}
+      <style>{`
+        /* ── palette ── */
+        .nd-wrap {
+          --nd-bg: var(--color-surface);
+          --nd-surface: var(--color-gray-100);
+          --nd-border: var(--color-border);
+          --nd-text: var(--color-text);
+          --nd-muted: var(--color-muted-text);
+          --nd-accent: var(--color-primary-500);
+          --nd-accent-bg: var(--color-primary-50);
+          --nd-row-hover: var(--color-control-bg);
+          --nd-divider: var(--color-border);
+          --nd-shadow: 0 12px 40px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07);
+          --nd-radius: 16px;
+        }
+
+        body.theme-dark .nd-wrap {
+          --nd-bg: var(--color-surface);
+          --nd-surface: rgba(255,255,255,0.04);
+          --nd-border: var(--color-border);
+          --nd-text: var(--color-text);
+          --nd-muted: var(--color-muted-text);
+          --nd-accent: var(--color-primary-400);
+          --nd-accent-bg: rgba(59,130,246,0.1);
+          --nd-row-hover: rgba(255,255,255,0.05);
+          --nd-divider: var(--color-border);
+          --nd-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25);
+        }
+
+        /* ── bell button ── */
+        .nd-bell {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          border: none;
+          background: transparent;
+          color: var(--nd-text);
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .nd-bell:hover { background: var(--nd-row-hover); }
+        .nd-bell svg { width: 18px; height: 18px; }
+
+        /* unread badge */
+        .nd-badge {
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          min-width: 17px;
+          height: 17px;
+          padding: 0 4px;
+          border-radius: 99px;
+          background: var(--color-error);
+          color: #fff;
+          font-size: 10px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid var(--nd-bg);
+          line-height: 1;
+        }
+
+        /* ── mobile backdrop ── */
+        .nd-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 49;
+          background: rgba(0,0,0,0.25);
+          backdrop-filter: blur(2px);
+        }
+        @media (min-width: 640px) { .nd-backdrop { display: none; } }
+
+        /* ── panel ── */
+        .nd-panel {
+          position: fixed;
+          left: 12px;
+          right: 12px;
+          top: 64px;
+          z-index: 60;
+          background: var(--nd-bg);
+          border: 0.5px solid var(--nd-border);
+          border-radius: var(--nd-radius);
+          box-shadow: var(--nd-shadow);
+          color: var(--nd-text);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          max-height: calc(100vh - 80px);
+          animation: nd-drop 0.18s cubic-bezier(.22,.68,0,1.2) both;
+        }
+        @media (min-width: 640px) {
+          .nd-panel {
+            position: absolute;
+            left: auto;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 26rem;
+            max-height: 72vh;
+          }
+        }
+
+        @keyframes nd-drop {
+          from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── header ── */
+        .nd-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 16px 12px;
+          border-bottom: 0.5px solid var(--nd-divider);
+          flex-shrink: 0;
+        }
+        .nd-header-left {
+          display: flex;
+          align-items: baseline;
+          gap: 7px;
+        }
+        .nd-header-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--nd-text);
+        }
+        .nd-header-count {
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--nd-muted);
+        }
+        .nd-mark-all {
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--nd-accent);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 7px;
+          transition: background 0.12s;
+        }
+        .nd-mark-all:hover { background: var(--nd-accent-bg); }
+
+        /* ── list ── */
+        .nd-list {
+          flex: 1;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+        }
+        .nd-list::-webkit-scrollbar { width: 3px; }
+        .nd-list::-webkit-scrollbar-thumb { background: var(--nd-divider); border-radius: 99px; }
+
+        /* ── states ── */
+        .nd-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 40px 24px;
+          text-align: center;
+          color: var(--nd-muted);
+        }
+        .nd-state-icon {
+          width: 44px; height: 44px;
+          border-radius: 50%;
+          background: var(--nd-surface);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 18px;
+          opacity: 0.5;
+        }
+        .nd-state-title { font-size: 13px; font-weight: 600; color: var(--nd-text); }
+        .nd-state-sub { font-size: 12px; }
+
+        /* ── item ── */
+        .nd-item {
+          position: relative;
+          display: flex;
+          gap: 10px;
+          padding: 12px 16px;
+          border-bottom: 0.5px solid var(--nd-divider);
+          transition: background 0.12s;
+        }
+        .nd-item:last-child { border-bottom: none; }
+        .nd-item:hover { background: var(--nd-row-hover); }
+        .nd-item[data-unread] { background: color-mix(in srgb, var(--nd-accent-bg) 60%, transparent); }
+        .nd-item[data-unread]:hover { background: var(--nd-accent-bg); }
+
+        .nd-item__bar {
+          position: absolute;
+          left: 0;
+          top: 12px;
+          bottom: 12px;
+          width: 3px;
+          border-radius: 99px;
+        }
+
+        .nd-item__icon {
+          flex-shrink: 0;
+          width: 28px; height: 28px;
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 11px;
+        }
+
+        .nd-item__body { flex: 1; min-width: 0; }
+
+        .nd-item__top {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 8px;
+          margin-bottom: 2px;
+        }
+
+        .nd-item__title {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--nd-text);
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          text-align: left;
+          line-height: 1.3;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          transition: color 0.12s;
+        }
+        .nd-item__title:hover { color: var(--nd-accent); }
+
+        .nd-item__link-icon {
+          width: 10px; height: 10px;
+          color: var(--nd-accent);
+          flex-shrink: 0;
+        }
+
+        .nd-item__meta {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+        }
+        .nd-item__time {
+          font-size: 11px;
+          color: var(--nd-muted);
+          white-space: nowrap;
+        }
+        .nd-item__dot {
+          width: 7px; height: 7px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .nd-item__creator {
+          font-size: 11px;
+          color: var(--nd-muted);
+          margin-bottom: 4px;
+        }
+
+        .nd-item__message {
+          font-size: 12.5px;
+          color: var(--color-secondary-text, var(--nd-muted));
+          line-height: 1.5;
+        }
+
+        .nd-item__expand {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11px;
+          font-weight: 500;
+          color: var(--nd-accent);
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          margin-top: 4px;
+        }
+        .nd-item__expand svg { width: 10px; height: 10px; }
+
+        /* ── footer ── */
+        .nd-footer {
+          border-top: 0.5px solid var(--nd-divider);
+          padding: 10px 12px;
+          flex-shrink: 0;
+        }
+        .nd-view-all {
+          width: 100%;
+          padding: 8px;
+          border-radius: 10px;
+          border: none;
+          background: transparent;
+          color: var(--nd-accent);
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: background 0.12s;
+        }
+        .nd-view-all:hover { background: var(--nd-accent-bg); }
+        .nd-view-all-extra {
+          font-size: 11px;
+          color: var(--nd-muted);
+          font-weight: 400;
+        }
+      `}</style>
+
+      <div className="nd-wrap" style={{ position: 'relative' }} ref={dropdownRef}>
+
+        {/* ── BELL ─────────────────────────────────────────────────── */}
+        <button
           ref={buttonRef}
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsOpen(!isOpen)}
-          className="relative p-2 hover:bg-gray-100 transition-colors duration-200"
+          className="nd-bell"
+          onClick={() => setIsOpen((v) => !v)}
           aria-label="Notifications"
           aria-expanded={isOpen}
           aria-haspopup="true"
         >
-          <FaBell className="w-5 h-5 text-gray-600" />
+          <FaBell />
           {unreadCount > 0 && (
-            <Badge
-              colorScheme="error"
-              size="sm"
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs font-medium animate-pulse"
-            >
+            <span className="nd-badge">
               {unreadCount > 99 ? '99+' : unreadCount}
-            </Badge>
+            </span>
           )}
-        </Button>
+        </button>
 
-        {/* Modern Notification Dropdown */}
+        {/* ── DROPDOWN ─────────────────────────────────────────────── */}
         {isOpen && (
           <>
-            {/* Mobile Backdrop */}
-            <div
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden"
-              onClick={() => setIsOpen(false)}
-              aria-hidden="true"
-            />
+            <div className="nd-backdrop" onClick={() => setIsOpen(false)} aria-hidden="true" />
 
-            {/* Dropdown Panel */}
-            <div
-              ref={dropdownRef}
-              className={`
-                notification-dropdown
-                z-[60] bg-white rounded-xl shadow-xl border border-gray-200
-                fixed inset-x-3 top-16 w-auto max-h-[calc(100vh-5rem)]
-                sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[26rem] sm:max-h-[70vh] sm:inset-x-auto
-              `}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Notifications
+            <div className="nd-panel" role="dialog" aria-label="Notifications">
+
+              {/* header */}
+              <div className="nd-header">
+                <div className="nd-header-left">
+                  <span className="nd-header-title">Notifications</span>
                   {unreadCount > 0 && (
-                    <span className="ml-2 text-sm font-normal text-gray-500">
-                      ({unreadCount} new)
-                    </span>
+                    <span className="nd-header-count">{unreadCount} new</span>
                   )}
-                </h3>
+                </div>
                 {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleMarkAllAsRead}
-                    className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium px-3 py-1 rounded-md transition-colors"
-                  >
+                  <button className="nd-mark-all" onClick={() => markAllAsRead()}>
                     Mark all read
-                  </Button>
+                  </button>
                 )}
               </div>
 
-              {/* Notifications List */}
-              <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {/* list */}
+              <div className="nd-list">
                 {isLoading ? (
-                  <div className="flex items-center justify-center p-12">
-                    <div className="flex flex-col items-center space-y-3">
-                      <FaSpinner className="w-6 h-6 text-blue-500 animate-spin" />
-                      <p className="text-sm text-gray-500">Loading notifications...</p>
-                    </div>
+                  <div className="nd-state">
+                    <FaSpinner style={{ width: 20, height: 20, animation: 'spin 1s linear infinite' }} />
+                    <p className="nd-state-sub">Loading…</p>
                   </div>
                 ) : notifications.length === 0 ? (
-                  <div className="flex items-center justify-center p-12">
-                    <div className="flex flex-col items-center space-y-3 text-center">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                        <FaBell className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">No notifications</h4>
-                        <p className="text-xs text-gray-500 mt-1">You're all caught up!</p>
-                      </div>
-                    </div>
+                  <div className="nd-state">
+                    <div className="nd-state-icon"><FaBell /></div>
+                    <p className="nd-state-title">All caught up</p>
+                    <p className="nd-state-sub">No notifications to show.</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100">
-                    {notifications.slice(0, 10).map((notification) => {
-                      const isExpanded = expandedNotifications.has(notification._id);
-                      const shouldTruncate = notification.message.length > 100;
-                      const creatorLabel = getCreatorLabel(notification);
-
-                      return (
-                        <div
-                          key={notification._id}
-                          className={`
-                            p-4 transition-all duration-200
-                            ${getNotificationBgColor(notification.type, notification.read)}
-                            ${!notification.read ? 'border-l-4 border-blue-500' : ''}
-                            hover:shadow-sm
-                          `}
-                        >
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 mt-0.5">
-                              {getNotificationIcon(notification.type)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center space-x-2">
-                                    <button
-                                      className={`text-sm font-medium text-left ${!notification.read ? 'text-gray-900' : 'text-gray-700'
-                                        } hover:text-blue-600 transition-colors`}
-                                      onClick={() => handleNotificationClick(notification)}
-                                    >
-                                      {notification.title}
-                                    </button>
-                                    {notification.metadata?.navigationLink && (
-                                      <FaExternalLinkAlt className="w-3 h-3 text-blue-500 flex-shrink-0" />
-                                    )}
-                                  </div>
-                                  <div className="mt-1">
-                                    {creatorLabel && (
-                                      <p className="text-xs text-gray-500">
-                                        Created by {creatorLabel}
-                                      </p>
-                                    )}
-                                    <p className={`text-sm ${!notification.read ? 'text-gray-700' : 'text-gray-500'
-                                      }`}>
-                                      {isExpanded || !shouldTruncate
-                                        ? notification.message
-                                        : `${notification.message.substring(0, 100)}...`
-                                      }
-                                    </p>
-                                    {shouldTruncate && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          toggleNotificationExpansion(notification._id);
-                                        }}
-                                        className="text-xs text-blue-600 hover:text-blue-700 mt-1 flex items-center space-x-1"
-                                      >
-                                        <span>{isExpanded ? 'Show less' : 'Show more'}</span>
-                                        {isExpanded ? (
-                                          <FaChevronUp className="w-3 h-3" />
-                                        ) : (
-                                          <FaChevronDown className="w-3 h-3" />
-                                        )}
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="flex flex-col items-end ml-3">
-                                  <span className="text-xs text-gray-500 flex-shrink-0">
-                                    {formatTimeAgo(notification.createdAt)}
-                                  </span>
-                                  {!notification.read && (
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  visibleNotifications.map((n) => (
+                    <NotificationItem
+                      key={n._id}
+                      notification={n}
+                      expanded={expanded.has(n._id)}
+                      onToggleExpand={() => toggleExpand(n._id)}
+                      onClick={() => handleClick(n)}
+                    />
+                  ))
                 )}
               </div>
 
-              {/* Footer */}
+              {/* footer */}
               {notifications.length > 0 && (
-                <div className="border-t border-gray-100 p-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleViewAllNotifications}
-                    className="w-full text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium py-2 rounded-lg transition-colors"
+                <div className="nd-footer">
+                  <button
+                    className="nd-view-all"
+                    onClick={() => { setIsOpen(false); setShowModal(true); }}
                   >
                     View all notifications
-                    {notifications.length > 10 && (
-                      <span className="ml-1 text-xs text-gray-500">
-                        (+{notifications.length - 10} more)
-                      </span>
+                    {overflow > 0 && (
+                      <span className="nd-view-all-extra">+{overflow} more</span>
                     )}
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>
@@ -336,10 +600,10 @@ export const NotificationDropdown: React.FC = () => {
         )}
       </div>
 
-      {/* Notification Management Modal */}
+      {/* management modal */}
       <NotificationManagementModal
-        isOpen={showManagementModal}
-        onClose={() => setShowManagementModal(false)}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
       />
     </>
   );

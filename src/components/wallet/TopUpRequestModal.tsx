@@ -449,7 +449,7 @@ export const TopUpRequestModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, 
 
   const openWhatsApp = () => {
     const msg = `Hi, I need a wallet top-up of GH₵${parsedAmount}. Please process my request.`;
-    window.open(`https://wa.me/+233548983019?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/+233542405901?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
