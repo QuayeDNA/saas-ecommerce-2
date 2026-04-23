@@ -334,16 +334,16 @@ export const RegisterPage = () => {
             </React.Fragment>
           );
         })}
-        <span className="ml-2 text-xs text-primary-600 font-bold whitespace-nowrap hidden sm:inline-block">
+        <span className="ml-2 text-xs text-[var(--color-primary-700)] font-bold whitespace-nowrap hidden sm:inline-block">
           {steps[currentStep - 1]}
         </span>
       </div>
 
       <div className="text-center sm:hidden mb-6">
-        <p className="text-base font-bold text-slate-900">
+        <p className="text-base font-bold text-[var(--color-text)]">
           {steps[currentStep - 1]}
         </p>
-        <p className="text-xs font-semibold text-primary-600 mt-1">
+        <p className="text-xs font-semibold text-[var(--color-primary-700)] mt-1">
           STEP {currentStep} OF {totalSteps}
         </p>
       </div>
@@ -383,7 +383,7 @@ export const RegisterPage = () => {
               type="text"
               required
               placeholder="Enter your full name"
-              leftIcon={<FaUser className="text-gray-400" />}
+              leftIcon={<FaUser className="text-[var(--color-muted-text)]" />}
               errorText={
                 touchedFields.has("fullName")
                   ? fieldErrors.fullName
@@ -402,7 +402,7 @@ export const RegisterPage = () => {
               type="email"
               required
               placeholder="your.email@example.com"
-              leftIcon={<FaEnvelope className="text-gray-400" />}
+              leftIcon={<FaEnvelope className="text-[var(--color-muted-text)]" />}
               errorText={
                 touchedFields.has("email")
                   ? fieldErrors.email
@@ -411,8 +411,8 @@ export const RegisterPage = () => {
               className="transition-all"
             />
 
-            <div className="bg-blue-50 rounded-lg p-4 mt-6">
-              <p className="text-sm text-primary-800">
+            <div className="bg-[var(--color-primary-100)] rounded-lg p-4 mt-6">
+              <p className="text-sm text-[var(--color-primary-700)]">
                 <strong>Note:</strong> Your email will be used for
                 account notifications and communication.
               </p>
@@ -438,7 +438,7 @@ export const RegisterPage = () => {
               type="text"
               required
               placeholder="Enter your business name"
-              leftIcon={<FaBuilding className="text-gray-400" />}
+              leftIcon={<FaBuilding className="text-[var(--color-muted-text)]" />}
               errorText={
                 touchedFields.has("businessName")
                   ? fieldErrors.businessName
@@ -457,7 +457,7 @@ export const RegisterPage = () => {
               type="tel"
               required
               placeholder="+233 XX XXX XXXX"
-              leftIcon={<FaPhoneAlt className="text-gray-400" />}
+              leftIcon={<FaPhoneAlt className="text-[var(--color-muted-text)]" />}
               errorText={
                 touchedFields.has("phone")
                   ? fieldErrors.phone
@@ -466,8 +466,8 @@ export const RegisterPage = () => {
               className="transition-all"
             />
 
-            <div className="bg-primary-50 rounded-lg p-4 mt-6">
-              <p className="text-sm text-primary-800">
+            <div className="bg-[var(--color-primary-100)] rounded-lg p-4 mt-6">
+              <p className="text-sm text-[var(--color-primary-700)]">
                 <strong>Business verification:</strong> Ensure your
                 business details are accurate for faster approval.
               </p>
@@ -494,12 +494,12 @@ export const RegisterPage = () => {
                 type={showPasswords ? "text" : "password"}
                 required
                 placeholder="Create a strong password"
-                leftIcon={<FaLock className="text-gray-400" />}
+                leftIcon={<FaLock className="text-[var(--color-muted-text)]" />}
                 rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowPasswords(!showPasswords)}
-                    className="absolute bottom-0.5 right-1 text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-md hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                    className="absolute bottom-0.5 right-1 text-[var(--color-muted-text)] hover:text-[var(--color-text)] transition-colors p-2 rounded-md hover:bg-[var(--color-primary-100)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] cursor-pointer"
                     aria-label={
                       showPasswords ? "Hide passwords" : "Show passwords"
                     }
@@ -522,7 +522,7 @@ export const RegisterPage = () => {
               {formData.password && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-slate-600">
+                    <span className="text-xs text-[var(--color-muted-text)]">
                       Password Strength:
                     </span>
                     <span
@@ -557,7 +557,7 @@ export const RegisterPage = () => {
                 type={showPasswords ? "text" : "password"}
                 required
                 placeholder="Confirm your password"
-                leftIcon={<FaLock className="text-gray-400" />}
+                leftIcon={<FaLock className="text-[var(--color-muted-text)]" />}
                 errorText={
                   touchedFields.has("confirmPassword")
                     ? fieldErrors.confirmPassword
@@ -567,8 +567,8 @@ export const RegisterPage = () => {
             </div>
 
             {/* Password Requirements */}
-            <div className="bg-primary-50 rounded-lg p-4 space-y-3">
-              <h4 className="text-sm font-semibold text-slate-900">
+            <div className="bg-[var(--color-primary-100)] rounded-lg p-4 space-y-3">
+              <h4 className="text-sm font-semibold text-[var(--color-text)]">
                 Password Requirements:
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -583,15 +583,15 @@ export const RegisterPage = () => {
                     className={`flex items-center text-sm transition-colors ${passwordValidation[
                       key as keyof PasswordValidation
                     ]
-                      ? "text-primary-700"
-                      : "text-slate-500"
+                      ? "text-[var(--color-primary-700)]"
+                      : "text-[var(--color-muted-text)]"
                       }`}
                   >
                     <div
                       className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${passwordValidation[
                         key as keyof PasswordValidation
                       ]
-                        ? "bg-primary-100"
+                        ? "bg-[var(--color-primary-100)]"
                         : "bg-[var(--color-border)]"
                         }`}
                     >
@@ -599,8 +599,8 @@ export const RegisterPage = () => {
                         className={`w-3 h-3 ${passwordValidation[
                           key as keyof PasswordValidation
                         ]
-                          ? "text-primary-600"
-                          : "text-slate-400"
+                          ? "text-[var(--color-primary-700)]"
+                          : "text-[var(--color-muted-text)]"
                           }`}
                       />
                     </div>
@@ -610,19 +610,19 @@ export const RegisterPage = () => {
                 <div
                   className={`flex items-center text-sm transition-colors sm:col-span-2 ${passwordValidation.match
                     ? "text-green-700"
-                    : "text-slate-500"
+                    : "text-[var(--color-muted-text)]"
                     }`}
                 >
                   <div
                     className={`mr-2 w-5 h-5 rounded-full flex items-center justify-center transition-all ${passwordValidation.match
-                      ? "bg-primary-100"
+                      ? "bg-[var(--color-primary-100)]"
                       : "bg-[var(--color-border)]"
                       }`}
                   >
                     <FaCheckCircle
                       className={`w-3 h-3 ${passwordValidation.match
-                        ? "text-primary-600"
-                        : "text-slate-400"
+                        ? "text-[var(--color-primary-700)]"
+                        : "text-[var(--color-muted-text)]"
                         }`}
                     />
                   </div>
@@ -697,10 +697,10 @@ export const RegisterPage = () => {
       >
         <DialogHeader>
           <div className="flex items-center">
-            <div className="bg-primary-100 p-2 rounded-full mr-3">
-              <FaCheckCircle className="text-primary-600 text-xl" />
+            <div className="bg-[var(--color-primary-100)] p-2 rounded-full mr-3">
+              <FaCheckCircle className="text-[var(--color-primary-700)] text-xl" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-[var(--color-text)]">
               Registration Successful!
             </h2>
           </div>
@@ -708,24 +708,24 @@ export const RegisterPage = () => {
         <DialogBody>
           <div className="space-y-4">
             <div className="text-center py-4">
-              <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-4">
-                <FaCheckCircle className="text-primary-600 text-4xl" />
+              <div className="mx-auto bg-[var(--color-primary-100)] p-4 rounded-full w-20 h-20 flex items-center justify-center mb-4">
+                <FaCheckCircle className="text-[var(--color-primary-700)] text-4xl" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
                 Your Agent Account Has Been Created
               </h3>
-              <p className="text-slate-600 text-sm">
+              <p className="text-[var(--color-muted-text)] text-sm">
                 Your account is pending approval by our admin team. We'll notify
                 you once approved.
               </p>
             </div>
 
-            <div className="bg-primary-50 rounded-lg p-4">
-              <h4 className="font-semibold text-primary-900 mb-3 flex items-center">
+            <div className="bg-[var(--color-primary-100)] rounded-lg p-4">
+              <h4 className="font-semibold text-[var(--color-primary-700)] mb-3 flex items-center">
                 <FaClock className="mr-2" />
                 What happens next?
               </h4>
-              <ul className="text-sm text-primary-800 space-y-2">
+              <ul className="text-sm text-[var(--color-primary-700)] space-y-2">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
                   <span>Review within 24-48 hours</span>

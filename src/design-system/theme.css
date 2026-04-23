@@ -145,6 +145,43 @@ body.theme-dark {
   animation: slide-in-from-bottom 0.7s ease-out;
 }
 
+/* Theme-aware auth helpers */
+.auth-page {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.auth-page-panel {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.auth-page-header {
+  background: linear-gradient(135deg, var(--color-primary-900), var(--color-primary-700));
+  color: var(--color-surface);
+}
+
+.auth-page-muted {
+  color: var(--color-muted-text);
+}
+
+.auth-page-secondary {
+  color: var(--color-secondary-text);
+}
+
+.auth-page-accent {
+  color: var(--color-primary-700);
+}
+
+.auth-page-accent-bg {
+  background-color: var(--color-primary-100);
+}
+
+.auth-page-border {
+  border-color: var(--color-border);
+}
+
 /* Custom theme classes have been removed to avoid conflicting brand palettes.
    The app now uses the core brand values defined on :root for consistent
    primary and semantic styling across Tailwind and CSS variables. */

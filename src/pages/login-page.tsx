@@ -130,7 +130,7 @@ export const LoginPage = () => {
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="block text-[15px] font-bold text-slate-700"
+            className="block text-[15px] font-bold text-[var(--color-text)]"
           >
             Email address
           </label>
@@ -150,7 +150,7 @@ export const LoginPage = () => {
         <div className="space-y-2">
           <label
             htmlFor="password"
-            className="block text-[15px] font-bold text-slate-700"
+            className="block text-[15px] font-bold text-[var(--color-text)]"
           >
             Password
           </label>
@@ -167,7 +167,7 @@ export const LoginPage = () => {
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-400 hover:text-primary-600 transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-[var(--color-muted-text)] hover:text-[var(--color-primary-600)] transition-colors"
               onClick={() => setShowPassword(!showPassword)}
               disabled={isSubmitting || authState.isLoading}
             >
@@ -187,17 +187,17 @@ export const LoginPage = () => {
               id="remember_me"
               name="remember_me"
               type="checkbox"
-              className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-primary-200 rounded cursor-pointer"
+              className="h-5 w-5 text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)] border-[var(--color-primary-200)] rounded cursor-pointer"
               disabled={isSubmitting || authState.isLoading}
             />
-            <span className="ml-2.5 block text-sm text-slate-700 font-medium">
+            <span className="ml-2.5 block text-sm text-[var(--color-muted-text)] font-medium">
               Remember me
             </span>
           </label>
 
           <Link
             to="/forgot-password"
-            className="text-sm font-bold text-primary-600 hover:text-primary-700 transition-colors"
+            className="text-sm font-bold text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] transition-colors"
           >
             Forgot password?
           </Link>
@@ -226,7 +226,7 @@ export const LoginPage = () => {
 
         {/* Additional Help */}
         <div className="text-center pt-5 mt-2 border-t border-[var(--color-border)]">
-          <p className="text-xs text-slate-500 mb-3 font-medium">
+          <p className="text-xs text-[var(--color-muted-text)] mb-3 font-medium">
             Need help? Contact our support team
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
@@ -234,7 +234,7 @@ export const LoginPage = () => {
               href="https://wa.me/+233548983019"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-primary-700 hover:text-primary-800 font-semibold px-3 py-1.5 rounded-full bg-primary-50 transition-colors"
+              className="flex items-center text-[var(--color-primary-700)] hover:text-[var(--color-primary-800)] font-semibold px-3 py-1.5 rounded-full bg-[var(--color-primary-100)] transition-colors"
             >
               📞 +233 54 898 3019
             </a>

@@ -15,24 +15,24 @@ export const WelcomePage = () => {
     }, [authState, navigate]);
 
     return (
-        <div className="relative min-h-[100dvh] overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-slate-950 text-white">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(0,87,255,0.18),transparent_30%)]" />
-            <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary-500/20 blur-[90px]" />
-            <div className="absolute bottom-0 right-0 h-[24rem] w-[24rem] rounded-full bg-white/5 blur-[110px]" />
+        <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--color-background)] text-[var(--color-text)]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.18),transparent_30%)]" />
+            <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-[var(--color-primary-500)]/20 blur-[90px]" />
+            <div className="absolute bottom-0 right-0 h-[24rem] w-[24rem] rounded-full bg-[var(--color-surface)]/10 blur-[110px]" />
 
             <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-12 text-center sm:px-10">
-                <div className="flex items-center justify-center rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-                    <CaskmafDatahubLogo width={132} height={152} className="text-white" />
+                <div className="flex items-center justify-center rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)]/90 p-8 shadow-2xl shadow-[rgba(15,23,42,0.3)] backdrop-blur-xl">
+                    <CaskmafDatahubLogo width={132} height={152} className="text-[var(--color-text)]" />
                 </div>
 
                 <div className="mt-10 max-w-2xl">
-                    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary-100/75">
+                    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--color-secondary-text)]">
                         Caskmaf Datahub
                     </p>
-                    <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+                    <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-5xl text-[var(--color-text)]">
                         Welcome to fast mobile data.
                     </h1>
-                    <p className="mx-auto mt-4 max-w-xl text-base text-primary-100/90 sm:text-lg">
+                    <p className="mx-auto mt-4 max-w-xl text-base text-[var(--color-muted-text)] sm:text-lg">
                         Buy airtime and data bundles from trusted agents with a clean, simple experience.
                     </p>
                 </div>
@@ -43,7 +43,7 @@ export const WelcomePage = () => {
                         fullWidth
                         size="lg"
                         onClick={() => navigate('/register')}
-                        className="border-white/10 bg-white text-primary-900 hover:bg-primary-50"
+                        className="border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-control-bg)]"
                     >
                         Create Free Account
                     </Button>
@@ -52,23 +52,23 @@ export const WelcomePage = () => {
                         fullWidth
                         size="lg"
                         onClick={() => navigate('/login')}
-                        className="border-white/20 bg-transparent text-white hover:bg-white/10"
+                        className="border-[var(--color-border)] bg-transparent text-[var(--color-text)] hover:bg-[var(--color-surface)]"
                     >
                         Sign In
                     </Button>
                 </div>
 
-                <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-primary-100/70">
+                <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-[var(--color-muted-text)]">
                     <a
                         href="/terms-of-service"
-                        className="hover:text-primary-300 transition-colors"
+                        className="hover:text-[var(--color-text)] transition-colors"
                     >
                         Terms of Service
                     </a>
-                    <span className="hidden sm:inline text-primary-500/40">•</span>
+                    <span className="hidden sm:inline text-[var(--color-muted-text)]/70">•</span>
                     <a
                         href="/privacy-policy"
-                        className="hover:text-primary-300 transition-colors"
+                        className="hover:text-[var(--color-text)] transition-colors"
                     >
                         Privacy Policy
                     </a>

@@ -74,11 +74,11 @@ export const ResetPasswordPage = () => {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="text-center py-6"
         >
-          <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-            <FaCheck className="text-primary-600 text-3xl" />
+          <div className="mx-auto bg-[var(--color-primary-100)] p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+            <FaCheck className="text-[var(--color-primary-700)] text-3xl" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Password reset</h3>
-          <p className="text-slate-500 text-[15px] mb-8 leading-relaxed">
+          <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">Password reset</h3>
+          <p className="text-[var(--color-muted-text)] text-[15px] mb-8 leading-relaxed">
             Your password has been successfully reset. You can now log in with your new password.
           </p>
           <div>
@@ -106,7 +106,7 @@ export const ResetPasswordPage = () => {
 
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700">New Password</label>
+              <label className="block text-sm font-semibold text-[var(--color-text)]">New Password</label>
               <div className="relative">
                 <Input
                   id="password"
@@ -116,21 +116,21 @@ export const ResetPasswordPage = () => {
                   required
                   placeholder="••••••••"
                   className="w-full h-12 pr-12"
-                  leftIcon={<FaLock className="text-slate-400" />}
+                  leftIcon={<FaLock className="text-[var(--color-muted-text)]" />}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-400 hover:text-primary-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-[var(--color-muted-text)] hover:text-[var(--color-primary-600)] transition-colors"
                 >
                   {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                 </button>
               </div>
-              <p className="text-xs text-slate-500 mt-1 pl-1">Min 6 chars with uppercase, lowercase, and number</p>
+              <p className="text-xs text-[var(--color-muted-text)] mt-1 pl-1">Min 6 chars with uppercase, lowercase, and number</p>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700">Confirm New Password</label>
+              <label className="block text-sm font-semibold text-[var(--color-text)]">Confirm New Password</label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -140,12 +140,12 @@ export const ResetPasswordPage = () => {
                   required
                   placeholder="••••••••"
                   className="w-full h-12 pr-12"
-                  leftIcon={<FaLock className="text-slate-400" />}
+                  leftIcon={<FaLock className="text-[var(--color-muted-text)]" />}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-400 hover:text-primary-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-[var(--color-muted-text)] hover:text-[var(--color-primary-600)] transition-colors"
                 >
                   {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                 </button>
@@ -167,10 +167,10 @@ export const ResetPasswordPage = () => {
             </Button>
           </div>
 
-          <div className="mt-6 pt-6 text-center text-sm text-slate-500 font-medium border-t border-[var(--color-border)]">
+          <div className="mt-6 pt-6 text-center text-sm text-[var(--color-muted-text)] font-medium border-t border-[var(--color-border)]">
             <Link
               to="/login"
-              className="text-primary-600 hover:text-primary-700 font-bold hover:underline transition-all"
+              className="text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] font-bold hover:underline transition-all"
             >
               Back to Login
             </Link>

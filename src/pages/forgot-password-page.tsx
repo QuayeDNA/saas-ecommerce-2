@@ -46,13 +46,13 @@ export const ForgotPasswordPage = () => {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="text-center py-6"
         >
-          <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-            <FaCheck className="text-primary-600 text-3xl" />
+          <div className="mx-auto bg-[var(--color-primary-100)] p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+            <FaCheck className="text-[var(--color-primary-700)] text-3xl" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">
+          <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">
             Check your email
           </h3>
-          <p className="text-slate-500 text-[15px] mb-8 leading-relaxed">
+          <p className="text-[var(--color-muted-text)] text-[15px] mb-8 leading-relaxed">
             We've sent a password reset link to your email address.
           </p>
           <div>
@@ -90,7 +90,7 @@ export const ForgotPasswordPage = () => {
           <div className="space-y-1.5">
             <label
               htmlFor="email"
-              className="block text-sm font-semibold text-slate-700"
+              className="block text-sm font-semibold text-[var(--color-text)]"
             >
               Email address
             </label>
@@ -102,7 +102,7 @@ export const ForgotPasswordPage = () => {
               required
               placeholder="Enter your email"
               className="w-full h-12"
-              leftIcon={<FaEnvelope className="text-slate-400" />}
+              leftIcon={<FaEnvelope className="text-[var(--color-muted-text)]" />}
             />
           </div>
 
@@ -120,10 +120,10 @@ export const ForgotPasswordPage = () => {
             </Button>
           </div>
 
-          <div className="mt-6 pt-6 text-center text-sm text-slate-500 font-medium border-t border-[var(--color-border)]">
+          <div className="mt-6 pt-6 text-center text-sm text-[var(--color-muted-text)] font-medium border-t border-[var(--color-border)]">
             <Link
               to="/login"
-              className="text-primary-600 hover:text-primary-700 font-bold hover:underline transition-all"
+              className="text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] font-bold hover:underline transition-all"
             >
               Back to Login
             </Link>

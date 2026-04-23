@@ -72,13 +72,13 @@ export const VerifyAccountPage = () => {
       >
         {verificationStatus === "loading" && (
           <div className="text-center py-6">
-            <div className="mx-auto p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6 bg-primary-50">
-              <FaSpinner className="text-primary-600 text-4xl animate-spin" />
+            <div className="mx-auto p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6 bg-[var(--color-primary-100)]">
+              <FaSpinner className="text-[var(--color-primary-700)] text-4xl animate-spin" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
+            <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">
               Verifying your email
             </h3>
-            <p className="text-slate-500 text-[15px] mb-4 leading-relaxed">
+            <p className="text-[var(--color-muted-text)] text-[15px] mb-4 leading-relaxed">
               Please wait while we confirm your account details...
             </p>
           </div>
@@ -86,13 +86,13 @@ export const VerifyAccountPage = () => {
 
         {verificationStatus === "success" && (
           <div className="text-center py-6">
-            <div className="mx-auto bg-primary-100 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-              <FaCheck className="text-primary-600 text-3xl" />
+            <div className="mx-auto bg-[var(--color-primary-100)] p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+              <FaCheck className="text-[var(--color-primary-700)] text-3xl" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
+            <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">
               Account Verified!
             </h3>
-            <p className="text-slate-500 text-[15px] mb-8 leading-relaxed">
+            <p className="text-[var(--color-muted-text)] text-[15px] mb-8 leading-relaxed">
               Your email has been successfully verified. You can now access all features.
             </p>
             <div>
@@ -112,10 +112,10 @@ export const VerifyAccountPage = () => {
 
         {verificationStatus === "error" && (
           <div className="text-center py-6">
-            <div className="mx-auto bg-primary-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
-              <FaExclamationTriangle className="text-primary-600 text-3xl" />
+            <div className="mx-auto bg-[var(--color-primary-100)] p-4 rounded-full w-20 h-20 flex items-center justify-center mb-6">
+              <FaExclamationTriangle className="text-[var(--color-primary-700)] text-3xl" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
+            <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">
               Verification Failed
             </h3>
             <Alert
@@ -125,7 +125,7 @@ export const VerifyAccountPage = () => {
             >
               <span>{errorMessage || authState.error}</span>
             </Alert>
-            <p className="text-slate-500 text-[14px] mb-8 leading-relaxed">
+            <p className="text-[var(--color-muted-text)] text-[14px] mb-8 leading-relaxed">
               If your link has expired, you can request a new one from the
               login page.
             </p>
