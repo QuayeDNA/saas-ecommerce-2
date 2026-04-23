@@ -50,9 +50,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                 <Card
                     variant="bottom-sheet"
                     noPadding
-                    className="border border-white/10 bg-white/96 backdrop-blur-xl"
+                    className="border border-[var(--color-border)] bg-[var(--color-surface)] backdrop-blur-xl"
                 >
-                    <CardHeader className="hidden sm:block w-full border-b border-white/10 bg-gradient-to-br from-primary-900 to-primary-800 px-6 pt-8 pb-6 text-center text-white rounded-t-[24px]">
+                    <CardHeader className="hidden sm:block w-full border-b border-[var(--color-border)] bg-gradient-to-br from-primary-900 to-primary-800 px-6 pt-8 pb-6 text-center text-white rounded-t-[24px]">
                         {showLogo && (
                             <div className="mb-4 flex justify-center items-center">
                                 <CaskmafDatahubLogoCompact width={220} height={54} />
