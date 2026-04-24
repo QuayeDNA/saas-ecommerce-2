@@ -6,8 +6,6 @@ import {
   DialogFooter,
   Button,
   Spinner,
-  Badge,
-  Input,
 } from "../../design-system";
 import { bundleService } from "../../services/bundle.service";
 import { useToast } from "../../design-system/components/toast";
@@ -34,174 +32,254 @@ interface BulkPricingManagementModalProps {
   onPricingUpdated: () => void;
 }
 
-interface PricingData {
-  [bundleId: string]: {
-    basePrice: number;
-    pricingTiers: Record<string, number>;
-    hasChanges: boolean;
-  };
+interface BundlePricing {
+  basePrice: number | string;
+  pricingTiers: Record<string, number | string>;
+  hasChanges: boolean;
 }
 
+type PricingData = Record<string, BundlePricing>;
+
+// ─── config ───────────────────────────────────────────────────────────────────
+
 const USER_TYPES = [
-  { key: "customer", label: "Customer", color: "bg-blue-100 text-blue-800" },
-  { key: "agent", label: "Agent", color: "bg-green-100 text-green-800" },
-  {
-    key: "super_agent",
-    label: "Super Agent",
-    color: "bg-purple-100 text-purple-800",
-  },
-  { key: "dealer", label: "Dealer", color: "bg-orange-100 text-orange-800" },
-  {
-    key: "super_dealer",
-    label: "Super Dealer",
-    color: "bg-red-100 text-red-800",
-  },
-];
+  { key: "customer",     label: "Customer",     badgeStyle: { background: "var(--color-primary-100)",  color: "var(--color-primary-700)"  } },
+  { key: "agent",        label: "Agent",        badgeStyle: { background: "var(--color-success-bg)",   color: "var(--color-success-text)" } },
+  { key: "super_agent",  label: "Super Agent",  badgeStyle: { background: "var(--color-primary-50)",   color: "var(--color-primary-600)"  } },
+  { key: "dealer",       label: "Dealer",       badgeStyle: { background: "var(--color-pending-bg)",   color: "var(--color-pending-text)" } },
+  { key: "super_dealer", label: "Super Dealer", badgeStyle: { background: "var(--color-failed-bg)",    color: "var(--color-failed-text)"  } },
+] as const;
 
-export const BulkPricingManagementModal: React.FC<
-  BulkPricingManagementModalProps
-> = ({ packageName, bundles, isOpen, onClose, onPricingUpdated }) => {
+const formatCurrency = (amount: number | string) => {
+  const numericAmount =
+    typeof amount === "number"
+      ? amount
+      : amount.trim() === ""
+      ? 0
+      : parseFloat(amount);
+
+  return new Intl.NumberFormat("en-GH", {
+    style: "currency",
+    currency: "GHS",
+    minimumFractionDigits: 2,
+  }).format(numericAmount);
+};
+
+// ─── shared price input ───────────────────────────────────────────────────────
+
+interface PriceInputProps {
+  value: number | string;
+  onChange: (val: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  isEditing?: boolean;
+  hasChanges?: boolean;
+}
+
+const PriceInput = ({ value, onChange, onFocus, onBlur, isEditing, hasChanges }: PriceInputProps) => (
+  <input
+    type="text"
+    inputMode="decimal"
+    pattern="^\d*\.?\d*$"
+    value={value}
+    onChange={(e) => onChange(e.target.value)}
+    onFocus={onFocus}
+    onBlur={onBlur}
+    style={{
+      width: "100%",
+      padding: "5px 8px",
+      fontSize: "12px",
+      textAlign: "center",
+      borderRadius: "8px",
+      border: `1px solid ${
+        isEditing
+          ? "var(--color-primary-400)"
+          : hasChanges
+          ? "var(--color-warning)"
+          : "var(--color-border)"
+      }`,
+      background: isEditing
+        ? "var(--color-primary-50)"
+        : hasChanges
+        ? "var(--color-input-bg)"
+        : "var(--color-input-bg)",
+      color: "var(--color-gray-900)",
+      outline: "none",
+      transition: "border-color 0.15s, background 0.15s",
+      boxShadow: isEditing ? "0 0 0 2px var(--color-primary-200)" : "none",
+    }}
+  />
+);
+
+// ─── main component ───────────────────────────────────────────────────────────
+
+export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProps> = ({
+  packageName,
+  bundles,
+  isOpen,
+  onClose,
+  onPricingUpdated,
+}) => {
   const { addToast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [pricingData, setPricingData] = useState<PricingData>({});
-  const [editingCell, setEditingCell] = useState<{
-    bundleId: string;
-    userType: string;
-  } | null>(null);
-  const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
-  const [expandedBundles, setExpandedBundles] = useState<Record<string, boolean>>({});
+  const [loading, setLoading]                   = useState(false);
+  const [saving, setSaving]                     = useState(false);
+  const [pricingData, setPricingData]           = useState<PricingData>({});
+  const [editingCell, setEditingCell]           = useState<{ bundleId: string; userType: string } | null>(null);
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
+  const [expandedBundles, setExpandedBundles]   = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    if (isOpen && bundles.length > 0) {
-      loadAllPricing();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, bundles]);
+  // ── data loading ────────────────────────────────────────────────────────────
 
   const loadAllPricing = async () => {
     setLoading(true);
     try {
-      const promises = bundles.map((bundle) =>
-        bundleService.getBundlePricing(bundle._id!)
+      const results = await Promise.all(
+        bundles.map((b) => bundleService.getBundlePricing(b._id!))
       );
-      const results = await Promise.all(promises);
+      const newData: PricingData = {};
+      const initialExpansion: Record<string, boolean> = {};
 
-      const newPricingData: PricingData = {};
-      results.forEach((result, index) => {
-        newPricingData[bundles[index]._id!] = {
+      results.forEach((result, i) => {
+        const id = bundles[i]._id!;
+        newData[id] = {
           basePrice: result.basePrice,
           pricingTiers: result.pricingTiers || {},
           hasChanges: false,
         };
+        initialExpansion[id] = i < 2; // first two open by default
       });
 
-      setPricingData(newPricingData);
-      const initialExpansion: Record<string, boolean> = {};
-      bundles.forEach((bundle, idx) => {
-        if (bundle._id) {
-          initialExpansion[bundle._id] = idx < 2;
-        }
-      });
+      setPricingData(newData);
       setExpandedBundles(initialExpansion);
-    } catch (error) {
-      console.error("Error loading pricing:", error);
+    } catch {
       addToast("Failed to load pricing data", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePriceChange = (
-    bundleId: string,
-    userType: string,
-    value: string
-  ) => {
-    const numValue = parseFloat(value);
-    if (isNaN(numValue) || numValue < 0) return;
+  useEffect(() => {
+    if (isOpen && bundles.length > 0) loadAllPricing();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, bundles]);
 
-    setPricingData((prev) => ({
-      ...prev,
-      [bundleId]: {
-        ...prev[bundleId],
-        pricingTiers: {
-          ...prev[bundleId].pricingTiers,
-          [userType]: numValue,
+  // ── mutations ───────────────────────────────────────────────────────────────
+
+  const updateTier = (bundleId: string, userType: string, value: string) => {
+    if (value === "") {
+      setPricingData((prev) => ({
+        ...prev,
+        [bundleId]: {
+          ...prev[bundleId],
+          pricingTiers: { ...prev[bundleId].pricingTiers, [userType]: "" },
+          hasChanges: true,
         },
-        hasChanges: true,
-      },
-    }));
-  };
+      }));
+      return;
+    }
 
-  const handleBasePriceChange = (bundleId: string, value: string) => {
-    const numValue = parseFloat(value);
-    if (isNaN(numValue) || numValue < 0) return;
-
+    const n = parseFloat(value);
+    if (isNaN(n) || n < 0) return;
     setPricingData((prev) => ({
       ...prev,
       [bundleId]: {
         ...prev[bundleId],
-        basePrice: numValue,
+        pricingTiers: { ...prev[bundleId].pricingTiers, [userType]: n },
         hasChanges: true,
       },
     }));
   };
 
-  const handleCellClick = (bundleId: string, userType: string) => {
-    setEditingCell({ bundleId, userType });
-  };
+  const updateBasePrice = (bundleId: string, value: string) => {
+    if (value === "") {
+      setPricingData((prev) => ({
+        ...prev,
+        [bundleId]: {
+          ...prev[bundleId],
+          basePrice: "",
+          hasChanges: true,
+        },
+      }));
+      return;
+    }
 
-  const handleCellBlur = () => {
-    setEditingCell(null);
-  };
-
-  const getChangedBundlesCount = () => {
-    return Object.values(pricingData).filter((data) => data.hasChanges).length;
+    const n = parseFloat(value);
+    if (isNaN(n) || n < 0) return;
+    setPricingData((prev) => ({
+      ...prev,
+      [bundleId]: { ...prev[bundleId], basePrice: n, hasChanges: true },
+    }));
   };
 
   const handleSaveAll = async () => {
-    const changedBundles = Object.entries(pricingData).filter(
-      ([, data]) => data.hasChanges
-    );
-
-    if (changedBundles.length === 0) {
+    const changed = Object.entries(pricingData).filter(([, d]) => d.hasChanges);
+    if (!changed.length) {
       addToast("No changes to save", "info");
       return;
     }
 
+    const updates = [] as Array<{
+      bundleId: string;
+      basePrice: number;
+      pricingTiers: Record<string, number>;
+    }>;
+
+    for (const [bundleId, data] of changed) {
+      const basePriceValue =
+        typeof data.basePrice === "number"
+          ? data.basePrice
+          : data.basePrice.trim() === ""
+          ? NaN
+          : parseFloat(data.basePrice);
+
+      if (Number.isNaN(basePriceValue) || basePriceValue < 0) {
+        addToast(`Base price for bundle ${bundleId} must be a valid positive number`, "error");
+        return;
+      }
+
+      const pricingTiers: Record<string, number> = {};
+      for (const [userType, value] of Object.entries(data.pricingTiers)) {
+        const tierValue =
+          typeof value === "number"
+            ? value
+            : value.trim() === ""
+            ? NaN
+            : parseFloat(value);
+
+        if (Number.isNaN(tierValue) || tierValue < 0) {
+          addToast(`Price for ${userType} on bundle ${bundleId} must be a valid positive number`, "error");
+          return;
+        }
+
+        pricingTiers[userType] = tierValue;
+      }
+
+      updates.push({
+        bundleId,
+        basePrice: basePriceValue,
+        pricingTiers: { ...pricingTiers, default: basePriceValue },
+      });
+    }
+
     setSaving(true);
     try {
-      const updates = changedBundles.map(([bundleId, data]) => ({
-        bundleId,
-        pricingTiers: data.pricingTiers,
-      }));
-
       const result = await bundleService.bulkUpdatePricing(updates);
 
       if (result.failed.length > 0) {
-        addToast(
-          `Updated ${result.successful.length} bundles, ${result.failed.length} failed`,
-          "warning"
-        );
+        addToast(`Updated ${result.successful.length}, ${result.failed.length} failed`, "warning");
       } else {
-        addToast(
-          `Successfully updated pricing for ${result.successful.length} bundles`,
-          "success"
-        );
+        addToast(`Pricing updated for ${result.successful.length} bundle${result.successful.length !== 1 ? "s" : ""}`, "success");
       }
 
-      // Reset hasChanges flags
       setPricingData((prev) => {
-        const newData = { ...prev };
-        Object.keys(newData).forEach((key) => {
-          newData[key].hasChanges = false;
+        const next = { ...prev };
+        Object.keys(next).forEach((k) => {
+          next[k] = { ...next[k], hasChanges: false };
         });
-        return newData;
+        return next;
       });
-
       onPricingUpdated();
-    } catch (error) {
-      console.error("Error saving pricing:", error);
+    } catch {
       addToast("Failed to save pricing changes", "error");
     } finally {
       setSaving(false);
@@ -213,173 +291,233 @@ export const BulkPricingManagementModal: React.FC<
     addToast("All changes have been reset", "info");
   };
 
-  const toggleBundleExpanded = (bundleId: string) => {
-    setExpandedBundles((prev) => ({
-      ...prev,
-      [bundleId]: !prev[bundleId],
-    }));
-  };
+  // ── derived ─────────────────────────────────────────────────────────────────
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-GH", {
-      style: "currency",
-      currency: "GHS",
-      minimumFractionDigits: 2,
-    }).format(amount || 0);
-  };
+  const changedCount = Object.values(pricingData).filter((d) => d.hasChanges).length;
+  const toggleBundle = (id: string) =>
+    setExpandedBundles((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  // ── render ──────────────────────────────────────────────────────────────────
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} size="full" mode="bottom-sheet">
-      <DialogHeader>
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <DialogHeader
+        className="border-b"
+        style={{
+          background: "var(--color-surface)",
+          borderColor: "var(--color-border)",
+        }}
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-3">
           <div className="flex-1 min-w-0">
-            <h2 className="text-base sm:text-lg md:text-xl font-bold flex items-center gap-2">
-              <FaDollarSign className="text-green-600 text-sm sm:text-base" />
+            <h2
+              className="text-base sm:text-lg font-bold flex items-center gap-2"
+              style={{ color: "var(--color-text)" }}
+            >
+              <FaDollarSign style={{ color: "var(--color-success-icon)" }} />
               <span className="truncate">Bulk Pricing Management</span>
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
-              {packageName} - Manage pricing for {bundles.length} bundles across
-              all user types
+            <p className="text-xs sm:text-sm mt-0.5 line-clamp-1" style={{ color: "var(--color-muted-text)" }}>
+              {packageName} — {bundles.length} bundle{bundles.length !== 1 ? "s" : ""}
             </p>
           </div>
-          {getChangedBundlesCount() > 0 && (
-            <Badge colorScheme="warning" size="sm" className="sm:text-sm">
-              {getChangedBundlesCount()} Bundle
-              {getChangedBundlesCount() !== 1 ? "s" : ""} Modified
-            </Badge>
+
+          {changedCount > 0 && (
+            <span
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0"
+              style={{ background: "var(--color-pending-bg)", color: "var(--color-pending-text)" }}
+            >
+              <FaEdit className="w-3 h-3" />
+              {changedCount} bundle{changedCount !== 1 ? "s" : ""} modified
+            </span>
           )}
         </div>
       </DialogHeader>
 
-      <DialogBody>
+      {/* ── Body ───────────────────────────────────────────────────────────── */}
+      <DialogBody style={{ background: "var(--color-background)" }}>
         {loading ? (
-          <div className="flex items-center justify-center py-12">
+          <div
+            className="flex flex-col items-center justify-center gap-3 py-16"
+            style={{ color: "var(--color-muted-text)" }}
+          >
             <Spinner size="lg" />
-            <span className="ml-3 text-gray-600">Loading pricing data...</span>
+            <span className="text-sm">Loading pricing data…</span>
           </div>
         ) : (
-          <div className="space-y-3 sm:space-y-4">
-            {/* Instructions Accordion */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg overflow-hidden">
+          <div className="space-y-4">
+
+            {/* Instructions accordion */}
+            <div
+              className="rounded-xl border overflow-hidden"
+              style={{ borderColor: "var(--color-primary-200)", background: "var(--color-primary-50)" }}
+            >
               <button
-                onClick={() => setIsInstructionsOpen(!isInstructionsOpen)}
-                className="w-full flex items-center justify-between p-3 sm:p-4 text-left hover:bg-blue-100 transition-colors"
+                onClick={() => setInstructionsOpen((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors"
+                style={{ color: "var(--color-primary-700)" }}
               >
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <FaExclamationTriangle className="text-blue-600 flex-shrink-0 text-xs sm:text-sm" />
-                  <span className="text-xs sm:text-sm font-semibold text-blue-800">
-                    How to use
-                  </span>
-                </div>
-                {isInstructionsOpen ? (
-                  <FaChevronUp className="text-blue-600 text-xs sm:text-sm flex-shrink-0" />
-                ) : (
-                  <FaChevronDown className="text-blue-600 text-xs sm:text-sm flex-shrink-0" />
-                )}
+                <span className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                  <FaExclamationTriangle className="w-3.5 h-3.5 shrink-0" />
+                  How to use
+                </span>
+                {instructionsOpen
+                  ? <FaChevronUp className="w-3 h-3 shrink-0" />
+                  : <FaChevronDown className="w-3 h-3 shrink-0" />}
               </button>
-              {isInstructionsOpen && (
-                <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-blue-200">
-                  <ul className="list-disc list-inside space-y-0.5 sm:space-y-1 text-xs sm:text-sm text-blue-800 mt-2">
-                    <li>Click any price cell to edit</li>
-                    <li>Changes are highlighted with a yellow background</li>
-                    <li>Use "Save All Changes" to apply all modifications</li>
-                    <li>Use "Reset All" to discard all changes</li>
-                  </ul>
+
+              {instructionsOpen && (
+                <div
+                  className="px-4 pb-4 pt-2 border-t text-xs sm:text-sm space-y-1"
+                  style={{
+                    borderColor: "var(--color-primary-200)",
+                    color: "var(--color-primary-700)",
+                  }}
+                >
+                  {[
+                    "Click any price cell to edit it directly",
+                    "Edited rows are highlighted with an amber border",
+                    "Press Save All Changes to apply every modification at once",
+                    "Press Reset All to discard unsaved changes",
+                  ].map((tip) => (
+                    <div key={tip} className="flex items-start gap-2">
+                      <span className="mt-0.5 shrink-0">•</span>
+                      <span>{tip}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Mobile Pricing Cards */}
+            {/* ── Mobile cards (< lg) ─────────────────────────────────────── */}
             <div className="space-y-3 lg:hidden">
               {bundles.map((bundle) => {
-                const bundlePricing = pricingData[bundle._id!];
-                if (!bundlePricing) return null;
-
-                const isExpanded = expandedBundles[bundle._id!] ?? false;
+                const bp = pricingData[bundle._id!];
+                if (!bp) return null;
+                const open = expandedBundles[bundle._id!] ?? false;
 
                 return (
                   <div
                     key={bundle._id}
-                    className={`rounded-xl border ${bundlePricing.hasChanges
-                        ? "border-yellow-300 bg-yellow-50/40"
-                        : "border-gray-200 bg-white"
-                      }`}
+                    className="rounded-xl border overflow-hidden transition-colors"
+                    style={{
+                      background: "var(--color-surface)",
+                      borderColor: bp.hasChanges ? "var(--color-warning)" : "var(--color-border)",
+                      borderLeft: bp.hasChanges ? "3px solid var(--color-warning)" : undefined,
+                    }}
                   >
+                    {/* accordion header */}
                     <button
                       type="button"
-                      onClick={() => toggleBundleExpanded(bundle._id!)}
-                      className="w-full p-3 text-left"
+                      onClick={() => toggleBundle(bundle._id!)}
+                      className="w-full flex items-start justify-between gap-3 p-4 text-left"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <FaCube
+                          className="w-4 h-4 mt-0.5 shrink-0"
+                          style={{ color: "var(--color-primary-500)" }}
+                        />
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
+                          <p
+                            className="text-sm font-semibold truncate"
+                            style={{ color: "var(--color-text)" }}
+                          >
                             {bundle.name}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1 truncate">
-                            {bundle.dataVolume} {bundle.dataUnit} • {bundle.validity} {bundle.validityUnit}
+                          <p className="text-xs mt-0.5 truncate" style={{ color: "var(--color-muted-text)" }}>
+                            {bundle.dataVolume} {bundle.dataUnit} · {bundle.validity} {bundle.validityUnit}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {bundlePricing.hasChanges ? (
-                            <Badge colorScheme="warning" size="sm">Modified</Badge>
-                          ) : (
-                            <Badge colorScheme="success" size="sm">Saved</Badge>
-                          )}
-                          {isExpanded ? (
-                            <FaChevronUp className="text-gray-500" />
-                          ) : (
-                            <FaChevronDown className="text-gray-500" />
-                          )}
-                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {bp.hasChanges ? (
+                          <span
+                            className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                            style={{ background: "var(--color-pending-bg)", color: "var(--color-pending-text)" }}
+                          >
+                            Modified
+                          </span>
+                        ) : (
+                          <span
+                            className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                            style={{ background: "var(--color-success-bg)", color: "var(--color-success-text)" }}
+                          >
+                            Saved
+                          </span>
+                        )}
+                        {open
+                          ? <FaChevronUp className="w-3 h-3" style={{ color: "var(--color-muted-text)" }} />
+                          : <FaChevronDown className="w-3 h-3" style={{ color: "var(--color-muted-text)" }} />}
                       </div>
                     </button>
 
-                    {isExpanded && (
-                      <div className="px-3 pb-3 border-t border-gray-200 pt-3 space-y-3">
+                    {/* expanded content */}
+                    {open && (
+                      <div
+                        className="px-4 pb-4 pt-3 border-t space-y-3"
+                        style={{ borderColor: "var(--color-border)" }}
+                      >
+                        {/* base price */}
                         <div>
-                          <label className="text-xs font-medium text-gray-600 mb-1 block">
+                          <label
+                            className="text-xs font-medium mb-1.5 block"
+                            style={{ color: "var(--color-secondary-text)" }}
+                          >
                             Base Price
                           </label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={bundlePricing.basePrice}
-                            onChange={(e) => handleBasePriceChange(bundle._id!, e.target.value)}
+                          <PriceInput
+                            value={bp.basePrice}
+                            onChange={(v) => updateBasePrice(bundle._id!, v)}
+                            hasChanges={bp.hasChanges}
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3">
-                          {USER_TYPES.map((userType) => {
-                            const price =
-                              bundlePricing.pricingTiers[userType.key] || bundlePricing.basePrice;
+                        {/* user type inputs */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {USER_TYPES.map((ut) => {
+                            const price = bp.pricingTiers[ut.key] ?? bp.basePrice;
                             return (
-                              <div key={userType.key} className="rounded-lg border border-gray-200 p-2.5 bg-white">
+                              <div
+                                key={ut.key}
+                                className="rounded-xl border p-3"
+                                style={{
+                                  background: "var(--color-control-bg)",
+                                  borderColor: "var(--color-border)",
+                                }}
+                              >
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-semibold text-gray-700">
-                                    {userType.label}
+                                  <span
+                                    className="text-xs font-semibold"
+                                    style={{ color: "var(--color-text)" }}
+                                  >
+                                    {ut.label}
                                   </span>
-                                  <Badge size="sm" className={userType.color}>
-                                    {userType.key}
-                                  </Badge>
+                                  <span
+                                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                                    style={ut.badgeStyle}
+                                  >
+                                    {ut.key}
+                                  </span>
                                 </div>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
+                                <PriceInput
                                   value={price}
-                                  onChange={(e) =>
-                                    handlePriceChange(bundle._id!, userType.key, e.target.value)
-                                  }
+                                  onChange={(v) => updateTier(bundle._id!, ut.key, v)}
+                                  hasChanges={bp.hasChanges}
                                 />
                               </div>
                             );
                           })}
                         </div>
 
-                        <div className="text-xs text-gray-600 bg-gray-50 rounded-lg px-2.5 py-2">
-                          Current base: <span className="font-semibold text-gray-900">{formatCurrency(bundlePricing.basePrice)}</span>
-                        </div>
+                        <p
+                          className="text-xs rounded-lg px-3 py-2"
+                          style={{ background: "var(--color-control-bg)", color: "var(--color-muted-text)" }}
+                        >
+                          Base: <strong style={{ color: "var(--color-text)" }}>{formatCurrency(bp.basePrice)}</strong>
+                        </p>
                       </div>
                     )}
                   </div>
@@ -387,163 +525,156 @@ export const BulkPricingManagementModal: React.FC<
               })}
             </div>
 
-            {/* Desktop Pricing Table */}
-            <div className="hidden lg:block border rounded-lg overflow-hidden">
-              <div className="overflow-x-auto -mx-4 sm:mx-0">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50 sticky top-0 z-10">
-                    <tr>
-                      <th className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-tight sm:tracking-wider sticky left-0 bg-gray-50 z-20 min-w-[180px] sm:min-w-[220px] md:min-w-[250px]">
+            {/* ── Desktop table (lg+) ─────────────────────────────────────── */}
+            <div
+              className="hidden lg:block rounded-xl border overflow-hidden"
+              style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
+            >
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead>
+                    <tr style={{ background: "var(--color-control-bg)", borderBottom: `1px solid var(--color-border)` }}>
+                      {/* bundle col */}
+                      <th
+                        className="sticky left-0 z-20 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide"
+                        style={{
+                          background: "var(--color-control-bg)",
+                          color: "var(--color-muted-text)",
+                          minWidth: 240,
+                        }}
+                      >
                         Bundle
                       </th>
-                      <th className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-center text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-tight sm:tracking-wider min-w-[90px] sm:min-w-[110px] md:min-w-[120px]">
-                        Base
+
+                      {/* base price col */}
+                      <th
+                        className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "var(--color-muted-text)", minWidth: 120 }}
+                      >
+                        Base Price
                       </th>
-                      {USER_TYPES.map((userType) => (
+
+                      {/* user type cols */}
+                      {USER_TYPES.map((ut) => (
                         <th
-                          key={userType.key}
-                          className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-center text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-tight sm:tracking-wider min-w-[100px] sm:min-w-[120px] md:min-w-[140px]"
+                          key={ut.key}
+                          className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide"
+                          style={{ color: "var(--color-muted-text)", minWidth: 130 }}
                         >
-                          <div className="flex flex-col items-center gap-0.5 sm:gap-1">
-                            <span className="hidden sm:inline">
-                              {userType.label}
-                            </span>
-                            <span className="sm:hidden text-[9px]">
-                              {userType.label.split(" ")[0]}
-                            </span>
-                            <Badge
-                              size="sm"
-                              className={`${userType.color} text-[8px] sm:text-xs px-1 py-0.5`}
+                          <div className="flex flex-col items-center gap-1">
+                            <span>{ut.label}</span>
+                            <span
+                              className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                              style={ut.badgeStyle}
                             >
-                              {userType.key}
-                            </Badge>
+                              {ut.key}
+                            </span>
                           </div>
                         </th>
                       ))}
-                      <th className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-center text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-tight sm:tracking-wider min-w-[80px] sm:min-w-[90px] md:min-w-[100px]">
+
+                      <th
+                        className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "var(--color-muted-text)", minWidth: 90 }}
+                      >
                         Status
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {bundles.map((bundle) => {
-                      const bundlePricing = pricingData[bundle._id!];
-                      if (!bundlePricing) return null;
+
+                  <tbody>
+                    {bundles.map((bundle, idx) => {
+                      const bp = pricingData[bundle._id!];
+                      if (!bp) return null;
 
                       return (
                         <tr
                           key={bundle._id}
-                          className={`hover:bg-gray-50 ${bundlePricing.hasChanges ? "bg-yellow-50" : ""
-                            }`}
+                          style={{
+                            background: bp.hasChanges
+                              ? "var(--color-pending-bg)"
+                              : idx % 2 === 0
+                              ? "var(--color-surface)"
+                              : "var(--color-control-bg)",
+                            borderBottom: `1px solid var(--color-border)`,
+                            transition: "background 0.15s",
+                          }}
                         >
-                          {/* Bundle Name (Sticky) */}
-                          <td className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 sticky left-0 bg-white z-10">
-                            <div className="flex items-center gap-1.5 sm:gap-2">
-                              <FaCube className="text-blue-600 flex-shrink-0 text-xs sm:text-sm" />
+                          {/* bundle name — sticky */}
+                          <td
+                            className="sticky left-0 z-10 px-4 py-3"
+                            style={{
+                              background: bp.hasChanges ? "var(--color-pending-bg)" : "inherit",
+                              borderRight: `1px solid var(--color-border)`,
+                            }}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <FaCube
+                                className="w-4 h-4 shrink-0"
+                                style={{ color: "var(--color-primary-500)" }}
+                              />
                               <div className="min-w-0">
-                                <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                                <p
+                                  className="text-sm font-semibold truncate"
+                                  style={{ color: "var(--color-text)" }}
+                                >
                                   {bundle.name}
                                 </p>
-                                <p className="text-[10px] sm:text-xs text-gray-500 truncate">
-                                  {bundle.dataVolume} {bundle.dataUnit} •{" "}
-                                  {bundle.validity} {bundle.validityUnit}
+                                <p className="text-xs truncate" style={{ color: "var(--color-muted-text)" }}>
+                                  {bundle.dataVolume} {bundle.dataUnit} · {bundle.validity} {bundle.validityUnit}
                                 </p>
                               </div>
                             </div>
                           </td>
 
-                          {/* Base Price */}
-                          <td className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">
-                            <div className="flex items-center justify-center">
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={bundlePricing.basePrice}
-                                onChange={(e) =>
-                                  handleBasePriceChange(
-                                    bundle._id!,
-                                    e.target.value
-                                  )
-                                }
-                                className={`w-full px-1.5 sm:px-2 py-1 text-[11px] sm:text-xs md:text-sm text-center border rounded focus:outline-none focus:ring-1 sm:focus:ring-2 focus:ring-blue-500 ${bundlePricing.hasChanges
-                                  ? "border-yellow-400 bg-yellow-50"
-                                  : "border-gray-300"
-                                  }`}
-                              />
-                            </div>
+                          {/* base price */}
+                          <td className="px-3 py-2.5">
+                            <PriceInput
+                              value={bp.basePrice}
+                              onChange={(v) => updateBasePrice(bundle._id!, v)}
+                              hasChanges={bp.hasChanges}
+                            />
                           </td>
 
-                          {/* User Type Prices */}
-                          {USER_TYPES.map((userType) => {
-                            const price =
-                              bundlePricing.pricingTiers[userType.key] ||
-                              bundlePricing.basePrice;
+                          {/* user type prices */}
+                          {USER_TYPES.map((ut) => {
+                            const price = bp.pricingTiers[ut.key] ?? bp.basePrice;
                             const isEditing =
                               editingCell?.bundleId === bundle._id &&
-                              editingCell?.userType === userType.key;
-
+                              editingCell?.userType === ut.key;
                             return (
-                              <td
-                                key={userType.key}
-                                className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3"
-                              >
-                                <div className="flex items-center justify-center">
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={price}
-                                    onChange={(e) =>
-                                      handlePriceChange(
-                                        bundle._id!,
-                                        userType.key,
-                                        e.target.value
-                                      )
-                                    }
-                                    onFocus={() =>
-                                      handleCellClick(bundle._id!, userType.key)
-                                    }
-                                    onBlur={handleCellBlur}
-                                    className={`w-full px-1.5 sm:px-2 py-1 text-[11px] sm:text-xs md:text-sm text-center border rounded transition-all ${isEditing
-                                      ? "ring-1 sm:ring-2 ring-blue-500 border-blue-500"
-                                      : bundlePricing.hasChanges
-                                        ? "border-yellow-400 bg-yellow-50"
-                                        : "border-gray-300"
-                                      } focus:outline-none focus:ring-1 sm:focus:ring-2 focus:ring-blue-500`}
-                                  />
-                                </div>
+                              <td key={ut.key} className="px-3 py-2.5">
+                                <PriceInput
+                                  value={price}
+                                  onChange={(v) => updateTier(bundle._id!, ut.key, v)}
+                                  onFocus={() => setEditingCell({ bundleId: bundle._id!, userType: ut.key })}
+                                  onBlur={() => setEditingCell(null)}
+                                  isEditing={isEditing}
+                                  hasChanges={bp.hasChanges}
+                                />
                               </td>
                             );
                           })}
 
-                          {/* Status */}
-                          <td className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">
+                          {/* status */}
+                          <td className="px-3 py-2.5">
                             <div className="flex justify-center">
-                              {bundlePricing.hasChanges ? (
-                                <Badge
-                                  colorScheme="warning"
-                                  size="sm"
-                                  className="text-[9px] sm:text-xs px-1.5 py-0.5"
+                              {bp.hasChanges ? (
+                                <span
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                                  style={{ background: "var(--color-pending-bg)", color: "var(--color-pending-text)" }}
                                 >
-                                  <FaEdit className="mr-0.5 sm:mr-1 text-[8px] sm:text-xs" />
-                                  <span className="hidden sm:inline">
-                                    Modified
-                                  </span>
-                                  <span className="sm:hidden">Mod</span>
-                                </Badge>
+                                  <FaEdit className="w-2.5 h-2.5" />
+                                  Modified
+                                </span>
                               ) : (
-                                <Badge
-                                  colorScheme="success"
-                                  size="sm"
-                                  className="text-[9px] sm:text-xs px-1.5 py-0.5"
+                                <span
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                                  style={{ background: "var(--color-success-bg)", color: "var(--color-success-text)" }}
                                 >
-                                  <FaCheckCircle className="mr-0.5 sm:mr-1 text-[8px] sm:text-xs" />
-                                  <span className="hidden sm:inline">
-                                    Saved
-                                  </span>
-                                  <span className="sm:hidden">OK</span>
-                                </Badge>
+                                  <FaCheckCircle className="w-2.5 h-2.5" />
+                                  Saved
+                                </span>
                               )}
                             </div>
                           </td>
@@ -555,94 +686,84 @@ export const BulkPricingManagementModal: React.FC<
               </div>
             </div>
 
-            {/* Summary */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                <div>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
-                    Total Bundles
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
-                    {bundles.length}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
-                    Modified Bundles
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-yellow-600">
-                    {getChangedBundlesCount()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
-                    User Types
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-blue-600">
-                    {USER_TYPES.length}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
-                    Total Prices
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-purple-600">
-                    {bundles.length * (USER_TYPES.length + 1)}
-                  </p>
-                </div>
+            {/* ── Summary strip ───────────────────────────────────────────── */}
+            <div
+              className="rounded-xl border p-4"
+              style={{ background: "var(--color-control-bg)", borderColor: "var(--color-border)" }}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { label: "Total Bundles",    value: bundles.length,                      color: "var(--color-text)"         },
+                  { label: "Modified",         value: changedCount,                        color: "var(--color-pending-icon)" },
+                  { label: "User Types",       value: USER_TYPES.length,                   color: "var(--color-primary-500)"  },
+                  { label: "Total Prices",     value: bundles.length * (USER_TYPES.length + 1), color: "var(--color-info)"   },
+                ].map(({ label, value, color }) => (
+                  <div key={label}>
+                    <p className="text-xs mb-1" style={{ color: "var(--color-muted-text)" }}>{label}</p>
+                    <p className="text-lg font-bold" style={{ color }}>{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
       </DialogBody>
 
-      <DialogFooter className="sticky bottom-0 bg-white border-t border-gray-200">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between w-full gap-2 sm:gap-4">
-          <div className="flex items-center gap-2 order-2 sm:order-1">
-            <Button
-              variant="outline"
-              onClick={handleResetAll}
-              disabled={saving || loading || getChangedBundlesCount() === 0}
-              size="sm"
-              className="flex-1 sm:flex-none text-xs sm:text-sm"
-            >
-              <FaSync className="mr-1 sm:mr-2 text-xs" />
-              <span className="hidden sm:inline">Reset All</span>
-              <span className="sm:hidden">Reset</span>
-            </Button>
-          </div>
-          <div className="flex items-center gap-2 order-1 sm:order-2">
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <DialogFooter
+        className="border-t"
+        style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
+      >
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between w-full gap-2 sm:gap-3">
+
+          {/* reset */}
+          <Button
+            variant="outline"
+            onClick={handleResetAll}
+            disabled={saving || loading || changedCount === 0}
+            size="sm"
+            className="sm:w-auto"
+          >
+            <FaSync className="mr-2 w-3 h-3" />
+            Reset All
+          </Button>
+
+          {/* cancel + save */}
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               onClick={onClose}
               disabled={saving}
               size="sm"
-              className="flex-1 sm:flex-none text-xs sm:text-sm"
+              className="flex-1 sm:flex-none"
             >
-              <FaTimes className="mr-1 sm:mr-2 text-xs" />
+              <FaTimes className="mr-2 w-3 h-3" />
               Cancel
             </Button>
+
             <Button
               onClick={handleSaveAll}
-              disabled={saving || loading || getChangedBundlesCount() === 0}
-              className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none text-xs sm:text-sm"
+              disabled={saving || loading || changedCount === 0}
               size="sm"
+              className="flex-1 sm:flex-none"
+              style={{
+                background: saving || changedCount === 0
+                  ? "var(--color-control-bg)"
+                  : "var(--color-success-icon)",
+                color: saving || changedCount === 0
+                  ? "var(--color-muted-text)"
+                  : "#ffffff",
+              }}
             >
               {saving ? (
                 <>
-                  <Spinner size="sm" className="mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Saving...</span>
-                  <span className="sm:hidden">Save...</span>
+                  <Spinner size="sm" className="mr-2" />
+                  Saving…
                 </>
               ) : (
                 <>
-                  <FaSave className="mr-1 sm:mr-2 text-xs" />
-                  <span className="hidden sm:inline">
-                    Save All Changes ({getChangedBundlesCount()})
-                  </span>
-                  <span className="sm:hidden">
-                    Save ({getChangedBundlesCount()})
-                  </span>
+                  <FaSave className="mr-2 w-3 h-3" />
+                  Save All {changedCount > 0 && `(${changedCount})`}
                 </>
               )}
             </Button>

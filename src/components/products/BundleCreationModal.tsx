@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaCube,
   FaPlus,
@@ -41,6 +41,22 @@ export const BundleCreationModal: React.FC<BundleCreationModalProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState<CreationStep>('select');
   const [showSingleForm, setShowSingleForm] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentStep('select');
+      setShowSingleForm(false);
+      return;
+    }
+
+    if (initialData) {
+      setCurrentStep('single');
+      setShowSingleForm(true);
+    } else {
+      setCurrentStep('select');
+      setShowSingleForm(false);
+    }
+  }, [isOpen, initialData]);
 
   const handleClose = () => {
     setCurrentStep('select');
