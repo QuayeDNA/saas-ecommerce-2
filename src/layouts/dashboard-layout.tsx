@@ -1,33 +1,23 @@
 /**
- * DashboardLayout — Caskmaf Datahub mobile-first redesign
+ * DashboardLayout — Caskmaf Datahub
  *
- * Mobile (<md):
- *   ┌──────────────────────────┐
- *   │  CompactHeader (56px)    │  ← logo + bell + avatar only, no wallet
- *   ├──────────────────────────┤
- *   │                          │
- *   │   <Outlet />             │  ← scrollable content, pb-20 to clear nav
- *   │                          │
- *   ├──────────────────────────┤
- *   │  BottomNav (72px)        │  ← AgentBottomNav or AdminBottomNav
- *   └──────────────────────────┘
+ * Mobile  (<md): Header (56px) → scrollable Outlet → BottomNav (64px)
+ * Desktop (md+): Sidebar + Header + scrollable Outlet (no bottom nav)
  *
- * Desktop (md+):
- *   ┌──────────┬───────────────────────────┐
- *   │          │  DesktopHeader (full)     │
- *   │ Sidebar  ├───────────────────────────┤
- *   │  (64px)  │                           │
- *   │          │   <Outlet />              │
- *   │          │                           │
- *   └──────────┴───────────────────────────┘
+ * Changes from previous version:
+ * - AgentBottomNav + AdminBottomNav replaced with single <BottomNav>
+ * - Scroll detection moved to the <main> element via onScroll
+ * - paddingBottom driven by a CSS var so BottomNav height is one source of truth
+ * - Sidebar overlay uses a proper <div> (not <button>) to avoid a11y issues
+ * - isMobile state removed — CSS/Tailwind handles responsive visibility;
+ *   only sidebar open/close state is tracked in JS
  */
 
-import { useState, useEffect, type UIEvent } from "react";
+import { useState, useEffect, useCallback, type UIEvent } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Sidebar } from "../components/sidebar";
 import { Header } from "../components/header";
-import { AgentBottomNav } from "../components/AgentBottomNav";
-import { AdminBottomNav } from "../components/AdminBottomNav";
+import { BottomNav } from "../components/BottomNav";           // ← new consolidated nav
 import { NavigationLoader } from "../components/navigation-loader";
 import { TutorialProvider } from "../contexts/TutorialContext";
 import { TutorialPlayer } from "../components/tutorials/tutorial-player";
@@ -36,97 +26,110 @@ import { TutorialAutoTrigger } from "../components/tutorials/tutorial-auto-trigg
 import { AnnouncementPopupHandler } from "../components/announcements/announcement-popup-handler";
 import { useAuth } from "../hooks";
 
-// User types that get the Agent bottom nav
-const AGENT_USER_TYPES = ["agent", "super_agent", "dealer", "super_dealer"];
-// User types that get the Admin bottom nav
-const ADMIN_USER_TYPES = ["admin", "super_admin"];
+// User types that get a bottom nav (everything except roles that are desktop-only)
+const BOTTOM_NAV_TYPES = new Set([
+  "agent", "super_agent", "dealer", "super_dealer",
+  "admin", "super_admin",
+]);
+
+// Height of the fixed bottom nav bar in px — must match BottomNav CSS var
+const BOTTOM_NAV_HEIGHT = 64;
+// Scroll threshold before the header gains a background
+const SCROLL_THRESHOLD = 24;
 
 export const DashboardLayout = () => {
   const { authState, updateFirstTimeFlag } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const location = useLocation();
 
-  const userType = authState.user?.userType ?? "agent";
-  const userRole = userType as string;
+  const userType = (authState.user?.userType ?? "agent") as
+    | "agent" | "super_agent" | "dealer" | "super_dealer"
+    | "admin" | "super_admin";
 
-  const isAgentUser = AGENT_USER_TYPES.includes(userType);
-  const isAdminUser = ADMIN_USER_TYPES.includes(userType);
+  const showBottomNav = BOTTOM_NAV_TYPES.has(userType);
 
-  // Responsive breakpoint detection
+  // ── close sidebar on route change (mobile) ──────────────────────────────────
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (!mobile) setSidebarOpen(true);
-      else setSidebarOpen(false);
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
-  // Close sidebar on route change (mobile)
-  useEffect(() => {
-    if (isMobile) setSidebarOpen(false);
-  }, [location.pathname, isMobile]);
-
-  // First-time onboarding flag
+  // ── first-time onboarding flag ───────────────────────────────────────────────
   useEffect(() => {
     if (
       authState.isAuthenticated &&
       authState.user?.isFirstTime &&
       location.pathname.includes("/dashboard")
     ) {
-      const handled = localStorage.getItem("tourCompleted") === "true";
-      if (!handled) {
+      if (localStorage.getItem("tourCompleted") !== "true") {
         localStorage.setItem("tourCompleted", "true");
         updateFirstTimeFlag();
       }
     }
   }, [authState.isAuthenticated, authState.user, location.pathname, updateFirstTimeFlag]);
 
-  const handleMainScroll = (e: UIEvent<HTMLElement>) => {
-    const threshold = 24;
-    setIsHeaderScrolled(e.currentTarget.scrollTop > threshold);
-  };
+  // ── scroll handler ───────────────────────────────────────────────────────────
+  const handleMainScroll = useCallback((e: UIEvent<HTMLElement>) => {
+    setIsHeaderScrolled(e.currentTarget.scrollTop > SCROLL_THRESHOLD);
+  }, []);
+
+  // ── sidebar keyboard trap (Escape closes) ────────────────────────────────────
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && sidebarOpen) setSidebarOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [sidebarOpen]);
 
   return (
-    <TutorialProvider userRole={userRole}>
-      <div className="flex h-screen overflow-hidden bg-[var(--color-primary-50)]">
+    <TutorialProvider userRole={userType}>
+      <div
+        className="flex h-[100dvh] overflow-hidden"
+        style={{ background: "var(--color-background)" }}
+      >
 
-        {/* ── Mobile sidebar overlay (dark scrim) ── */}
-        {sidebarOpen && isMobile && (
-          <button
-            className="fixed inset-0 z-50 bg-black/50 border-0 cursor-default md:hidden"
+        {/* ── Mobile sidebar scrim ──────────────────────────────────────────── */}
+        {sidebarOpen && (
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-black/50"
             onClick={() => setSidebarOpen(false)}
-            onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
-            aria-label="Close sidebar"
+            aria-hidden="true"
           />
         )}
 
-        {/* ── Sidebar (desktop always visible, mobile slide-in) ── */}
+        {/* ── Sidebar ───────────────────────────────────────────────────────── */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* ── Main column ── */}
+        {/* ── Main column ───────────────────────────────────────────────────── */}
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
-          {/* Header (renders two variants internally — mobile compact / desktop full) */}
+          {/* Header — renders compact (mobile) or full (desktop) internally */}
           <Header
             onMenuClick={() => setSidebarOpen((v) => !v)}
             isScrolled={isHeaderScrolled}
           />
 
-          {/* Scrollable content */}
+          {/* Scrollable content area */}
           <main
-            className="flex-1 overflow-y-auto"
+            className="flex-1 overflow-y-auto overscroll-contain"
             onScroll={handleMainScroll}
             style={{
-              // Extra bottom padding on mobile so content clears the bottom nav
-              paddingBottom: isMobile ? "88px" : "0px",
+              // On mobile, pad the bottom so content isn't hidden behind the nav bar.
+              // On md+ the bottom nav is hidden so no padding needed.
+              paddingBottom: `var(--main-pb, 0px)`,
             }}
           >
+            {/*
+              We set the CSS variable on the element itself so we can use a
+              Tailwind responsive override without needing JS to track viewport.
+            */}
+            <style>{`
+              @media (max-width: 767px) {
+                main { --main-pb: ${BOTTOM_NAV_HEIGHT + 16}px; }
+              }
+            `}</style>
+
             <div className="p-3 sm:p-4 md:p-6">
               <NavigationLoader delay={150}>
                 <Outlet />
@@ -135,18 +138,15 @@ export const DashboardLayout = () => {
           </main>
         </div>
 
-        {/* ── Mobile bottom nav — mutually exclusive by user type ── */}
-        {isAgentUser && <AgentBottomNav />}
-        {isAdminUser && (
-          <AdminBottomNav userType={userType} />
-        )}
+        {/* ── Bottom nav (mobile only, hidden on md+ via CSS inside BottomNav) ── */}
+        {showBottomNav && <BottomNav userType={userType} />}
 
-        {/* ── Tutorial system ── */}
+        {/* ── Tutorial system ───────────────────────────────────────────────── */}
         <TutorialPlayer />
         <TutorialAutoTrigger />
         <TutorialLauncher />
 
-        {/* ── Announcements ── */}
+        {/* ── Announcements ─────────────────────────────────────────────────── */}
         <AnnouncementPopupHandler />
       </div>
     </TutorialProvider>
