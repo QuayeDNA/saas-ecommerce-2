@@ -43,20 +43,22 @@ type PricingData = Record<string, BundlePricing>;
 // ─── config ───────────────────────────────────────────────────────────────────
 
 const USER_TYPES = [
-  { key: "customer",     label: "Customer",     badgeStyle: { background: "var(--color-primary-100)",  color: "var(--color-primary-700)"  } },
-  { key: "agent",        label: "Agent",        badgeStyle: { background: "var(--color-success-bg)",   color: "var(--color-success-text)" } },
-  { key: "super_agent",  label: "Super Agent",  badgeStyle: { background: "var(--color-primary-50)",   color: "var(--color-primary-600)"  } },
-  { key: "dealer",       label: "Dealer",       badgeStyle: { background: "var(--color-pending-bg)",   color: "var(--color-pending-text)" } },
-  { key: "super_dealer", label: "Super Dealer", badgeStyle: { background: "var(--color-failed-bg)",    color: "var(--color-failed-text)"  } },
+  { key: "customer", label: "Customer", badgeStyle: { background: "var(--color-primary-100)", color: "var(--color-primary-700)" } },
+  { key: "agent", label: "Agent", badgeStyle: { background: "var(--color-success-bg)", color: "var(--color-success-text)" } },
+  { key: "super_agent", label: "Super Agent", badgeStyle: { background: "var(--color-primary-50)", color: "var(--color-primary-600)" } },
+  { key: "dealer", label: "Dealer", badgeStyle: { background: "var(--color-pending-bg)", color: "var(--color-pending-text)" } },
+  { key: "super_dealer", label: "Super Dealer", badgeStyle: { background: "var(--color-failed-bg)", color: "var(--color-failed-text)" } },
 ] as const;
+
+const DECIMAL_INPUT_PATTERN = /^[0-9]*\.?[0-9]*$/;
 
 const formatCurrency = (amount: number | string) => {
   const numericAmount =
     typeof amount === "number"
       ? amount
       : amount.trim() === ""
-      ? 0
-      : parseFloat(amount);
+        ? 0
+        : parseFloat(amount);
 
   return new Intl.NumberFormat("en-GH", {
     style: "currency",
@@ -91,18 +93,17 @@ const PriceInput = ({ value, onChange, onFocus, onBlur, isEditing, hasChanges }:
       fontSize: "12px",
       textAlign: "center",
       borderRadius: "8px",
-      border: `1px solid ${
-        isEditing
+      border: `1px solid ${isEditing
           ? "var(--color-primary-400)"
           : hasChanges
-          ? "var(--color-warning)"
-          : "var(--color-border)"
-      }`,
+            ? "var(--color-warning)"
+            : "var(--color-border)"
+        }`,
       background: isEditing
         ? "var(--color-primary-50)"
         : hasChanges
-        ? "var(--color-input-bg)"
-        : "var(--color-input-bg)",
+          ? "var(--color-input-bg)"
+          : "var(--color-input-bg)",
       color: "var(--color-gray-900)",
       outline: "none",
       transition: "border-color 0.15s, background 0.15s",
@@ -121,12 +122,12 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
   onPricingUpdated,
 }) => {
   const { addToast } = useToast();
-  const [loading, setLoading]                   = useState(false);
-  const [saving, setSaving]                     = useState(false);
-  const [pricingData, setPricingData]           = useState<PricingData>({});
-  const [editingCell, setEditingCell]           = useState<{ bundleId: string; userType: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [pricingData, setPricingData] = useState<PricingData>({});
+  const [editingCell, setEditingCell] = useState<{ bundleId: string; userType: string } | null>(null);
   const [instructionsOpen, setInstructionsOpen] = useState(false);
-  const [expandedBundles, setExpandedBundles]   = useState<Record<string, boolean>>({});
+  const [expandedBundles, setExpandedBundles] = useState<Record<string, boolean>>({});
 
   // ── data loading ────────────────────────────────────────────────────────────
 
@@ -142,8 +143,13 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
       results.forEach((result, i) => {
         const id = bundles[i]._id!;
         newData[id] = {
-          basePrice: result.basePrice,
-          pricingTiers: result.pricingTiers || {},
+          basePrice: result.basePrice?.toString() ?? "",
+          pricingTiers: Object.fromEntries(
+            Object.entries(result.pricingTiers || {}).map(([key, value]) => [
+              key,
+              value?.toString() ?? "",
+            ])
+          ),
           hasChanges: false,
         };
         initialExpansion[id] = i < 2; // first two open by default
@@ -166,49 +172,25 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
   // ── mutations ───────────────────────────────────────────────────────────────
 
   const updateTier = (bundleId: string, userType: string, value: string) => {
-    if (value === "") {
+    if (value === "" || DECIMAL_INPUT_PATTERN.test(value)) {
       setPricingData((prev) => ({
         ...prev,
         [bundleId]: {
           ...prev[bundleId],
-          pricingTiers: { ...prev[bundleId].pricingTiers, [userType]: "" },
+          pricingTiers: { ...prev[bundleId].pricingTiers, [userType]: value },
           hasChanges: true,
         },
       }));
-      return;
     }
-
-    const n = parseFloat(value);
-    if (isNaN(n) || n < 0) return;
-    setPricingData((prev) => ({
-      ...prev,
-      [bundleId]: {
-        ...prev[bundleId],
-        pricingTiers: { ...prev[bundleId].pricingTiers, [userType]: n },
-        hasChanges: true,
-      },
-    }));
   };
 
   const updateBasePrice = (bundleId: string, value: string) => {
-    if (value === "") {
+    if (value === "" || DECIMAL_INPUT_PATTERN.test(value)) {
       setPricingData((prev) => ({
         ...prev,
-        [bundleId]: {
-          ...prev[bundleId],
-          basePrice: "",
-          hasChanges: true,
-        },
+        [bundleId]: { ...prev[bundleId], basePrice: value, hasChanges: true },
       }));
-      return;
     }
-
-    const n = parseFloat(value);
-    if (isNaN(n) || n < 0) return;
-    setPricingData((prev) => ({
-      ...prev,
-      [bundleId]: { ...prev[bundleId], basePrice: n, hasChanges: true },
-    }));
   };
 
   const handleSaveAll = async () => {
@@ -229,8 +211,8 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
         typeof data.basePrice === "number"
           ? data.basePrice
           : data.basePrice.trim() === ""
-          ? NaN
-          : parseFloat(data.basePrice);
+            ? NaN
+            : parseFloat(data.basePrice);
 
       if (Number.isNaN(basePriceValue) || basePriceValue < 0) {
         addToast(`Base price for bundle ${bundleId} must be a valid positive number`, "error");
@@ -243,8 +225,8 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
           typeof value === "number"
             ? value
             : value.trim() === ""
-            ? NaN
-            : parseFloat(value);
+              ? NaN
+              : parseFloat(value);
 
         if (Number.isNaN(tierValue) || tierValue < 0) {
           addToast(`Price for ${userType} on bundle ${bundleId} must be a valid positive number`, "error");
@@ -594,8 +576,8 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
                             background: bp.hasChanges
                               ? "var(--color-pending-bg)"
                               : idx % 2 === 0
-                              ? "var(--color-surface)"
-                              : "var(--color-control-bg)",
+                                ? "var(--color-surface)"
+                                : "var(--color-control-bg)",
                             borderBottom: `1px solid var(--color-border)`,
                             transition: "background 0.15s",
                           }}
@@ -693,10 +675,10 @@ export const BulkPricingManagementModal: React.FC<BulkPricingManagementModalProp
             >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
-                  { label: "Total Bundles",    value: bundles.length,                      color: "var(--color-text)"         },
-                  { label: "Modified",         value: changedCount,                        color: "var(--color-pending-icon)" },
-                  { label: "User Types",       value: USER_TYPES.length,                   color: "var(--color-primary-500)"  },
-                  { label: "Total Prices",     value: bundles.length * (USER_TYPES.length + 1), color: "var(--color-info)"   },
+                  { label: "Total Bundles", value: bundles.length, color: "var(--color-text)" },
+                  { label: "Modified", value: changedCount, color: "var(--color-pending-icon)" },
+                  { label: "User Types", value: USER_TYPES.length, color: "var(--color-primary-500)" },
+                  { label: "Total Prices", value: bundles.length * (USER_TYPES.length + 1), color: "var(--color-info)" },
                 ].map(({ label, value, color }) => (
                   <div key={label}>
                     <p className="text-xs mb-1" style={{ color: "var(--color-muted-text)" }}>{label}</p>

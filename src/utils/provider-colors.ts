@@ -5,8 +5,22 @@ type ProviderColors = {
   text: string;
 };
 
+type ThemedProviderColors = {
+  light: ProviderColors;
+  dark: ProviderColors;
+};
+
 type ProviderColorMap = {
-  [key: string]: ProviderColors;
+  [key: string]: ThemedProviderColors;
+};
+
+const DEFAULT_MODE = "light" as const;
+
+type ThemeMode = typeof DEFAULT_MODE | "dark";
+
+const getBrowserThemeMode = (): ThemeMode => {
+  if (typeof document === "undefined") return DEFAULT_MODE;
+  return document.body.classList.contains("theme-dark") ? "dark" : "light";
 };
 
 /**
@@ -14,35 +28,75 @@ type ProviderColorMap = {
  */
 export const providerColors: ProviderColorMap = {
   MTN: {
-    primary: '#ffc403', // MTN Yellow (official brand color)
-    secondary: '#1A2526', // MTN Dark Gray
-    background: '#FFF8E1', // Subtle yellow-tinted background
-    text: '#FFFFFF' // White for high contrast on primary color
+    light: {
+      primary: "#ffc403",
+      secondary: "#1A2526",
+      background: "#FFF8E1",
+      text: "#000000",
+    },
+    dark: {
+      primary: "#ffc403",
+      secondary: "#E6C200",
+      background: "#202528",
+      text: "#FFFFFF",
+    },
   },
   TELECEL: {
-    primary: '#f8020f', // Telecel Red (official brand color)
-    secondary: '#37474F', // Telecel Slate Gray
-    background: '#FFEBEE', // Subtle red-tinted background
-    text: '#FFFFFF'
+    light: {
+      primary: "#f8020f",
+      secondary: "#37474F",
+      background: "#FFEBEE",
+      text: "#FFFFFF",
+    },
+    dark: {
+      primary: "#f8020f",
+      secondary: "#f28b94",
+      background: "#2A2F33",
+      text: "#FFFFFF",
+    },
   },
   AT: {
-    primary: '#223d76', // AirtelTigo Blue (official brand color)
-    secondary: '#e8262c', // AirtelTigo Red
-    background: '#E3F2FD', // Subtle blue-tinted background
-    text: '#FFFFFF'
+    light: {
+      primary: "#223d76",
+      secondary: "#e8262c",
+      background: "#E3F2FD",
+      text: "#FFFFFF",
+    },
+    dark: {
+      primary: "#8ca8ff",
+      secondary: "#e8262c",
+      background: "#152238",
+      text: "#FFFFFF",
+    },
   },
   AFA: {
-    primary: '#2E7D32', // AFA Green (brand green)
-    secondary: '#1B5E20', // AFA Dark Green
-    background: '#E8F5E9', // Subtle green-tinted background
-    text: '#FFFFFF'
+    light: {
+      primary: "#2E7D32",
+      secondary: "#1B5E20",
+      background: "#E8F5E9",
+      text: "#FFFFFF",
+    },
+    dark: {
+      primary: "#7cc57c",
+      secondary: "#a8d5a8",
+      background: "#152a1c",
+      text: "#FFFFFF",
+    },
   },
   default: {
-    primary: '#9CA3AF', // Neutral gray
-    secondary: '#4B5563', // Darker gray
-    background: '#F9FAFB', // Light gray background
-    text: '#FFFFFF'
-  }
+    light: {
+      primary: "#9CA3AF",
+      secondary: "#4B5563",
+      background: "#F9FAFB",
+      text: "#111827",
+    },
+    dark: {
+      primary: "#9CA3AF",
+      secondary: "#D1D5DB",
+      background: "#111827",
+      text: "#F8FAFC",
+    },
+  },
 };
 
 /**
@@ -50,13 +104,17 @@ export const providerColors: ProviderColorMap = {
  * @param providerName - The name of the network provider
  * @returns The brand colors for the provider or default colors if not found
  */
-export const getProviderColors = (providerName: string | undefined): ProviderColors => {
-  if (!providerName) return providerColors.default;
-  
-  // Normalize provider name and check if it exists in the map
-  const normalizedName = Object.keys(providerColors).find(
-    name => name.toLowerCase() === providerName.toLowerCase()
-  );
-  
-  return normalizedName ? providerColors[normalizedName] : providerColors.default;
+export const getProviderColors = (
+  providerName: string | undefined,
+  themeMode?: ThemeMode
+): ProviderColors => {
+  const mode = themeMode ?? getBrowserThemeMode();
+  const normalizedName = providerName
+    ? Object.keys(providerColors).find(
+        (name) => name.toLowerCase() === providerName.toLowerCase()
+      )
+    : null;
+
+  const providerKey = normalizedName ?? "default";
+  return providerColors[providerKey][mode];
 };

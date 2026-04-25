@@ -37,6 +37,7 @@ import {
   TableRow,
   TableCell,
 } from "../../design-system";
+import { useTheme } from "../../hooks/use-theme";
 import { BundleCreationModal } from "../../components/products/BundleCreationModal";
 import { PricingManagementModal } from "../../components/products/PricingManagementModal";
 import { BulkPricingManagementModal } from "../../components/products/BulkPricingManagementModal";
@@ -45,28 +46,28 @@ import { getProviderColors } from "../../utils/provider-colors";
 
 const statusOptions = [
   { value: "", label: "All Status" },
-  { value: "active", label: "Active", color: "text-green-600 bg-green-100" },
-  { value: "inactive", label: "Inactive", color: "text-red-600 bg-red-100" },
+  { value: "active", label: "Active", color: "text-[var(--color-success-icon)] bg-[var(--color-success-bg)]" },
+  { value: "inactive", label: "Inactive", color: "text-[var(--color-error)] bg-[var(--color-failed-bg)]" },
 ];
 
 const categoryOptions = [
   { value: "", label: "All Categories" },
-  { value: "daily", label: "Daily", color: "text-blue-600 bg-blue-100" },
-  { value: "weekly", label: "Weekly", color: "text-purple-600 bg-purple-100" },
-  { value: "monthly", label: "Monthly", color: "text-green-600 bg-green-100" },
+  { value: "daily", label: "Daily", color: "text-[var(--color-primary-700)] bg-[var(--color-primary-100)]" },
+  { value: "weekly", label: "Weekly", color: "text-[var(--color-info)] bg-[var(--color-primary-100)]" },
+  { value: "monthly", label: "Monthly", color: "text-[var(--color-success-icon)] bg-[var(--color-success-bg)]" },
   {
     value: "unlimited",
     label: "Unlimited",
-    color: "text-orange-600 bg-orange-100",
+    color: "text-[var(--color-warning)] bg-[var(--color-pending-bg)]",
   },
-  { value: "custom", label: "Custom", color: "text-gray-600 bg-gray-100" },
+  { value: "custom", label: "Custom", color: "text-[var(--color-secondary-text)] bg-[var(--color-control-bg)]" },
 ];
 
 const dataUnitOptions = [
   { value: "", label: "All Units" },
-  { value: "MB", label: "MB", color: "text-blue-600 bg-blue-100" },
-  { value: "GB", label: "GB", color: "text-green-600 bg-green-100" },
-  { value: "TB", label: "TB", color: "text-purple-600 bg-purple-100" },
+  { value: "MB", label: "MB", color: "text-[var(--color-primary-700)] bg-[var(--color-primary-100)]" },
+  { value: "GB", label: "GB", color: "text-[var(--color-success-icon)] bg-[var(--color-success-bg)]" },
+  { value: "TB", label: "TB", color: "text-[var(--color-info)] bg-[var(--color-primary-100)]" },
 ];
 
 export const BundleManagementPage: React.FC = () => {
@@ -93,6 +94,9 @@ export const BundleManagementPage: React.FC = () => {
   const [category, setCategory] = useState("");
   const [dataUnit, setDataUnit] = useState("");
   const [search, setSearch] = useState("");
+  const { themeMode } = useTheme();
+
+  const packageProviderColors = getProviderColors(pkg?.provider, themeMode);
 
   // Filter options for the reusable component
   const filterOptions = {
@@ -398,17 +402,17 @@ export const BundleManagementPage: React.FC = () => {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "daily":
-        return "text-blue-600 bg-blue-100";
+        return "text-[var(--color-primary-500)] bg-[var(--color-primary-100)]";
       case "weekly":
-        return "text-purple-600 bg-purple-100";
+        return "text-[var(--color-info)] bg-[var(--color-primary-100)]";
       case "monthly":
-        return "text-green-600 bg-green-100";
+        return "text-[var(--color-success-icon)] bg-[var(--color-success-bg)]";
       case "unlimited":
-        return "text-orange-600 bg-orange-100";
+        return "text-[var(--color-warning)] bg-[var(--color-pending-bg)]";
       case "custom":
-        return "text-gray-600 bg-gray-100";
+        return "text-[var(--color-secondary-text)] bg-[var(--color-control-bg)]";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "text-[var(--color-secondary-text)] bg-[var(--color-control-bg)]";
     }
   };
 
@@ -440,7 +444,7 @@ export const BundleManagementPage: React.FC = () => {
       <div className="p-6 text-center">
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">Loading package details...</span>
+          <span className="ml-3 text-[var(--color-secondary-text)]">Loading package details...</span>
         </div>
       </div>
     );
@@ -449,8 +453,8 @@ export const BundleManagementPage: React.FC = () => {
   if (error && !pkg) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="rounded-lg p-4" style={{ background: 'var(--color-failed-bg)', border: '1px solid var(--color-border)' }}>
+          <p className="text-[var(--color-error)]">{error}</p>
         </div>
       </div>
     );
@@ -462,7 +466,7 @@ export const BundleManagementPage: React.FC = () => {
       <Card>
         <CardHeader>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <Button
                 variant="outline"
                 size="sm"
@@ -476,12 +480,12 @@ export const BundleManagementPage: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-bold mb-2">
                   Bundle Management
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600">
+                <p className="text-sm sm:text-base text-[var(--color-secondary-text)]">
                   Managing bundles for:{" "}
                   <span className="font-semibold">{pkg?.name}</span>
                 </p>
                 {pkg?.description && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-[var(--color-muted-text)] mt-1">
                     {pkg.description}
                   </p>
                 )}
@@ -500,10 +504,11 @@ export const BundleManagementPage: React.FC = () => {
               </Button>
               <Button
                 variant="outline"
+                colorScheme="success"
                 onClick={handleBulkPricing}
                 disabled={loading || bundles.length === 0}
                 size="sm"
-                className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 w-full"
+                className="w-full"
               >
                 <FaDollarSign className="mr-2" />
                 Bulk Pricing
@@ -527,15 +532,15 @@ export const BundleManagementPage: React.FC = () => {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-[var(--color-secondary-text)]">
                   Total Bundles
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                <p className="text-lg sm:text-2xl font-bold text-[var(--color-text)]">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-2 sm:p-3 bg-blue-100 rounded-full">
-                <FaCube className="text-blue-600 text-lg sm:text-xl" />
+              <div className="p-2 sm:p-3 rounded-full bg-[var(--color-primary-100)]">
+                <FaCube className="text-[var(--color-primary-500)] text-lg sm:text-xl" />
               </div>
             </div>
           </CardBody>
@@ -545,15 +550,15 @@ export const BundleManagementPage: React.FC = () => {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-[var(--color-secondary-text)]">
                   Active
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-green-600">
+                <p className="text-lg sm:text-2xl font-bold text-[var(--color-success-icon)]">
                   {stats.active}
                 </p>
               </div>
-              <div className="p-2 sm:p-3 bg-green-100 rounded-full">
-                <FaCheckCircle className="text-green-600 text-lg sm:text-xl" />
+              <div className="p-2 sm:p-3 rounded-full bg-[var(--color-success-bg)]">
+                <FaCheckCircle className="text-[var(--color-success-icon)] text-lg sm:text-xl" />
               </div>
             </div>
           </CardBody>
@@ -563,15 +568,15 @@ export const BundleManagementPage: React.FC = () => {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-[var(--color-secondary-text)]">
                   Inactive
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-red-600">
+                <p className="text-lg sm:text-2xl font-bold text-[var(--color-error)]">
                   {stats.inactive}
                 </p>
               </div>
-              <div className="p-2 sm:p-3 bg-red-100 rounded-full">
-                <FaTimesCircle className="text-red-600 text-lg sm:text-xl" />
+              <div className="p-2 sm:p-3 rounded-full bg-[var(--color-failed-bg)]">
+                <FaTimesCircle className="text-[var(--color-error)] text-lg sm:text-xl" />
               </div>
             </div>
           </CardBody>
@@ -581,15 +586,15 @@ export const BundleManagementPage: React.FC = () => {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-[var(--color-secondary-text)]">
                   Total Value
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-purple-600">
+                <p className="text-lg sm:text-2xl font-bold text-[var(--color-info)]">
                   {formatCurrency(stats.totalValue)}
                 </p>
               </div>
-              <div className="p-2 sm:p-3 bg-purple-100 rounded-full">
-                <FaDatabase className="text-purple-600 text-lg sm:text-xl" />
+              <div className="p-2 sm:p-3 rounded-full bg-[var(--color-control-bg)]">
+                <FaDatabase className="text-[var(--color-info)] text-lg sm:text-xl" />
               </div>
             </div>
           </CardBody>
@@ -599,13 +604,13 @@ export const BundleManagementPage: React.FC = () => {
           <CardBody>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-[var(--color-secondary-text)]">
                   Provider
                 </p>
                 <p
                   className="text-lg sm:text-2xl font-bold"
                   style={{
-                    color: getProviderColors(pkg?.provider)?.primary,
+                    color: packageProviderColors.primary,
                   }}
                 >
                   {pkg?.provider || "N/A"}
@@ -614,12 +619,12 @@ export const BundleManagementPage: React.FC = () => {
               <div
                 className="p-2 sm:p-3 rounded-full"
                 style={{
-                  backgroundColor: getProviderColors(pkg?.provider)?.background,
+                  backgroundColor: packageProviderColors.background,
                 }}
               >
                 <FaBuilding
-                  className={`text-lg sm:text-xl ${getProviderColors(pkg?.provider)?.primary
-                    }`}
+                  className="text-lg sm:text-xl"
+                  style={{ color: packageProviderColors.primary }}
                 />
               </div>
             </div>
@@ -629,27 +634,23 @@ export const BundleManagementPage: React.FC = () => {
 
       {/* Bulk Pricing Info Banner */}
       {bundles.length > 0 && (
-        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+        <Card className="border border-[var(--color-border)] bg-[var(--color-success-bg)]">
           <CardBody>
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
-                <FaDollarSign className="text-green-600 text-xl" />
+              <div className="p-2 rounded-lg flex-shrink-0 bg-[var(--color-success-bg)]">
+                <FaDollarSign className="text-[var(--color-success-icon)] text-xl" />
               </div>
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                <h3 className="text-sm font-semibold text-[var(--color-text)] mb-1">
                   💡 Bulk Pricing Management Available
                 </h3>
-                <p className="text-xs text-gray-700 mb-2">
+                <p className="text-xs text-[var(--color-secondary-text)] mb-2">
                   Manage pricing for all {bundles.length} bundles across
                   multiple user types (Customer, Agent, Super Agent, Dealer,
                   Super Dealer) in one place. Click "Bulk Pricing" to open the
                   management table.
                 </p>
-                <Button
-                  size="sm"
-                  onClick={handleBulkPricing}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
+                <Button size="sm" colorScheme="success" onClick={handleBulkPricing}>
                   <FaDollarSign className="mr-2" />
                   Open Bulk Pricing Manager
                 </Button>
@@ -677,7 +678,7 @@ export const BundleManagementPage: React.FC = () => {
       {error && (
         <Card>
           <CardBody>
-            <p className="text-red-800 text-sm sm:text-base">{error}</p>
+            <p className="text-[var(--color-error)] text-sm sm:text-base">{error}</p>
           </CardBody>
         </Card>
       )}
@@ -686,7 +687,7 @@ export const BundleManagementPage: React.FC = () => {
       {actionError && (
         <Card>
           <CardBody>
-            <p className="text-red-800 text-sm sm:text-base">{actionError}</p>
+            <p className="text-[var(--color-error)] text-sm sm:text-base">{actionError}</p>
           </CardBody>
         </Card>
       )}
@@ -697,14 +698,14 @@ export const BundleManagementPage: React.FC = () => {
           {loading ? (
             <div className="p-6 sm:p-8 text-center">
               <Spinner size="lg" />
-              <span className="ml-3 text-sm sm:text-base text-gray-600">
+              <span className="ml-3 text-sm sm:text-base text-[var(--color-secondary-text)]">
                 Loading bundles...
               </span>
             </div>
           ) : bundles.length === 0 ? (
             <div className="p-6 sm:p-8 text-center">
-              <FaCube className="mx-auto text-gray-400 text-3xl sm:text-4xl mb-4" />
-              <p className="text-sm sm:text-base text-gray-500">
+              <FaCube className="mx-auto text-[var(--color-secondary-text)] text-3xl sm:text-4xl mb-4" />
+              <p className="text-sm sm:text-base text-[var(--color-secondary-text)]">
                 No bundles found matching your criteria.
               </p>
               <Button onClick={handleCreate} className="mt-4">
@@ -716,11 +717,11 @@ export const BundleManagementPage: React.FC = () => {
             <>
               <div className="grid grid-cols-1 gap-4 lg:hidden">
                 {bundles.map((bundle) => {
-                  const providerColors = getProviderColors(pkg?.provider);
+                  const providerColors = getProviderColors(pkg?.provider, themeMode);
                   return (
                     <Card
                       key={bundle._id}
-                      className="border border-gray-200"
+                      className="border border-[var(--color-border)]"
                       style={{
                         borderTop: `4px solid ${providerColors.primary}`,
                         backgroundColor: providerColors.background,
@@ -729,10 +730,10 @@ export const BundleManagementPage: React.FC = () => {
                       <CardBody className="p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <h3 className="text-base font-semibold text-gray-900 truncate">
+                            <h3 className="text-base font-semibold text-[var(--color-text)] truncate">
                               {bundle.name}
                             </h3>
-                            <p className="text-xs text-gray-600 mt-0.5">
+                            <p className="text-xs text-[var(--color-secondary-text)] mt-0.5">
                               {pkg?.provider || "N/A"}
                             </p>
                           </div>
@@ -746,21 +747,21 @@ export const BundleManagementPage: React.FC = () => {
                         </div>
 
                         {bundle.description && (
-                          <p className="text-xs text-gray-600 mt-3 line-clamp-2">
+                          <p className="text-xs text-[var(--color-secondary-text)] mt-3 line-clamp-2">
                             {bundle.description}
                           </p>
                         )}
 
-                        <div className="mt-3 rounded-lg bg-white/70 border border-gray-200 p-3 space-y-2">
+                        <div className="mt-3 rounded-lg bg-[var(--color-surface)]/70 border border-[var(--color-border)] p-3 space-y-2">
                           {pkg?.provider === "AFA" ? (
                             <>
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-500">Type</span>
-                                <span className="font-medium text-gray-900">AFA Registration Service</span>
+                                <span className="text-[var(--color-secondary-text)]">Type</span>
+                                <span className="font-medium text-[var(--color-text)]">AFA Registration Service</span>
                               </div>
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-500">Ghana Card</span>
-                                <span className="font-medium text-gray-900">
+                                <span className="text-[var(--color-secondary-text)]">Ghana Card</span>
+                                <span className="font-medium text-[var(--color-text)]">
                                   {bundle.requiresGhanaCard ? "Required" : "Optional"}
                                 </span>
                               </div>
@@ -768,14 +769,14 @@ export const BundleManagementPage: React.FC = () => {
                           ) : (
                             <>
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-500">Data</span>
-                                <span className="font-medium text-gray-900">
+                                <span className="text-[var(--color-secondary-text)]">Data</span>
+                                <span className="font-medium text-[var(--color-text)]">
                                   {bundle.dataVolume} {bundle.dataUnit}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-500">Validity</span>
-                                <span className="font-medium text-gray-900">
+                                <span className="text-[var(--color-secondary-text)]">Validity</span>
+                                <span className="font-medium text-[var(--color-text)]">
                                   {bundle.validity === "unlimited" ||
                                     bundle.validityUnit === "unlimited"
                                     ? "Unlimited"
@@ -786,8 +787,8 @@ export const BundleManagementPage: React.FC = () => {
                           )}
 
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-500">Price</span>
-                            <span className="font-semibold text-gray-900">
+                            <span className="text-[var(--color-secondary-text)]">Price</span>
+                            <span className="font-semibold text-[var(--color-text)]">
                               {formatCurrency(bundle.price, bundle.currency)}
                             </span>
                           </div>
@@ -799,19 +800,20 @@ export const BundleManagementPage: React.FC = () => {
                               {bundle.category}
                             </Badge>
                           )}
-                          <Badge variant="outline" size="sm" className="bg-gray-100 text-gray-700">
+                          <Badge variant="outline" size="sm" className="bg-[var(--color-control-bg)] text-[var(--color-secondary-text)]">
                             <FaCalendar className="w-3 h-3 mr-1" />
                             {formatDate(bundle.createdAt || "")}
                           </Badge>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-gray-200 space-y-2">
+                        <div className="mt-4 pt-3 border-t border-[var(--color-border)] space-y-2">
                           <Button
                             size="sm"
                             variant="outline"
+                            colorScheme="success"
                             onClick={() => handlePricingManagement(bundle)}
                             disabled={actionLoading}
-                            className="w-full text-sm text-green-700 border-green-300 hover:bg-green-50"
+                            className="w-full text-sm"
                           >
                             <FaDollarSign className="mr-2" />
                             Manage Pricing
@@ -862,29 +864,29 @@ export const BundleManagementPage: React.FC = () => {
                     {bundles.map((bundle) => (
                       <TableRow key={bundle._id}>
                         <TableCell>
-                          <div className="text-sm font-semibold text-gray-900">{bundle.name}</div>
-                          <div className="text-xs text-gray-500">{pkg?.provider || "N/A"}</div>
+                          <div className="text-sm font-semibold text-[var(--color-text)]">{bundle.name}</div>
+                          <div className="text-xs text-[var(--color-secondary-text)]">{pkg?.provider || "N/A"}</div>
                         </TableCell>
                         <TableCell>
                           {pkg?.provider === "AFA" ? (
-                            <div className="text-xs text-gray-700">
+                            <div className="text-xs text-[var(--color-secondary-text)]">
                               AFA Registration Service
                             </div>
                           ) : (
-                            <div className="text-xs text-gray-700">
+                            <div className="text-xs text-[var(--color-secondary-text)]">
                               {bundle.dataVolume} {bundle.dataUnit}
                             </div>
                           )}
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs text-gray-700">
+                          <span className="text-xs text-[var(--color-secondary-text)]">
                             {bundle.validity === "unlimited" || bundle.validityUnit === "unlimited"
                               ? "Unlimited"
                               : `${bundle.validity} ${bundle.validityUnit}`}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-sm font-semibold text-[var(--color-text)]">
                             {formatCurrency(bundle.price, bundle.currency)}
                           </span>
                         </TableCell>
@@ -894,7 +896,7 @@ export const BundleManagementPage: React.FC = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs text-gray-700">{formatDate(bundle.createdAt || "")}</span>
+                          <span className="text-xs text-[var(--color-secondary-text)]">{formatDate(bundle.createdAt || "")}</span>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -903,7 +905,7 @@ export const BundleManagementPage: React.FC = () => {
                               variant="outline"
                               onClick={() => handlePricingManagement(bundle)}
                               disabled={actionLoading}
-                              className="text-green-700 border-green-300"
+                              colorScheme="success"
                             >
                               <FaDollarSign className="w-3 h-3" />
                             </Button>
@@ -963,7 +965,7 @@ export const BundleManagementPage: React.FC = () => {
           <h2 className="text-lg font-bold">Delete Bundle</h2>
         </DialogHeader>
         <DialogBody>
-          <p className="text-gray-600">
+          <p className="text-[var(--color-secondary-text)]">
             Are you sure you want to delete{" "}
             <span className="font-semibold">{deleteBundle?.name}</span>? This
             action cannot be undone.
