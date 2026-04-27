@@ -22,6 +22,7 @@ import {
   FaEyeSlash,
   FaSpinner,
   FaWhatsapp,
+  FaUsers,
 } from "react-icons/fa";
 import {
   Button,
@@ -226,17 +227,28 @@ export const LoginPage = () => {
         {/* Additional Help */}
         <div className="text-center pt-5 mt-2 border-t border-[var(--color-border)]">
           <p className="text-xs text-[var(--color-muted-text)] mb-3 font-medium">
-            Need help? Contact our support team
+            Need help? Contact support or join our WhatsApp community.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+          <div className="grid gap-3 sm:grid-cols-2">
             <a
-              href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
+              href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-[var(--color-success-text)] hover:text-[var(--color-success)] font-semibold px-3 py-1.5 rounded-full bg-[var(--color-success-bg)] transition-colors"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
             >
-              <FaWhatsapp className="mr-2" />
-              Join our WhatsApp Community
+              <FaWhatsapp className="w-5 h-5 text-[var(--color-whatsapp-text)]" />
+              <span className="text-left">
+                Contact support
+              </span>
+            </a>
+            <a
+              href="https://chat.whatsapp.com/EstSwEm3q9Z4sS42Ed5N8u?mode=ac_t"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
+            >
+              <FaUsers className="w-5 h-5 text-[var(--color-whatsapp-dark)]" />
+              Join WhatsApp community
             </a>
           </div>
         </div>
