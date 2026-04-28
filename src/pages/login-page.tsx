@@ -242,7 +242,7 @@ export const LoginPage = () => {
               </span>
             </a>
             <a
-              href="https://chat.whatsapp.com/EstSwEm3q9Z4sS42Ed5N8u?mode=ac_t"
+              href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
