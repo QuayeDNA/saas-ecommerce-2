@@ -1201,19 +1201,19 @@ export const ProfilePage: React.FC = () => {
                   Need help? Contact support
                 </p>
                 <a
-                  href="https://wa.me/+233548983019"
+                  href="https://wa.me/+233542405901"
                   target="_blank"
                   rel="noreferrer"
                   className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
                 >
-                  +233 54 898 3019
+                  +233 542 405 901
                 </a>
               </div>
 
               <div className="bg-green-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600 mb-2">Join our community</p>
                 <a
-                  href="https://chat.whatsapp.com/EstSwEm3q9Z4sS42Ed5N8u?mode=ac_t"
+                  href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
                   target="_blank"
                   rel="noreferrer"
                   className="text-green-600 hover:text-green-700 font-medium transition-colors"
