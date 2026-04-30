@@ -25,6 +25,8 @@ import {
   FaPalette,
   FaRedo,
   FaBell,
+  FaUsers,
+  FaWhatsapp
 } from "react-icons/fa";
 import { UserPen, Key, HelpCircle } from "lucide-react";
 import type { User } from "../types";
@@ -1192,35 +1194,32 @@ export const ProfilePage: React.FC = () => {
           <Card className="shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">
-                Support & Community
+                 Need help? Contact support or join our WhatsApp community.
               </h3>
             </CardHeader>
             <CardBody className="space-y-4">
-              <div className="bg-blue-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">
-                  Need help? Contact support
-                </p>
-                <a
-                  href="https://wa.me/+233548983019"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                >
-                  +233 54 898 3019
-                </a>
-              </div>
-
-              <div className="bg-green-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Join our community</p>
-                <a
-                  href="https://chat.whatsapp.com/EstSwEm3q9Z4sS42Ed5N8u?mode=ac_t"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-green-600 hover:text-green-700 font-medium transition-colors"
-                >
-                  WhatsApp Community
-                </a>
-              </div>
+             <div className="grid gap-3 sm:grid-cols-2">
+                        <a
+                          href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
+                        >
+                          <FaWhatsapp className="w-5 h-5 text-[var(--color-whatsapp-text)]" />
+                          <span className="text-left">
+                            Contact support
+                          </span>
+                        </a>
+                        <a
+                          href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
+                        >
+                          <FaUsers className="w-5 h-5 text-[var(--color-whatsapp-dark)]" />
+                          Join WhatsApp community
+                        </a>
+                      </div>
             </CardBody>
           </Card>
         </div>
