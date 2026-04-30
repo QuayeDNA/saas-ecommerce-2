@@ -211,186 +211,79 @@ export const ProfilePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto">
-          {/* Header Skeleton */}
-          <div className="mb-6 sm:mb-8">
-            <Skeleton
-              variant="text"
-              height="2.5rem"
-              width="200px"
-              className="mb-2"
-            />
-            <Skeleton variant="text" height="1rem" width="300px" />
-          </div>
+      <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-2">
+                <Skeleton variant="text" height="2.5rem" width="220px" />
+                <Skeleton variant="text" height="1rem" width="260px" />
+              </div>
+              <Skeleton
+                variant="rectangular"
+                height="42px"
+                width="140px"
+                className="rounded-xl"
+              />
+            </div>
 
-          {/* Mobile Layout Skeleton */}
-          <div className="space-y-4 sm:space-y-6 lg:hidden">
-            {/* Profile Header Card Skeleton */}
-            <Card className="shadow-sm">
-              <CardBody>
-                <div className="flex items-center gap-4">
-                  <Skeleton variant="circular" width="4rem" height="4rem" />
-                  <div className="flex-1">
-                    <Skeleton
-                      variant="text"
-                      height="1.5rem"
-                      width="150px"
-                      className="mb-1"
-                    />
-                    <Skeleton
-                      variant="text"
-                      height="1rem"
-                      width="120px"
-                      className="mb-2"
-                    />
-                    <div className="flex gap-2">
-                      <Skeleton
-                        variant="rectangular"
-                        width="60px"
-                        height="20px"
-                      />
-                      <Skeleton
-                        variant="rectangular"
-                        width="70px"
-                        height="20px"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Contact Info Skeleton */}
-            <Card className="shadow-sm">
-              <CardHeader>
-                <Skeleton variant="text" height="1.25rem" width="150px" />
-              </CardHeader>
-              <CardBody>
-                <div className="grid grid-cols-1 gap-3">
-                  <Skeleton variant="rectangular" height="3rem" />
-                  <Skeleton variant="rectangular" height="3rem" />
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Wallet Skeleton */}
-            <Card className="shadow-sm">
-              <CardHeader>
-                <Skeleton variant="text" height="1.25rem" width="120px" />
-              </CardHeader>
-              <CardBody>
-                <div className="text-center">
-                  <Skeleton
-                    variant="text"
-                    height="2.5rem"
-                    width="100px"
-                    className="mb-2 mx-auto"
-                  />
-                  <Skeleton
-                    variant="text"
-                    height="0.875rem"
-                    width="80px"
-                    className="mx-auto"
-                  />
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Quick Actions Skeleton */}
-            <Card className="shadow-sm">
-              <CardHeader>
-                <Skeleton variant="text" height="1.25rem" width="100px" />
-              </CardHeader>
-              <CardBody className="space-y-3">
-                <Skeleton variant="rectangular" height="2.5rem" />
-                <Skeleton variant="rectangular" height="2.5rem" />
-                <Skeleton variant="rectangular" height="2.5rem" />
-              </CardBody>
-            </Card>
-          </div>
-
-          {/* Desktop Bento Grid Skeleton */}
-          <div className="hidden lg:grid lg:grid-cols-12 gap-4 sm:gap-6">
-            {/* Main Content Skeleton */}
-            <div className="lg:col-span-8 space-y-4 sm:space-y-6">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
               <Card className="shadow-sm">
                 <CardBody>
-                  <div className="flex items-center gap-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <Skeleton variant="circular" width="5rem" height="5rem" />
-                    <div className="flex-1">
-                      <Skeleton
-                        variant="text"
-                        height="2rem"
-                        width="200px"
-                        className="mb-2"
-                      />
-                      <Skeleton
-                        variant="text"
-                        height="1rem"
-                        width="150px"
-                        className="mb-3"
-                      />
-                      <div className="flex gap-2">
-                        <Skeleton
-                          variant="rectangular"
-                          width="80px"
-                          height="24px"
-                        />
-                        <Skeleton
-                          variant="rectangular"
-                          width="90px"
-                          height="24px"
-                        />
+                    <div className="flex-1 space-y-3">
+                      <Skeleton variant="text" height="1.5rem" width="70%" />
+                      <Skeleton variant="text" height="1rem" width="50%" />
+                      <div className="flex flex-wrap gap-2">
+                        <Skeleton variant="rectangular" width="80px" height="28px" />
+                        <Skeleton variant="rectangular" width="80px" height="28px" />
                       </div>
                     </div>
                   </div>
                 </CardBody>
               </Card>
 
-              <Card className="shadow-sm">
-                <CardHeader>
-                  <Skeleton variant="text" height="1.25rem" width="150px" />
-                </CardHeader>
-                <CardBody>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Skeleton variant="rectangular" height="4rem" />
-                    <Skeleton variant="rectangular" height="4rem" />
-                  </div>
-                </CardBody>
-              </Card>
+              <div className="space-y-4">
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <Skeleton variant="text" height="1.25rem" width="140px" />
+                  </CardHeader>
+                  <CardBody className="space-y-3">
+                    <Skeleton variant="rectangular" height="3rem" />
+                    <Skeleton variant="rectangular" height="3rem" />
+                  </CardBody>
+                </Card>
+
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <Skeleton variant="text" height="1.25rem" width="140px" />
+                  </CardHeader>
+                  <CardBody>
+                    <div className="text-center space-y-2">
+                      <Skeleton variant="text" height="2.5rem" width="100px" className="mx-auto" />
+                      <Skeleton variant="text" height="0.875rem" width="80px" className="mx-auto" />
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
             </div>
 
-            {/* Sidebar Skeleton */}
-            <div className="lg:col-span-4 space-y-4 sm:space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2">
               <Card className="shadow-sm">
                 <CardHeader>
                   <Skeleton variant="text" height="1.25rem" width="120px" />
                 </CardHeader>
-                <CardBody>
-                  <div className="text-center">
-                    <Skeleton
-                      variant="text"
-                      height="3rem"
-                      width="120px"
-                      className="mb-2 mx-auto"
-                    />
-                    <Skeleton
-                      variant="text"
-                      height="0.875rem"
-                      width="60px"
-                      className="mx-auto"
-                    />
-                  </div>
-                </CardBody>
-              </Card>
-
-              <Card className="shadow-sm">
-                <CardHeader>
-                  <Skeleton variant="text" height="1.25rem" width="100px" />
-                </CardHeader>
                 <CardBody className="space-y-3">
                   <Skeleton variant="rectangular" height="2.5rem" />
+                  <Skeleton variant="rectangular" height="2.5rem" />
+                </CardBody>
+              </Card>
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <Skeleton variant="text" height="1.25rem" width="120px" />
+                </CardHeader>
+                <CardBody className="space-y-3">
                   <Skeleton variant="rectangular" height="2.5rem" />
                   <Skeleton variant="rectangular" height="2.5rem" />
                 </CardBody>
@@ -404,8 +297,8 @@ export const ProfilePage: React.FC = () => {
 
   if (!profileData) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto">
+      <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <Alert status="error" className="mb-4">
             Failed to load profile data. Please try refreshing the page.
           </Alert>
@@ -849,30 +742,27 @@ export const ProfilePage: React.FC = () => {
                 Support & Community
               </h3>
             </CardHeader>
-            <CardBody>
-              <div className="bg-blue-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">
-                  Need help? Contact support
-                </p>
+            <CardBody className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <a
-                  href="https://wa.me/+233548983019"
+                  href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
                   target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
                 >
-                  +233 54 898 3019
+                  <FaWhatsapp className="w-5 h-5 text-[var(--color-whatsapp-text)]" />
+                  <span className="text-left">
+                    Contact support
+                  </span>
                 </a>
-              </div>
-
-              <div className="bg-green-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Join our community</p>
                 <a
-                  href="https://chat.whatsapp.com/EstSwEm3q9Z4sS42Ed5N8u?mode=ac_t"
+                  href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
                   target="_blank"
-                  rel="noreferrer"
-                  className="text-green-600 hover:text-green-700 font-medium transition-colors"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
                 >
-                  WhatsApp Community
+                  <FaUsers className="w-5 h-5 text-[var(--color-whatsapp-dark)]" />
+                  Join WhatsApp community
                 </a>
               </div>
             </CardBody>
@@ -1006,6 +896,53 @@ export const ProfilePage: React.FC = () => {
                 </CardBody>
               </Card>
             )}
+
+            {/* Appearance Settings */}
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <FaPalette className="text-purple-600" />
+                  Appearance
+                </h3>
+              </CardHeader>
+              <CardBody>
+                <ColorSchemeSelector />
+              </CardBody>
+            </Card>
+
+            {/* Support Card */}
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Need help? Contact support or join our WhatsApp community.
+                </h3>
+              </CardHeader>
+              <CardBody className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <a
+                    href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
+                  >
+                    <FaWhatsapp className="w-5 h-5 text-[var(--color-whatsapp-text)]" />
+                    <span className="text-left">
+                      Contact support
+                    </span>
+                  </a>
+                  <a
+                    href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
+                  >
+                    <FaUsers className="w-5 h-5 text-[var(--color-whatsapp-dark)]" />
+                    Join WhatsApp community
+                  </a>
+                </div>
+              </CardBody>
+            </Card>
+
           </div>
 
           {/* Sidebar - Spans 4 columns */}
@@ -1173,55 +1110,6 @@ export const ProfilePage: React.FC = () => {
               </CardBody>
             </Card>
           </div>
-        </div>
-
-        {/* Additional Cards Grid - Below Main Bento Grid */}
-        <div className="hidden lg:grid lg:grid-cols-2 gap-4 sm:gap-6 mt-6">
-          {/* Appearance Settings */}
-          <Card className="shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader>
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <FaPalette className="text-purple-600" />
-                Appearance
-              </h3>
-            </CardHeader>
-            <CardBody>
-              <ColorSchemeSelector />
-            </CardBody>
-          </Card>
-
-          {/* Support Card */}
-          <Card className="shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader>
-              <h3 className="text-lg font-semibold text-gray-900">
-                 Need help? Contact support or join our WhatsApp community.
-              </h3>
-            </CardHeader>
-            <CardBody className="space-y-4">
-             <div className="grid gap-3 sm:grid-cols-2">
-                        <a
-                          href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
-                        >
-                          <FaWhatsapp className="w-5 h-5 text-[var(--color-whatsapp-text)]" />
-                          <span className="text-left">
-                            Contact support
-                          </span>
-                        </a>
-                        <a
-                          href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
-                        >
-                          <FaUsers className="w-5 h-5 text-[var(--color-whatsapp-dark)]" />
-                          Join WhatsApp community
-                        </a>
-                      </div>
-            </CardBody>
-          </Card>
         </div>
 
         {/* Dialogs */}
