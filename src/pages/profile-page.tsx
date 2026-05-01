@@ -309,7 +309,7 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto">
+      <div className="container mx-auto mb-16">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
