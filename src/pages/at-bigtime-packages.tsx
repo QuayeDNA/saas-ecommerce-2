@@ -3,7 +3,7 @@ import { ProviderPackageDisplay } from '../components/products/ProviderPackageDi
 export const AtBigTimePackagesPage = () => {
   return(
     <div className="space-y-6">
-      <ProviderPackageDisplay provider="AT" category="big-time" />
+      <ProviderPackageDisplay provider="AT" packageSlug="at-big-time" />
     </div>
   );
 };

@@ -37,6 +37,11 @@ class PackageService {
     return response.data.data;
   }
 
+  async getPackageBySlug(slug: string): Promise<Package> {
+    const response = await apiClient.get(`/api/packages/slug/${slug}`);
+    return response.data.data;
+  }
+
   async updatePackage(
     id: string,
     updateData: UpdatePackageData
