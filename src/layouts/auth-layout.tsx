@@ -34,7 +34,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             <CaskmafDatahubLogoCompact width={300} height={54} />
           </div>
         )}
-        <h1 className="text-2xl font-bold text-[var(--color-surface)] mb-3">{title}</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-surface)] mb-3">
+          {title}
+        </h1>
         {subtitle && (
           <p className="mb-3 max-w-xs text-sm text-primary-100/85">
             {subtitle}
@@ -48,19 +50,21 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           noPadding
           className="border border-[var(--color-border)] bg-[var(--color-background)] backdrop-blur-xl"
         >
-          <CardHeader className="hidden sm:block w-full border-b border-[var(--color-border)] bg-gradient-to-br from-primary-900 to-primary-800 px-6 pt-8 pb-6 text-center text-white rounded-t-[24px]">
+          <CardHeader className="hidden sm:block w-full border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 pt-8 pb-6 text-center text-[var(--color-text)] rounded-t-[24px] dark:bg-gradient-to-br dark:from-primary-900 dark:to-primary-800 dark:text-white">
             {showLogo && (
               <div className="mb-4 flex justify-center items-center">
                 <CaskmafDatahubLogoCompact width={300} height={54} />
               </div>
             )}
-            <h1 className="mb-2 text-2xl font-bold text-[var(--color-surface)]">{title}</h1>
+            <h1 className="mb-2 text-2xl font-bold text-[var(--color-text)] dark:text-[var(--color-surface)]">
+              {title}
+            </h1>
             {footerText && footerLinkText && footerLinkTo && (
-              <p className="text-sm text-primary-100/85">
+              <p className="text-sm text-[var(--color-secondary-text)] dark:text-primary-100/85">
                 {footerText}{" "}
                 <Link
                   to={footerLinkTo}
-                  className="font-semibold text-white hover:text-primary-100 transition-colors"
+                  className="font-semibold text-[var(--color-primary-700)] hover:text-[var(--color-primary-800)] transition-colors dark:text-white dark:hover:text-primary-100"
                 >
                   {footerLinkText}
                 </Link>

@@ -17,21 +17,24 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { Card, CardHeader, CardBody, Button } from "../../design-system";
-import {
-  userService,
-  type DashboardStats,
-} from "../../services/user.service";
+import { userService, type DashboardStats } from "../../services/user.service";
+
+import { StatsGrid } from "../../design-system/components/stats-card";
 
 const quickLinks = [
   {
     to: "/superadmin/users",
     label: "Manage Users",
-    icon: <FaUsers className="text-[var(--color-primary-600)] text-xl sm:text-2xl" />,
+    icon: (
+      <FaUsers className="text-[var(--color-primary-600)] text-xl sm:text-2xl" />
+    ),
   },
   {
     to: "/superadmin/providers",
     label: "Manage Providers",
-    icon: <FaBuilding className="text-[var(--color-success)] text-xl sm:text-2xl" />,
+    icon: (
+      <FaBuilding className="text-[var(--color-success)] text-xl sm:text-2xl" />
+    ),
   },
   {
     to: "/superadmin/packages",
@@ -41,17 +44,23 @@ const quickLinks = [
   {
     to: "/superadmin/orders",
     label: "View Orders",
-    icon: <FaClipboardList className="text-[var(--color-info)] text-xl sm:text-2xl" />,
+    icon: (
+      <FaClipboardList className="text-[var(--color-info)] text-xl sm:text-2xl" />
+    ),
   },
   {
     to: "/superadmin/wallet/top-ups",
     label: "Wallet & Transactions",
-    icon: <FaWallet className="text-[var(--color-primary-600)] text-xl sm:text-2xl" />,
+    icon: (
+      <FaWallet className="text-[var(--color-primary-600)] text-xl sm:text-2xl" />
+    ),
   },
   {
     to: "/superadmin/settings",
     label: "Settings",
-    icon: <FaCog className="text-[var(--color-secondary-text)] text-xl sm:text-2xl" />,
+    icon: (
+      <FaCog className="text-[var(--color-secondary-text)] text-xl sm:text-2xl" />
+    ),
   },
 ];
 
@@ -154,7 +163,7 @@ export default function SuperAdminDashboard() {
 
     const interval = setInterval(() => {
       setCarouselIndex(
-        (prevIndex) => (prevIndex + 1) % userTypeCarousel.length
+        (prevIndex) => (prevIndex + 1) % userTypeCarousel.length,
       );
     }, 3000); // Change every 3 seconds
 
@@ -213,24 +222,31 @@ export default function SuperAdminDashboard() {
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--caskmaf-navy)]/90 text-[var(--color-text)]">
                 <FaChartLine className="h-5 w-5" />
               </span>
-              <p className="text-sm sm:text-base font-semibold text-[var(--color-surface)]">Today's Activities</p>
+              <p className="text-sm sm:text-base font-semibold text-[var(--color-surface)]">
+                Today's Activities
+              </p>
             </div>
 
             <div className="mt-1 overflow-hidden">
               <div className="inline-block animate-marquee whitespace-nowrap text-sm text-[var(--color-surface)]">
-                Orders: {stats ? stats.orders.today.total : '...'} • Revenue: {stats ? formatCurrency(stats.revenue.today) : '...'} • New Users: {stats ? stats.users.newThisWeek : '...'} • Success: {stats ? `${stats.orders.successRate}%` : '...'}
+                Orders: {stats ? stats.orders.today.total : "..."} • Revenue:{" "}
+                {stats ? formatCurrency(stats.revenue.today) : "..."} • New
+                Users: {stats ? stats.users.newThisWeek : "..."} • Success:{" "}
+                {stats ? `${stats.orders.successRate}%` : "..."}
               </div>
             </div>
 
             <div className="mt-1 flex items-center justify-between gap-3">
-              <span className="text-xs text-[var(--color-secondary-text)]">{new Date().toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              })}</span>
+              <span className="text-xs text-[var(--color-secondary-text)]">
+                {new Date().toLocaleDateString("en-GB", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
               <span
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-surface)]/10 transition-transform duration-300 ${snapshotOpen ? 'rotate-180' : 'rotate-0'}`}
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-surface)]/10 transition-transform duration-300 ${snapshotOpen ? "rotate-180" : "rotate-0"}`}
               >
                 <FaChevronDown className="text-[var(--color-surface)]" />
               </span>
@@ -238,52 +254,97 @@ export default function SuperAdminDashboard() {
           </button>
 
           <div
-            className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-out ${snapshotOpen ? 'max-h-[1200px] opacity-100 mt-0' : 'max-h-0 opacity-0 mt-0'}`}
-            style={{ willChange: 'max-height, opacity' }}
+            className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-out ${snapshotOpen ? "max-h-[1200px] opacity-100 mt-0" : "max-h-0 opacity-0 mt-0"}`}
+            style={{ willChange: "max-height, opacity" }}
           >
             <div className="border-t border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4 sm:px-5">
               {loadingStats || !stats ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 animate-pulse" />
+                    <div
+                      key={i}
+                      className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 animate-pulse"
+                    />
                   ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
-                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">Orders Today</p>
-                    <p className="text-xl font-semibold text-[var(--color-text)]">{stats.orders.today.total}</p>
+                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">
+                      Orders Today
+                    </p>
+                    <p className="text-xl font-semibold text-[var(--color-text)]">
+                      {stats.orders.today.total}
+                    </p>
                     <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-[var(--color-secondary-text)]">
-                      {stats.orders.today.completed > 0 && <span className="rounded-full bg-[var(--color-success-bg)] px-2 py-0.5 text-[var(--color-success-text)]">{stats.orders.today.completed} completed</span>}
-                      {stats.orders.today.pending > 0 && <span className="rounded-full bg-[var(--color-pending-bg)] px-2 py-0.5 text-[var(--color-pending-text)]">{stats.orders.today.pending} pending</span>}
-                      {stats.orders.today.processing > 0 && <span className="rounded-full bg-[var(--color-primary-50)] px-2 py-0.5 text-[var(--color-text)]">{stats.orders.today.processing} processing</span>}
-                      {stats.orders.today.failed > 0 && <span className="rounded-full bg-[var(--color-failed-bg)] px-2 py-0.5 text-[var(--color-failed-text)]">{stats.orders.today.failed} failed</span>}
-                      {stats.orders.today.cancelled > 0 && <span className="rounded-full bg-[var(--color-border)] px-2 py-0.5 text-[var(--color-secondary-text)]">{stats.orders.today.cancelled} cancelled</span>}
+                      {stats.orders.today.completed > 0 && (
+                        <span className="rounded-full bg-[var(--color-success-bg)] px-2 py-0.5 text-[var(--color-success-text)]">
+                          {stats.orders.today.completed} completed
+                        </span>
+                      )}
+                      {stats.orders.today.pending > 0 && (
+                        <span className="rounded-full bg-[var(--color-pending-bg)] px-2 py-0.5 text-[var(--color-pending-text)]">
+                          {stats.orders.today.pending} pending
+                        </span>
+                      )}
+                      {stats.orders.today.processing > 0 && (
+                        <span className="rounded-full bg-[var(--color-primary-50)] px-2 py-0.5 text-[var(--color-text)]">
+                          {stats.orders.today.processing} processing
+                        </span>
+                      )}
+                      {stats.orders.today.failed > 0 && (
+                        <span className="rounded-full bg-[var(--color-failed-bg)] px-2 py-0.5 text-[var(--color-failed-text)]">
+                          {stats.orders.today.failed} failed
+                        </span>
+                      )}
+                      {stats.orders.today.cancelled > 0 && (
+                        <span className="rounded-full bg-[var(--color-border)] px-2 py-0.5 text-[var(--color-secondary-text)]">
+                          {stats.orders.today.cancelled} cancelled
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
-                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">Revenue Today</p>
-                    <p className="text-xl font-semibold text-[var(--color-success)]">{formatCurrency(stats.revenue.today)}</p>
-                    <p className="mt-1 text-[10px] text-[var(--color-secondary-text)]">This month: {formatCurrency(stats.revenue.thisMonth)}</p>
+                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">
+                      Revenue Today
+                    </p>
+                    <p className="text-xl font-semibold text-[var(--color-success)]">
+                      {formatCurrency(stats.revenue.today)}
+                    </p>
+                    <p className="mt-1 text-[10px] text-[var(--color-secondary-text)]">
+                      This month: {formatCurrency(stats.revenue.thisMonth)}
+                    </p>
                   </div>
                   <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
-                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">New Users This Week</p>
-                    <p className="text-xl font-semibold text-[var(--color-info)]">{stats.users.newThisWeek}</p>
-                    <p className="mt-1 text-[10px] text-[var(--color-secondary-text)]">{stats.users.total} total users</p>
+                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">
+                      New Users This Week
+                    </p>
+                    <p className="text-xl font-semibold text-[var(--color-info)]">
+                      {stats.users.newThisWeek}
+                    </p>
+                    <p className="mt-1 text-[10px] text-[var(--color-secondary-text)]">
+                      {stats.users.total} total users
+                    </p>
                   </div>
                   <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
-                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">Success Rate</p>
+                    <p className="text-[10px] text-[var(--color-secondary-text)] uppercase tracking-[0.2em] mb-1">
+                      Success Rate
+                    </p>
                     <p
-                      className={`text-xl font-semibold ${stats.orders.successRate >= 90
-                        ? 'text-[var(--color-success)]'
-                        : stats.orders.successRate >= 70
-                          ? 'text-[var(--color-warning)]'
-                          : 'text-[var(--color-error)]'
-                        }`}
+                      className={`text-xl font-semibold ${
+                        stats.orders.successRate >= 90
+                          ? "text-[var(--color-success)]"
+                          : stats.orders.successRate >= 70
+                            ? "text-[var(--color-warning)]"
+                            : "text-[var(--color-error)]"
+                      }`}
                     >
                       {stats.orders.successRate}%
                     </p>
-                    <p className="mt-1 text-[10px] text-[var(--color-secondary-text)]">{stats.orders.completed.toLocaleString()} of {stats.orders.total.toLocaleString()} orders</p>
+                    <p className="mt-1 text-[10px] text-[var(--color-secondary-text)]">
+                      {stats.orders.completed.toLocaleString()} of{" "}
+                      {stats.orders.total.toLocaleString()} orders
+                    </p>
                   </div>
                 </div>
               )}
@@ -293,205 +354,79 @@ export default function SuperAdminDashboard() {
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-        {loadingStats ? (
-          <>
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-          </>
-        ) : stats ? (
-          <>
-            {/* Total Users */}
-            <Card
-              className="transition-colors duration-200"
-              style={{
-                backgroundColor: "var(--color-primary-500)",
-                borderColor: "var(--color-primary-600)",
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-[var(--color-secondary-text)] mb-1 truncate">
-                      Total Users
-                    </p>
-                    <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
-                      {stats.users.total.toLocaleString()}
-                    </p>
-                    <p className="text-[9px] xs:text-xs text-[var(--color-success)] mt-0.5 sm:mt-1 truncate">
-                      +{stats.users.newThisWeek} this week
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-4 bg-[var(--color-surface)]/20 rounded-full flex-shrink-0 flex items-center justify-center">
-                    <FaUsers className="text-[var(--color-surface)] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl" />
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Total Revenue */}
-            <Card
-              className="transition-colors duration-200"
-              style={{
-                backgroundColor: "var(--color-primary-500)",
-                borderColor: "var(--color-primary-600)",
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-[var(--color-secondary-text)] mb-1 truncate">
-                      Total Revenue
-                    </p>
-                    <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
-                      {formatCurrency(stats.revenue.total)}
-                    </p>
-                    <p className="text-[9px] xs:text-xs text-[var(--color-success)] mt-0.5 sm:mt-1 truncate">
-                      +{formatCurrency(stats.revenue.total)} total
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-4 bg-[var(--color-surface)]/20 rounded-full flex-shrink-0 flex items-center justify-center">
-                    <FaMoneyBillWave className="text-[var(--color-surface)] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl" />
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Total Orders */}
-            <Card
-              className="transition-colors duration-200"
-              style={{
-                backgroundColor: "var(--color-primary-500)",
-                borderColor: "var(--color-primary-600)",
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-[var(--color-secondary-text)] mb-1 truncate">
-                      Total Orders
-                    </p>
-                    <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
-                      {stats.orders.total.toLocaleString()}
-                    </p>
-                    <p className="text-[9px] xs:text-xs text-[var(--color-info)] mt-0.5 sm:mt-1 truncate">
-                      {stats.orders.successRate}% success rate
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-4 bg-[var(--color-surface)]/20 rounded-full flex-shrink-0 flex items-center justify-center">
-                    <FaClipboardList className="text-[var(--color-surface)] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl" />
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* User Types Carousel */}
-            <Card
-              className="transition-colors duration-200 relative overflow-hidden"
-              style={{
-                backgroundColor: "var(--color-primary-500)",
-                borderColor: "var(--color-primary-600)",
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-[var(--color-secondary-text)] mb-1 truncate">
-                      {userTypeCarousel[carouselIndex].label}
-                    </p>
-                    <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
-                      {getUserTypeCount(userTypeCarousel[carouselIndex].key)}
-                    </p>
-                    <p
-                      className={`text-[9px] xs:text-xs mt-0.5 sm:mt-1 truncate ${userTypeCarousel[carouselIndex].color}`}
-                    >
-                      {getUserTypeCount(userTypeCarousel[carouselIndex].key)}{" "}
-                      total
-                    </p>
-                  </div>
-                  <div
-                    className={`p-2 sm:p-2.5 md:p-3 lg:p-4 ${userTypeCarousel[carouselIndex].bgColor} rounded-full flex-shrink-0 flex items-center justify-center`}
-                  >
-                    {userTypeCarousel[carouselIndex].icon}
-                  </div>
-                </div>
-                {/* Carousel Indicators */}
-                <div className="flex justify-center mt-2 sm:mt-3 space-x-1">
+      {loadingStats ? (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+          <MetricCardSkeleton />
+        </div>
+      ) : stats ? (
+        <StatsGrid
+          stats={[
+            {
+              title: "Total Users",
+              value: stats.users.total.toLocaleString(),
+              subtitle: `+${stats.users.newThisWeek} this week`,
+              icon: <FaUsers />,
+              variant: "solid",
+            },
+            {
+              title: "Total Revenue",
+              value: formatCurrency(stats.revenue.total),
+              subtitle: `+${formatCurrency(stats.revenue.total)} total`,
+              icon: <FaMoneyBillWave />,
+              variant: "solid",
+            },
+            {
+              title: "Total Orders",
+              value: stats.orders.total.toLocaleString(),
+              subtitle: `${stats.orders.successRate}% success rate`,
+              icon: <FaClipboardList />,
+              variant: "solid",
+            },
+            {
+              title: userTypeCarousel[carouselIndex].label,
+              value: getUserTypeCount(userTypeCarousel[carouselIndex].key),
+              subtitle: `${getUserTypeCount(userTypeCarousel[carouselIndex].key)} total`,
+              icon: userTypeCarousel[carouselIndex].icon,
+              variant: "solid",
+              children: (
+                <div className="flex justify-start mt-1 space-x-1">
                   {userTypeCarousel.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCarouselIndex(index)}
-                      className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors duration-200 ${index === carouselIndex ? "bg-[var(--color-surface)]" : "bg-[var(--color-surface)]/30"
-                        }`}
+                      className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors duration-200 ${
+                        index === carouselIndex ? "bg-white" : "bg-white/30"
+                      }`}
                       aria-label={`Go to ${userTypeCarousel[index].label}`}
                     />
                   ))}
                 </div>
-              </CardBody>
-            </Card>
-
-            {/* Total Commissions */}
-            <Card
-              className="transition-colors duration-200"
-              style={{
-                backgroundColor: "var(--color-primary-500)",
-                borderColor: "var(--color-primary-600)",
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-[var(--color-secondary-text)] mb-1 truncate">
-                      Total Commissions
-                    </p>
-                    <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
-                      {formatCurrency(stats.commissions.totalEarned)}
-                    </p>
-                    <p className="text-[9px] xs:text-xs text-[var(--color-warning)] mt-0.5 sm:mt-1 truncate">
-                      Paid: {formatCurrency(stats.commissions.totalPaid)} | {stats.commissions.pendingCount} pending
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-4 bg-[var(--color-surface)]/20 rounded-full flex-shrink-0 flex items-center justify-center">
-                    <FaMoneyBillWave className="text-[var(--color-surface)] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl" />
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Active Providers */}
-            <Card
-              className="transition-colors duration-200"
-              style={{
-                backgroundColor: "var(--color-primary-500)",
-                borderColor: "var(--color-primary-600)",
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-[var(--color-secondary-text)] mb-1 truncate">
-                      Active Providers
-                    </p>
-                    <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
-                      {stats.providers.active}
-                    </p>
-                    <p className="text-[9px] xs:text-xs text-[var(--color-info)] mt-0.5 sm:mt-1 truncate">
-                      {stats.providers.newThisMonth} new this month
-                    </p>
-                  </div>
-                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-4 bg-[var(--color-surface)]/20 rounded-full flex-shrink-0 flex items-center justify-center">
-                    <FaBuilding className="text-[var(--color-surface)] text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl" />
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </>
-        ) : null}
-      </div>
+              ),
+            },
+            {
+              title: "Total Commissions",
+              value: formatCurrency(stats.commissions.totalEarned),
+              subtitle: `Paid: ${formatCurrency(stats.commissions.totalPaid)} · ${stats.commissions.pendingCount} pending`,
+              icon: <FaMoneyBillWave />,
+              variant: "solid",
+            },
+            {
+              title: "Active Providers",
+              value: stats.providers.active,
+              subtitle: `${stats.providers.newThisMonth} new this month`,
+              icon: <FaBuilding />,
+              variant: "solid",
+            },
+          ]}
+          columns={3}
+          gap="lg"
+        />
+      ) : null}
 
       {/* Quick Actions - Mobile-first design */}
       <Card>
@@ -518,12 +453,18 @@ export default function SuperAdminDashboard() {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Analytics Summary</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">
+              Analytics Summary
+            </h3>
             <p className="text-sm text-[var(--color-secondary-text)] max-w-2xl">
-              A quick overview of your top business KPIs. See the full analytics dashboard for detailed trends and breakdowns.
+              A quick overview of your top business KPIs. See the full analytics
+              dashboard for detailed trends and breakdowns.
             </p>
           </div>
-          <Link to="/superadmin/analytics" className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-control-bg)]">
+          <Link
+            to="/superadmin/analytics"
+            className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-control-bg)]"
+          >
             See more
           </Link>
         </div>
@@ -548,7 +489,9 @@ export default function SuperAdminDashboard() {
               <div className="space-y-3 text-sm text-[var(--color-text)]">
                 <div className="flex justify-between items-center">
                   <span>Completed Orders</span>
-                  <span className="font-semibold">{stats.orders.completed}</span>
+                  <span className="font-semibold">
+                    {stats.orders.completed}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Pending Orders</span>
@@ -564,7 +507,9 @@ export default function SuperAdminDashboard() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Success Rate</span>
-                  <span className="font-semibold">{stats.orders.successRate}%</span>
+                  <span className="font-semibold">
+                    {stats.orders.successRate}%
+                  </span>
                 </div>
               </div>
             </CardBody>
@@ -580,15 +525,21 @@ export default function SuperAdminDashboard() {
               <div className="space-y-3 text-sm text-[var(--color-text)]">
                 <div className="flex justify-between items-center">
                   <span>Total Revenue</span>
-                  <span className="font-semibold">{formatCurrency(stats.revenue.total)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(stats.revenue.total)}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Total Revenue</span>
-                  <span className="font-semibold">{formatCurrency(stats.revenue.total)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(stats.revenue.total)}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Avg Order Value</span>
-                  <span className="font-semibold">{formatCurrency(stats.revenue.averageOrderValue)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(stats.revenue.averageOrderValue)}
+                  </span>
                 </div>
               </div>
             </CardBody>
