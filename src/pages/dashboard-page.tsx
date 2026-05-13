@@ -15,12 +15,15 @@ import {
   FaTimes,
   FaClock,
   FaArrowRight,
+  FaChartLine,
 } from "react-icons/fa";
 import type { WalletTransaction } from "../types/wallet";
 import type { Order } from "../types/order";
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -136,6 +139,7 @@ export const DashboardPage = () => {
     },
   });
   const [loading, setLoading] = useState(true);
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState("7d"); // default to Weekly
   const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set());
   const [showSiteMessage, setShowSiteMessage] = useState(true);
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
@@ -227,7 +231,7 @@ export const DashboardPage = () => {
 
         // Load agent analytics
         try {
-          const analytics = await getAgentAnalytics("30d");
+          const analytics = await getAgentAnalytics(analyticsTimeframe);
           if (analytics) {
             // Use the AgentAnalyticsData shape directly from the backend
             const data = analytics as {
@@ -295,7 +299,8 @@ export const DashboardPage = () => {
                   confirmed: data.orders?.todayCounts?.confirmed || 0,
                   failed: data.orders?.todayCounts?.failed || 0,
                   cancelled: data.orders?.todayCounts?.cancelled || 0,
-                  partiallyCompleted: data.orders?.todayCounts?.partiallyCompleted || 0,
+                  partiallyCompleted:
+                    data.orders?.todayCounts?.partiallyCompleted || 0,
                 },
               },
               revenue: {
@@ -420,7 +425,7 @@ export const DashboardPage = () => {
     };
 
     loadDashboardData();
-  }, [getTransactionHistory, getAgentAnalytics]);
+  }, [getTransactionHistory, getAgentAnalytics, analyticsTimeframe]);
 
   // Fetch active (pending/processing/confirmed) orders
   useEffect(() => {
@@ -429,9 +434,18 @@ export const DashboardPage = () => {
         setActiveOrdersLoading(true);
         // Fetch pending orders first, then processing, then confirmed
         const [pendingRes, processingRes, confirmedRes] = await Promise.all([
-          orderService.getOrders({ status: "pending" }, { limit: 5, page: 1, sortBy: "createdAt", sortOrder: "desc" }),
-          orderService.getOrders({ status: "processing" }, { limit: 5, page: 1, sortBy: "createdAt", sortOrder: "desc" }),
-          orderService.getOrders({ status: "confirmed" }, { limit: 5, page: 1, sortBy: "createdAt", sortOrder: "desc" }),
+          orderService.getOrders(
+            { status: "pending" },
+            { limit: 5, page: 1, sortBy: "createdAt", sortOrder: "desc" },
+          ),
+          orderService.getOrders(
+            { status: "processing" },
+            { limit: 5, page: 1, sortBy: "createdAt", sortOrder: "desc" },
+          ),
+          orderService.getOrders(
+            { status: "confirmed" },
+            { limit: 5, page: 1, sortBy: "createdAt", sortOrder: "desc" },
+          ),
         ]);
 
         // Combine, sort by createdAt desc, take first 5
@@ -440,7 +454,10 @@ export const DashboardPage = () => {
           ...processingRes.orders,
           ...confirmedRes.orders,
         ]
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
           .slice(0, 5);
 
         setActiveOrders(combined);
@@ -472,18 +489,55 @@ export const DashboardPage = () => {
   // Get status badge color
   const getOrderStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "warning";
-      case "processing": return "info";
-      case "confirmed": return "success";
-      default: return "default";
+      case "pending":
+        return "warning";
+      case "processing":
+        return "info";
+      case "confirmed":
+        return "success";
+      default:
+        return "default";
     }
   };
 
-  const orderAnalyticsChartData = [
-    { label: "Total Orders", value: analyticsData.orders.total },
-    { label: "Completed", value: analyticsData.orders.completed },
-    { label: "Pending", value: analyticsData.orders.pending },
-  ];
+  // Get timeframe display label
+  const getTimeframeLabel = () => {
+    switch (analyticsTimeframe) {
+      case "7d":
+        return "Last 7 Days";
+      case "30d":
+        return "Last 30 Days";
+      case "365d":
+        return "Last 12 Months";
+      default:
+        return "Last 30 Days";
+    }
+  };
+
+  // Prepare sales chart data - Timeline of revenue for recharts
+  const prepareSalesChartData = () => {
+    const labels = analyticsData.charts.labels || [];
+    const revenueData = analyticsData.charts.revenue || [];
+
+    // Convert to recharts format
+    return labels.map((label, index) => ({
+      name: label,
+      revenue: revenueData[index] || 0,
+    }));
+  };
+
+  const salesChartData = prepareSalesChartData();
+
+  // Prepare order analytics chart data - Order completion trends
+  const prepareOrderAnalyticsChartData = () => {
+    return [
+      { name: "Total Orders", value: analyticsData.orders.total },
+      { name: "Completed", value: analyticsData.orders.completed },
+      { name: "Pending", value: analyticsData.orders.pending },
+    ];
+  };
+
+  const orderAnalyticsChartData = prepareOrderAnalyticsChartData();
 
   return (
     <div className="dashboard-welcome space-y-4 sm:space-y-6">
@@ -527,15 +581,30 @@ export const DashboardPage = () => {
       <div className="quick-actions">
         <div className="mb-3 px-2 sm:px-0">
           <h2 className="text-lg font-medium text-gray-800">Quick Actions</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Tap a network to start a data or airtime order instantly.</p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Tap a network to start a data or airtime order instantly.
+          </p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {loading || providersLoading ? (
             Array.from({ length: 4 }).map((_, idx) => (
-              <Card key={`quick-action-skeleton-${idx}`} size="sm" className="overflow-hidden">
+              <Card
+                key={`quick-action-skeleton-${idx}`}
+                size="sm"
+                className="overflow-hidden"
+              >
                 <CardBody className="text-center">
-                  <Skeleton variant="circular" width={48} height={48} className="mx-auto mb-2" />
-                  <Skeleton height="0.95rem" width="65%" className="mx-auto mb-1" />
+                  <Skeleton
+                    variant="circular"
+                    width={48}
+                    height={48}
+                    className="mx-auto mb-2"
+                  />
+                  <Skeleton
+                    height="0.95rem"
+                    width="65%"
+                    className="mx-auto mb-1"
+                  />
                   <Skeleton height="0.75rem" width="45%" className="mx-auto" />
                 </CardBody>
               </Card>
@@ -563,14 +632,14 @@ export const DashboardPage = () => {
                     className={`${packageItem.color} text-white rounded-full mx-auto mb-2 w-12 h-12 flex items-center justify-center overflow-hidden`}
                   >
                     {packageItem.logo?.url &&
-                      !failedLogos.has(packageItem.code) ? (
+                    !failedLogos.has(packageItem.code) ? (
                       <img
                         src={packageItem.logo.url}
                         alt={packageItem.logo.alt || packageItem.name}
                         className="w-12 h-12 object-cover rounded-full"
                         onError={() => {
                           setFailedLogos((prev) =>
-                            new Set(prev).add(packageItem.code)
+                            new Set(prev).add(packageItem.code),
                           );
                         }}
                       />
@@ -597,7 +666,9 @@ export const DashboardPage = () => {
               <FaClock className="text-orange-500" />
               Active Orders
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">Track pending orders at a glance.</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Track pending orders at a glance.
+            </p>
           </div>
           <Link
             to="./orders"
@@ -613,13 +684,24 @@ export const DashboardPage = () => {
             <CardBody>
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={`active-order-skeleton-${idx}`} className="rounded-lg border border-slate-100 p-3">
+                  <div
+                    key={`active-order-skeleton-${idx}`}
+                    className="rounded-lg border border-slate-100 p-3"
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <Skeleton height="0.95rem" width="40%" className="mb-1" />
+                        <Skeleton
+                          height="0.95rem"
+                          width="40%"
+                          className="mb-1"
+                        />
                         <Skeleton height="0.75rem" width="60%" />
                       </div>
-                      <Skeleton height="1.25rem" width={64} className="rounded-full" />
+                      <Skeleton
+                        height="1.25rem"
+                        width={64}
+                        className="rounded-full"
+                      />
                     </div>
                   </div>
                 ))}
@@ -631,19 +713,21 @@ export const DashboardPage = () => {
             <CardBody className="text-center py-6">
               <FaShoppingCart className="mx-auto h-8 w-8 text-gray-300 mb-2" />
               <p className="text-sm text-gray-500">No active orders</p>
-              <p className="text-xs text-gray-400 mt-1">All your orders are completed or you haven't placed any yet</p>
+              <p className="text-xs text-gray-400 mt-1">
+                All your orders are completed or you haven't placed any yet
+              </p>
             </CardBody>
           </Card>
         ) : (
           <div className="max-h-[184px] overflow-y-auto pr-1 scrollbar-thin">
             <div className="space-y-2">
               {activeOrders.map((order) => (
-                <Link
-                  key={order._id}
-                  to={`./orders`}
-                  className="block"
-                >
-                  <Card variant="interactive" size="sm" className="hover:shadow-md transition-shadow">
+                <Link key={order._id} to={`./orders`} className="block">
+                  <Card
+                    variant="interactive"
+                    size="sm"
+                    className="hover:shadow-md transition-shadow"
+                  >
                     <CardBody>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -652,14 +736,22 @@ export const DashboardPage = () => {
                               {order.orderNumber}
                             </span>
                             <span className="text-xs text-gray-500">
-                              {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""} · {getTimeAgo(order.createdAt)}
+                              {order.items?.length || 0} item
+                              {(order.items?.length || 0) !== 1 ? "s" : ""} ·{" "}
+                              {getTimeAgo(order.createdAt)}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <Badge
                             variant="subtle"
-                            colorScheme={getOrderStatusColor(order.status) as "warning" | "info" | "success" | "default"}
+                            colorScheme={
+                              getOrderStatusColor(order.status) as
+                                | "warning"
+                                | "info"
+                                | "success"
+                                | "default"
+                            }
                             size="xs"
                           >
                             {order.status}
@@ -675,7 +767,9 @@ export const DashboardPage = () => {
               ))}
             </div>
             {activeOrders.length > 2 && (
-              <p className="text-[10px] text-gray-400 text-center mt-1">Scroll for more ({activeOrders.length} orders)</p>
+              <p className="text-[10px] text-gray-400 text-center mt-1">
+                Scroll for more ({activeOrders.length} orders)
+              </p>
             )}
           </div>
         )}
@@ -684,8 +778,12 @@ export const DashboardPage = () => {
       {/* Stats */}
       <div className="account-overview">
         <div className="mb-3 px-2 sm:px-0">
-          <h2 className="text-lg font-medium text-gray-800">Account Overview</h2>
-          <p className="text-xs text-slate-500 mt-0.5">A quick summary of your performance and spending.</p>
+          <h2 className="text-lg font-medium text-gray-800">
+            Account Overview
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            A quick summary of your performance and spending.
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Card
@@ -754,19 +852,103 @@ export const DashboardPage = () => {
                 ₵{(analyticsData.commissions.totalCommission || 0).toFixed(2)}
               </div>
               <div className="text-xs text-gray-300 mt-2">
-                Paid: ₵{(analyticsData.commissions.paidCommission || 0).toFixed(2)}
+                Paid: ₵
+                {(analyticsData.commissions.paidCommission || 0).toFixed(2)}
               </div>
             </CardBody>
           </Card>
         </div>
       </div>
 
+      {/* Sales Analytics Chart */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium text-gray-800">
+              Sales Analytics
+            </h3>
+            <div className="flex gap-2">
+              <select
+                value={analyticsTimeframe}
+                onChange={(e) => setAnalyticsTimeframe(e.target.value)}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
+              >
+                <option value="7d">Weekly (Last 7 Days)</option>
+                <option value="30d">Monthly (Last 30 Days)</option>
+                <option value="365d">Yearly (Last 12 Months)</option>
+              </select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardBody>
+          {loading ? (
+            <div className="h-40 sm:h-48 rounded-lg border border-slate-100 p-3">
+              <div className="h-full grid grid-cols-3 gap-3 items-end">
+                <Skeleton height="60%" className="rounded-md" />
+                <Skeleton height="85%" className="rounded-md" />
+                <Skeleton height="45%" className="rounded-md" />
+              </div>
+            </div>
+          ) : !salesChartData || salesChartData.length === 0 ? (
+            <div className="bg-gray-50 h-40 sm:h-48 flex items-center justify-center rounded">
+              <div className="text-center">
+                <FaChartLine className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+                <p className="text-gray-400 text-sm">
+                  No sales data available for selected period
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-40 sm:h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={salesChartData}
+                  margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "#6b7280", fontSize: 11 }}
+                    axisLine={{ stroke: "#d1d5db" }}
+                    tickLine={{ stroke: "#d1d5db" }}
+                  />
+                  <YAxis
+                    tick={{ fill: "#6b7280", fontSize: 11 }}
+                    axisLine={{ stroke: "#d1d5db" }}
+                    tickLine={{ stroke: "#d1d5db" }}
+                  />
+                  <Tooltip
+                    formatter={(value) => {
+                      const numValue = typeof value === "number" ? value : 0;
+                      return [`₵${numValue.toFixed(2)}`, "Revenue"];
+                    }}
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "1px solid #e5e7eb",
+                      backgroundColor: "#ffffff",
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    dot={{ fill: "#10b981", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
       {/* Order Analytics Chart */}
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-gray-800">
-              Order Analytics (Last 30 Days)
+              Order Analytics ({getTimeframeLabel()})
             </h3>
             <Link
               to="./orders"
@@ -801,7 +983,7 @@ export const DashboardPage = () => {
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
-                    dataKey="label"
+                    dataKey="name"
                     tick={{ fill: "#6b7280", fontSize: 11 }}
                     axisLine={{ stroke: "#d1d5db" }}
                     tickLine={{ stroke: "#d1d5db" }}
@@ -847,7 +1029,10 @@ export const DashboardPage = () => {
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, idx) => (
-                <div key={`tx-skeleton-${idx}`} className="flex items-center justify-between rounded-lg border border-slate-100 p-3">
+                <div
+                  key={`tx-skeleton-${idx}`}
+                  className="flex items-center justify-between rounded-lg border border-slate-100 p-3"
+                >
                   <div className="min-w-0 flex-1">
                     <Skeleton height="0.95rem" width="36%" className="mb-1" />
                     <Skeleton height="0.75rem" width="68%" className="mb-1" />
@@ -883,7 +1068,7 @@ export const DashboardPage = () => {
                         <Badge
                           variant="subtle"
                           colorScheme={getTransactionStatusColor(
-                            transaction.type
+                            transaction.type,
                           )}
                           size="xs"
                         >
