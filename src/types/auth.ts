@@ -26,6 +26,8 @@ export interface User {
   agentCode?: string;
   // Multi-tenant fields
   tenantId?: string;
+  // Security fields
+  requiresPinSetup?: boolean;
   // AFA Registration
   afaRegistration?: {
     afaId: string;
