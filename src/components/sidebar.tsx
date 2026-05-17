@@ -156,14 +156,14 @@ const getSuperAdminNavItems = (): NavItem[] => {
     { label: "Settings", path: "/superadmin/settings", icon: <FaCog /> },
   ];
 
-  if (import.meta.env.DEV) {
-    // Insert commissions near other superadmin management items
-    items.splice(6, 0, {
-      label: "Commissions",
-      path: "/superadmin/commissions",
-      icon: <FaMoneyBillWave />,
-    });
-  }
+  // if (import.meta.env.DEV) {
+  //   // Insert commissions near other superadmin management items
+  //   items.splice(6, 0, {
+  //     label: "Commissions",
+  //     path: "/superadmin/commissions",
+  //     icon: <FaMoneyBillWave />,
+  //   });
+  // }
 
   return items;
 };

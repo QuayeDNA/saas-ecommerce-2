@@ -59,7 +59,10 @@ const STATUS_OPTIONS = [
 
 const ITEMS_PER_PAGE = 10;
 
-const STATUS_BADGE_MAP: Record<string, "success" | "error" | "info" | "warning" | "gray"> = {
+const STATUS_BADGE_MAP: Record<
+  string,
+  "success" | "error" | "info" | "warning" | "gray"
+> = {
   completed: "success",
   failed: "error",
   cancelled: "error",
@@ -203,46 +206,48 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
   // --- Computed ---
   const displayedOrders = searchTerm
     ? orders.filter((order) => {
-      const search = searchTerm.toLowerCase();
-      const name =
-        order.storefrontData?.customerInfo?.name?.toLowerCase() || "";
-      const orderNum = order.orderNumber?.toLowerCase() || "";
-      return (
-        name.includes(search) ||
-        orderNum.includes(search)
-      );
-    })
+        const search = searchTerm.toLowerCase();
+        const name =
+          order.storefrontData?.customerInfo?.name?.toLowerCase() || "";
+        const orderNum = order.orderNumber?.toLowerCase() || "";
+        return name.includes(search) || orderNum.includes(search);
+      })
     : orders;
 
   const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
 
   const isPaystackOrder = (order: StorefrontOrder) =>
-    order.storefrontData?.paymentMethod?.type === 'paystack';
+    order.storefrontData?.paymentMethod?.type === "paystack";
 
   const needsManualVerification = (order: StorefrontOrder) =>
-    order.status === 'pending_payment' &&
+    order.status === "pending_payment" &&
     !order.storefrontData?.paymentMethod?.verified &&
     !isPaystackOrder(order);
 
   const needsPaystackRetry = (order: StorefrontOrder) =>
-    order.status === 'pending_payment' &&
+    order.status === "pending_payment" &&
     !order.storefrontData?.paymentMethod?.verified &&
     isPaystackOrder(order);
 
   const handleRetryPaystackVerification = async (order: StorefrontOrder) => {
     setIsProcessing(true);
     try {
-      const result = await storefrontService.verifyPaystackReference(`storefront_${order._id}`);
+      const result = await storefrontService.verifyPaystackReference(
+        `storefront_${order._id}`,
+      );
       if (!result?.success) {
-        throw new Error(result?.message || 'Verification did not succeed');
+        throw new Error(result?.message || "Verification did not succeed");
       }
-      addToast('Payment verified! Order is now processing.', 'success');
+      addToast("Payment verified! Order is now processing.", "success");
       loadOrders();
     } catch (error) {
-      console.error('Retry paystack verification failed:', error);
+      console.error("Retry paystack verification failed:", error);
       addToast(
-        getApiErrorMessage(error, 'Verification failed. We will keep retrying in the background.'),
-        'error',
+        getApiErrorMessage(
+          error,
+          "Verification failed. We will keep retrying in the background.",
+        ),
+        "error",
       );
       // Refresh list so the latest status is visible (may still be pending)
       loadOrders();
@@ -259,7 +264,12 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
           <CardBody>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <Skeleton variant="text" height="1.5rem" width="180px" className="mb-2" />
+                <Skeleton
+                  variant="text"
+                  height="1.5rem"
+                  width="180px"
+                  className="mb-2"
+                />
                 <Skeleton variant="text" height="1rem" width="240px" />
               </div>
               <Skeleton variant="rectangular" height="2.25rem" width="120px" />
@@ -278,28 +288,35 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+              <h2 className="text-lg sm:text-xl font-bold text-[var(--color-text)]">
                 Storefront Orders
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-[var(--color-secondary-text)] mt-1">
                 Manage customer orders and payment verification
               </p>
             </div>
             <div className="flex items-center gap-2">
               {/* View mode toggle */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
-                {([
-                  { mode: "card" as ViewMode, icon: LayoutGrid, label: "Cards" },
-                  { mode: "list" as ViewMode, icon: List, label: "List" },
-                  { mode: "table" as ViewMode, icon: Table2, label: "Table" },
-                ] as const).map(({ mode, icon: Icon, label }) => (
+              <div className="flex items-center bg-[var(--color-control-bg)] rounded-lg p-0.5">
+                {(
+                  [
+                    {
+                      mode: "card" as ViewMode,
+                      icon: LayoutGrid,
+                      label: "Cards",
+                    },
+                    { mode: "list" as ViewMode, icon: List, label: "List" },
+                    { mode: "table" as ViewMode, icon: Table2, label: "Table" },
+                  ] as const
+                ).map(({ mode, icon: Icon, label }) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`p-1.5 rounded-md transition-all ${viewMode === mode
-                      ? "bg-white shadow-sm text-gray-900"
-                      : "text-gray-500 hover:text-gray-700"
-                      }`}
+                    className={`p-1.5 rounded-md transition-all ${
+                      viewMode === mode
+                        ? "bg-[var(--color-surface)] shadow-sm text-[var(--color-text)]"
+                        : "text-[var(--color-muted-text)] hover:text-[var(--color-text)]"
+                    }`}
                     title={`${label} view`}
                   >
                     <Icon className="w-4 h-4" />
@@ -323,13 +340,16 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
               filters={{
                 status: {
                   value: statusFilter,
-                  options: STATUS_OPTIONS.map(o => ({ value: o.value, label: o.label })),
-                  label: 'Status',
-                  placeholder: 'All Statuses',
+                  options: STATUS_OPTIONS.map((o) => ({
+                    value: o.value,
+                    label: o.label,
+                  })),
+                  label: "Status",
+                  placeholder: "All Statuses",
                 },
               }}
               onFilterChange={(key, v) => {
-                if (key === 'status') setStatusFilter(v);
+                if (key === "status") setStatusFilter(v);
               }}
               onSearch={(e) => {
                 e.preventDefault();
@@ -342,7 +362,7 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
               showSearchButton={true}
               showClearButton={true}
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-[var(--color-muted-text)] mt-2">
               Showing {displayedOrders.length} of {totalOrders} orders
             </p>
           </div>
@@ -379,18 +399,24 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {(order.storefrontData?.items || []).map((item, idx) => (
-                          <div key={idx} className="text-sm">
-                            <p className="text-gray-900">{item.bundleName} x{item.quantity}</p>
-                            {item.customerPhone && (
-                              <p className="text-xs text-gray-400">→ {item.customerPhone}</p>
-                            )}
-                          </div>
-                        ))}
+                        {(order.storefrontData?.items || []).map(
+                          (item, idx) => (
+                            <div key={idx} className="text-sm">
+                              <p className="text-gray-900">
+                                {item.bundleName} x{item.quantity}
+                              </p>
+                              {item.customerPhone && (
+                                <p className="text-xs text-gray-400">
+                                  → {item.customerPhone}
+                                </p>
+                              )}
+                            </div>
+                          ),
+                        )}
                         {(!order.storefrontData?.items ||
                           order.storefrontData.items.length === 0) && (
-                            <span className="text-sm text-gray-400">—</span>
-                          )}
+                          <span className="text-sm text-gray-400">—</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <span className="font-bold text-gray-900">
@@ -400,9 +426,7 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                       <TableCell>
                         <div className="space-y-1">
                           <Badge colorScheme="gray" variant="subtle" size="sm">
-                            {(
-                              order.storefrontData?.paymentMethod?.type || ""
-                            )
+                            {(order.storefrontData?.paymentMethod?.type || "")
                               .replace("_", " ")
                               .toUpperCase()}
                           </Badge>
@@ -414,25 +438,23 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                           )}
                           {order.storefrontData?.paymentMethod
                             ?.paymentProofUrl && (
-                              <a
-                                href={
-                                  order.storefrontData.paymentMethod
-                                    .paymentProofUrl
-                                }
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
-                              >
-                                <ExternalLink className="w-3 h-3" /> Proof
-                              </a>
-                            )}
+                            <a
+                              href={
+                                order.storefrontData.paymentMethod
+                                  .paymentProofUrl
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" /> Proof
+                            </a>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge
-                          colorScheme={
-                            STATUS_BADGE_MAP[order.status] || "gray"
-                          }
+                          colorScheme={STATUS_BADGE_MAP[order.status] || "gray"}
                           variant="subtle"
                         >
                           {formatStatus(order.status)}
@@ -452,9 +474,7 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                               onClick={() =>
                                 openVerificationModal(order, "verify")
                               }
-                              leftIcon={
-                                <CheckCircle className="w-3.5 h-3.5" />
-                              }
+                              leftIcon={<CheckCircle className="w-3.5 h-3.5" />}
                             >
                               Verify
                             </Button>
@@ -473,7 +493,9 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                           <Button
                             size="xs"
                             variant="primary"
-                            onClick={() => handleRetryPaystackVerification(order)}
+                            onClick={() =>
+                              handleRetryPaystackVerification(order)
+                            }
                             isLoading={isProcessing}
                           >
                             Retry verification
@@ -514,9 +536,7 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                           #{order.orderNumber || order._id?.slice(-8)}
                         </span>
                         <Badge
-                          colorScheme={
-                            STATUS_BADGE_MAP[order.status] || "gray"
-                          }
+                          colorScheme={STATUS_BADGE_MAP[order.status] || "gray"}
                           variant="subtle"
                           size="sm"
                         >
@@ -541,7 +561,9 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                     {(order.storefrontData?.items || []).length > 0 && (
                       <div className="mb-3 space-y-1.5">
                         {order.storefrontData!.items.map((item, idx) => {
-                          const itemMarkup = ((item.unitPrice || 0) - (item.tierPrice || 0)) * (item.quantity || 1);
+                          const itemMarkup =
+                            ((item.unitPrice || 0) - (item.tierPrice || 0)) *
+                            (item.quantity || 1);
                           return (
                             <div key={idx} className="text-sm">
                               <div className="flex justify-between">
@@ -559,7 +581,9 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                                 )}
                               </div>
                               {item.customerPhone && (
-                                <p className="text-xs text-gray-400">→ {item.customerPhone}</p>
+                                <p className="text-xs text-gray-400">
+                                  → {item.customerPhone}
+                                </p>
                               )}
                             </div>
                           );
@@ -571,27 +595,24 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                     <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t">
                       <div className="flex items-center gap-2">
                         <Badge colorScheme="gray" variant="subtle" size="xs">
-                          {(
-                            order.storefrontData?.paymentMethod?.type || ""
-                          )
+                          {(order.storefrontData?.paymentMethod?.type || "")
                             .replace("_", " ")
                             .toUpperCase()}
                         </Badge>
                         {order.storefrontData?.paymentMethod
                           ?.paymentProofUrl && (
-                            <a
-                              href={
-                                order.storefrontData.paymentMethod
-                                  .paymentProofUrl
-                              }
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Eye className="w-3 h-3" /> Proof
-                            </a>
-                          )}
+                          <a
+                            href={
+                              order.storefrontData.paymentMethod.paymentProofUrl
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Eye className="w-3 h-3" /> Proof
+                          </a>
+                        )}
                       </div>
                       <span>{formatDate(order.createdAt)}</span>
                     </div>
@@ -603,12 +624,8 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                           size="sm"
                           variant="success"
                           className="flex-1"
-                          onClick={() =>
-                            openVerificationModal(order, "verify")
-                          }
-                          leftIcon={
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          }
+                          onClick={() => openVerificationModal(order, "verify")}
+                          leftIcon={<CheckCircle className="w-3.5 h-3.5" />}
                         >
                           Verify
                         </Button>
@@ -616,9 +633,7 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                           size="sm"
                           variant="danger"
                           className="flex-1"
-                          onClick={() =>
-                            openVerificationModal(order, "reject")
-                          }
+                          onClick={() => openVerificationModal(order, "reject")}
                           leftIcon={<XCircle className="w-3.5 h-3.5" />}
                         >
                           Reject
@@ -655,18 +670,19 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                 >
                   {/* Status dot */}
                   <div
-                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${order.status === "completed"
-                      ? "bg-green-500"
-                      : order.status === "failed" ||
-                        order.status === "cancelled"
-                        ? "bg-red-500"
-                        : order.status === "pending_payment"
-                          ? "bg-yellow-500"
-                          : order.status === "processing" ||
-                            order.status === "confirmed"
-                            ? "bg-blue-500"
-                            : "bg-gray-400"
-                      }`}
+                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                      order.status === "completed"
+                        ? "bg-green-500"
+                        : order.status === "failed" ||
+                            order.status === "cancelled"
+                          ? "bg-red-500"
+                          : order.status === "pending_payment"
+                            ? "bg-yellow-500"
+                            : order.status === "processing" ||
+                                order.status === "confirmed"
+                              ? "bg-blue-500"
+                              : "bg-gray-400"
+                    }`}
                   />
 
                   {/* Order number */}
@@ -766,21 +782,17 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
       </Card>
 
       {/* Mobile Order Detail Dialog */}
-      <Dialog
-        isOpen={!!selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-      >
+      <Dialog isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)}>
         {selectedOrder && (
           <>
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">
-                  Order #{selectedOrder.orderNumber || selectedOrder._id?.slice(-8)}
+                  Order #
+                  {selectedOrder.orderNumber || selectedOrder._id?.slice(-8)}
                 </h3>
                 <Badge
-                  colorScheme={
-                    STATUS_BADGE_MAP[selectedOrder.status] || "gray"
-                  }
+                  colorScheme={STATUS_BADGE_MAP[selectedOrder.status] || "gray"}
                   variant="subtle"
                 >
                   {formatStatus(selectedOrder.status)}
@@ -801,27 +813,33 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                 {/* Items with recipient phones */}
                 {(selectedOrder.storefrontData?.items || []).length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-gray-900">
-                      Items
-                    </h4>
+                    <h4 className="font-medium text-sm text-gray-900">Items</h4>
                     {selectedOrder.storefrontData!.items.map((item, idx) => (
-                      <div key={idx} className="p-2.5 bg-gray-50 rounded-lg text-sm space-y-1">
+                      <div
+                        key={idx}
+                        className="p-2.5 bg-gray-50 rounded-lg text-sm space-y-1"
+                      >
                         <div className="flex justify-between">
-                          <span className="font-medium text-gray-900">{item.bundleName} x{item.quantity}</span>
+                          <span className="font-medium text-gray-900">
+                            {item.bundleName} x{item.quantity}
+                          </span>
                           <span className="font-medium">
                             GHS {(item.totalPrice || 0).toFixed(2)}
                           </span>
                         </div>
                         {item.customerPhone && (
-                          <p className="text-xs text-gray-500">📱 Recipient: <span className="font-medium text-gray-700">{item.customerPhone}</span></p>
+                          <p className="text-xs text-gray-500">
+                            📱 Recipient:{" "}
+                            <span className="font-medium text-gray-700">
+                              {item.customerPhone}
+                            </span>
+                          </p>
                         )}
                       </div>
                     ))}
                     <div className="border-t pt-2 flex justify-between font-bold text-sm">
                       <span>Total</span>
-                      <span>
-                        GHS {(selectedOrder.total || 0).toFixed(2)}
-                      </span>
+                      <span>GHS {(selectedOrder.total || 0).toFixed(2)}</span>
                     </div>
                   </div>
                 )}
@@ -830,9 +848,7 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                 <div className="space-y-1.5 text-sm">
                   <h4 className="font-medium text-gray-900">Payment</h4>
                   <Badge colorScheme="gray" variant="subtle">
-                    {(
-                      selectedOrder.storefrontData?.paymentMethod?.type || ""
-                    )
+                    {(selectedOrder.storefrontData?.paymentMethod?.type || "")
                       .replace("_", " ")
                       .toUpperCase()}
                   </Badge>
@@ -844,18 +860,18 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                   )}
                   {selectedOrder.storefrontData?.paymentMethod
                     ?.paymentProofUrl && (
-                      <a
-                        href={
-                          selectedOrder.storefrontData.paymentMethod
-                            .paymentProofUrl
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        <Eye className="w-3.5 h-3.5" /> View Payment Proof
-                      </a>
-                    )}
+                    <a
+                      href={
+                        selectedOrder.storefrontData.paymentMethod
+                          .paymentProofUrl
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> View Payment Proof
+                    </a>
+                  )}
                 </div>
 
                 <p className="text-xs text-gray-400">
@@ -941,16 +957,19 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                 </p>
                 <p>
                   <strong>Customer:</strong>{" "}
-                  {verificationModal.order.storefrontData?.customerInfo
-                    ?.name || "N/A"}
+                  {verificationModal.order.storefrontData?.customerInfo?.name ||
+                    "N/A"}
                 </p>
                 {verificationModal.order.storefrontData?.customerInfo
                   ?.ghanaCardNumber && (
-                    <p>
-                      <strong>Ghana Card:</strong>{" "}
-                      {verificationModal.order.storefrontData.customerInfo.ghanaCardNumber}
-                    </p>
-                  )}
+                  <p>
+                    <strong>Ghana Card:</strong>{" "}
+                    {
+                      verificationModal.order.storefrontData.customerInfo
+                        .ghanaCardNumber
+                    }
+                  </p>
+                )}
                 <p>
                   <strong>Amount:</strong> GHS{" "}
                   {(verificationModal.order.total || 0).toFixed(2)}
@@ -966,54 +985,56 @@ export const OrderManager: React.FC<OrderManagerProps> = () => {
                 </p>
                 {verificationModal.order.storefrontData?.paymentMethod
                   ?.reference && (
-                    <p>
-                      <strong>Reference:</strong>{" "}
-                      {
-                        verificationModal.order.storefrontData.paymentMethod
-                          .reference
-                      }
-                    </p>
-                  )}
+                  <p>
+                    <strong>Reference:</strong>{" "}
+                    {
+                      verificationModal.order.storefrontData.paymentMethod
+                        .reference
+                    }
+                  </p>
+                )}
                 {verificationModal.order.storefrontData?.paymentMethod
                   ?.paymentProofUrl && (
-                    <a
-                      href={
-                        verificationModal.order.storefrontData.paymentMethod
-                          .paymentProofUrl
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:underline"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" /> View Payment
-                      Proof
-                    </a>
-                  )}
+                  <a
+                    href={
+                      verificationModal.order.storefrontData.paymentMethod
+                        .paymentProofUrl
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> View Payment Proof
+                  </a>
+                )}
 
                 {/* Items with recipient phones */}
-                {(verificationModal.order.storefrontData?.items || [])
-                  .length > 0 && (
-                    <div className="mt-2 pt-2 border-t space-y-1.5">
-                      <h5 className="font-medium text-gray-900">Items:</h5>
-                      {verificationModal.order.storefrontData.items.map(
-                        (item, idx) => (
-                          <div key={idx}>
-                            <div className="flex justify-between">
-                              <span>
-                                {item.bundleName} x{item.quantity}
-                              </span>
-                              <span>
-                                GHS {(item.totalPrice || 0).toFixed(2)}
-                              </span>
-                            </div>
-                            {item.customerPhone && (
-                              <p className="text-xs text-gray-500">📱 Recipient: <span className="font-medium text-gray-700">{item.customerPhone}</span></p>
-                            )}
+                {(verificationModal.order.storefrontData?.items || []).length >
+                  0 && (
+                  <div className="mt-2 pt-2 border-t space-y-1.5">
+                    <h5 className="font-medium text-gray-900">Items:</h5>
+                    {verificationModal.order.storefrontData.items.map(
+                      (item, idx) => (
+                        <div key={idx}>
+                          <div className="flex justify-between">
+                            <span>
+                              {item.bundleName} x{item.quantity}
+                            </span>
+                            <span>GHS {(item.totalPrice || 0).toFixed(2)}</span>
                           </div>
-                        ),
-                      )}
-                    </div>
-                  )}
+                          {item.customerPhone && (
+                            <p className="text-xs text-gray-500">
+                              📱 Recipient:{" "}
+                              <span className="font-medium text-gray-700">
+                                {item.customerPhone}
+                              </span>
+                            </p>
+                          )}
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Notes */}

@@ -80,7 +80,10 @@ interface FormErrors {
   paymentMethods?: string;
 }
 
-const StepProgress: React.FC<{ current: number; steps: string[] }> = ({ current, steps }) => (
+const StepProgress: React.FC<{ current: number; steps: string[] }> = ({
+  current,
+  steps,
+}) => (
   <div className="flex items-center gap-1.5">
     {steps.map((_, idx) => {
       const stepNum = idx + 1;
@@ -88,16 +91,21 @@ const StepProgress: React.FC<{ current: number; steps: string[] }> = ({ current,
         <React.Fragment key={stepNum}>
           <div
             className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-black transition-all duration-300"
-            style={stepNum <= current
-              ? { backgroundColor: "var(--color-primary-500)", color: "#fff" }
-              : { backgroundColor: "rgba(255,255,255,0.2)", color: "#fff" }}
+            style={
+              stepNum <= current
+                ? { backgroundColor: "var(--color-primary-500)", color: "#fff" }
+                : { backgroundColor: "rgba(255,255,255,0.2)", color: "#fff" }
+            }
           >
             {stepNum < current ? <Check className="w-3.5 h-3.5" /> : stepNum}
           </div>
           {stepNum < steps.length && (
             <div
               className="flex-1 h-1 rounded-full transition-all duration-300"
-              style={{ backgroundColor: stepNum < current ? "#fff" : "rgba(255,255,255,0.2)" }}
+              style={{
+                backgroundColor:
+                  stepNum < current ? "#fff" : "rgba(255,255,255,0.2)",
+              }}
             />
           )}
         </React.Fragment>
@@ -173,11 +181,13 @@ export const StorefrontManager: React.FC<StorefrontManagerProps> = ({
     return (
       <Card variant="elevated" className="max-w-2xl mx-auto">
         <CardBody className="p-8 text-center">
-          <AlertCircle className="w-12 h-12 text-error-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <AlertCircle className="w-12 h-12 text-[var(--color-error)] mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
             Something went wrong
           </h3>
-          <p className="text-gray-600 text-sm mb-4">{error}</p>
+          <p className="text-[var(--color-secondary-text)] text-sm mb-4">
+            {error}
+          </p>
           <Button
             variant="primary"
             onClick={() => window.location.reload()}
@@ -194,13 +204,13 @@ export const StorefrontManager: React.FC<StorefrontManagerProps> = ({
     return (
       <Card variant="elevated" className="max-w-2xl mx-auto">
         <CardBody className="p-8 text-center">
-          <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Store className="w-8 h-8 text-success-600" />
+          <div className="w-16 h-16 bg-[var(--color-success-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+            <Store className="w-8 h-8 text-[var(--color-success)]" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          <h3 className="text-2xl font-bold text-[var(--color-text)] mb-2">
             Your Storefront is Live!
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-[var(--color-secondary-text)] mb-6">
             {storefront.businessName} is ready to accept orders
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -240,11 +250,11 @@ export const StorefrontManager: React.FC<StorefrontManagerProps> = ({
             />
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+          <h3 className="text-2xl font-bold text-[var(--color-text)] mb-3">
             Create Your Online Store
           </h3>
 
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+          <p className="text-[var(--color-secondary-text)] mb-6 max-w-md mx-auto">
             Set up your digital storefront in minutes and start selling airtime
             and data bundles online
           </p>
@@ -266,10 +276,12 @@ export const StorefrontManager: React.FC<StorefrontManagerProps> = ({
                   1
                 </span>
               </div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-[var(--color-text)]">
                 Business Details
               </p>
-              <p className="text-xs text-gray-600">Add your info</p>
+              <p className="text-xs text-[var(--color-secondary-text)]">
+                Add your info
+              </p>
             </div>
 
             <div className="text-center">
@@ -288,10 +300,12 @@ export const StorefrontManager: React.FC<StorefrontManagerProps> = ({
                   2
                 </span>
               </div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-[var(--color-text)]">
                 Payment Methods
               </p>
-              <p className="text-xs text-gray-600">Set up payments</p>
+              <p className="text-xs text-[var(--color-secondary-text)]">
+                Set up payments
+              </p>
             </div>
 
             <div className="text-center">
@@ -310,8 +324,12 @@ export const StorefrontManager: React.FC<StorefrontManagerProps> = ({
                   3
                 </span>
               </div>
-              <p className="text-sm font-medium text-gray-900">Launch Store</p>
-              <p className="text-xs text-gray-600">Go live</p>
+              <p className="text-sm font-medium text-[var(--color-text)]">
+                Launch Store
+              </p>
+              <p className="text-xs text-[var(--color-secondary-text)]">
+                Go live
+              </p>
             </div>
           </div>
 
@@ -368,15 +386,15 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
       .toString()
       .trim()
       .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9_-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9_-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
   const businessUrlPreview = () => {
-    const slug = slugifyBusinessName(formData.businessName || '');
-    return slug ? getStoreUrl(slug) : '';
+    const slug = slugifyBusinessName(formData.businessName || "");
+    return slug ? getStoreUrl(slug) : "";
   };
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -411,8 +429,7 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
     {
       type: "mobile_money",
       label: "Mobile Money",
-      description:
-        "Accept payments via mobile money (Coming Soon)",
+      description: "Accept payments via mobile money (Coming Soon)",
       icon: Smartphone,
       available: false,
     },
@@ -442,11 +459,13 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
             {
               type: "mobile_money" as const,
               details: {
-                accounts: [{
-                  provider: "",
-                  number: profile.phone || "",
-                  accountName: profile.fullName || ""
-                }]
+                accounts: [
+                  {
+                    provider: "",
+                    number: profile.phone || "",
+                    accountName: profile.fullName || "",
+                  },
+                ],
               },
               isActive: false,
             },
@@ -463,11 +482,13 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
             {
               type: "mobile_money",
               details: {
-                accounts: [{
-                  provider: "",
-                  number: authState.user?.phone || "",
-                  accountName: authState.user?.fullName || ""
-                }]
+                accounts: [
+                  {
+                    provider: "",
+                    number: authState.user?.phone || "",
+                    accountName: authState.user?.fullName || "",
+                  },
+                ],
               },
               isActive: false,
             },
@@ -529,7 +550,8 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
         if (payment.type === "mobile_money") {
           const accounts = payment.details.accounts || [];
           if (accounts.length === 0) {
-            newErrors.paymentMethods = "At least one mobile money account is required";
+            newErrors.paymentMethods =
+              "At least one mobile money account is required";
             break;
           }
           for (let i = 0; i < accounts.length; i++) {
@@ -551,7 +573,7 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
         }
 
         // Paystack requires no storefront-level credentials for platform checkout
-        if (payment.type === 'paystack') {
+        if (payment.type === "paystack") {
           continue;
         }
 
@@ -577,9 +599,11 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
     }
   };
 
-  const togglePaymentMethod = (type: "mobile_money" | "bank_transfer" | "paystack") => {
+  const togglePaymentMethod = (
+    type: "mobile_money" | "bank_transfer" | "paystack",
+  ) => {
     // Only allow toggling for available payment methods
-    const option = PAYMENT_OPTIONS.find(opt => opt.type === type);
+    const option = PAYMENT_OPTIONS.find((opt) => opt.type === type);
     if (!option?.available) return;
 
     setFormData((prev) => {
@@ -590,9 +614,7 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
       if (existingIndex >= 0) {
         // Create new array with a new object for the toggled item (immutable update)
         const updated = prev.paymentMethods.map((pm, index) =>
-          index === existingIndex
-            ? { ...pm, isActive: !pm.isActive }
-            : pm
+          index === existingIndex ? { ...pm, isActive: !pm.isActive } : pm,
         );
         return { ...prev, paymentMethods: updated };
       } else {
@@ -600,7 +622,11 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
           type,
           details:
             type === "mobile_money"
-              ? { accounts: [{ provider: "", number: prev.phone, accountName: "" }] }
+              ? {
+                  accounts: [
+                    { provider: "", number: prev.phone, accountName: "" },
+                  ],
+                }
               : { bank: "", account: "", name: "" },
           isActive: true,
         };
@@ -640,16 +666,16 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
       paymentMethods: prev.paymentMethods.map((pm) =>
         pm.type === "mobile_money"
           ? {
-            ...pm,
-            details: {
-              ...pm.details,
-              accounts: [
-                ...(pm.details.accounts || []),
-                { provider: "", number: "", accountName: "" }
-              ]
+              ...pm,
+              details: {
+                ...pm.details,
+                accounts: [
+                  ...(pm.details.accounts || []),
+                  { provider: "", number: "", accountName: "" },
+                ],
+              },
             }
-          }
-          : pm
+          : pm,
       ),
     }));
   };
@@ -660,13 +686,15 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
       paymentMethods: prev.paymentMethods.map((pm) =>
         pm.type === "mobile_money"
           ? {
-            ...pm,
-            details: {
-              ...pm.details,
-              accounts: (pm.details.accounts || []).filter((_, index) => index !== accountIndex)
+              ...pm,
+              details: {
+                ...pm.details,
+                accounts: (pm.details.accounts || []).filter(
+                  (_, index) => index !== accountIndex,
+                ),
+              },
             }
-          }
-          : pm
+          : pm,
       ),
     }));
   };
@@ -687,7 +715,12 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
     setIsLoading(true);
     try {
       const storefrontData = {
-        businessName: formData.businessName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').replace(/-+/g, '-'),
+        businessName: formData.businessName
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9_-]/g, "")
+          .replace(/-+/g, "-"),
         displayName: formData.displayName.trim(),
         isActive: true,
         paymentMethods: formData.paymentMethods.filter((pm) => pm.isActive),
@@ -698,13 +731,15 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
         },
       };
 
-      const result =
-        await storefrontService.createStorefront(storefrontData);
+      const result = await storefrontService.createStorefront(storefrontData);
       addToast(result.message || "Storefront created successfully!", "success");
       onComplete(result.data);
     } catch (error) {
       console.error("Failed to create storefront:", error);
-      addToast(getApiErrorMessage(error, "Failed to create storefront"), "error");
+      addToast(
+        getApiErrorMessage(error, "Failed to create storefront"),
+        "error",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -713,12 +748,12 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
   if (isLoadingProfile) {
     return (
       <Dialog isOpen={isOpen} onClose={onClose} size="md">
-        <DialogBody className="p-8 text-center">
-          <Loader2 className="w-12 h-12 text-primary-600 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <DialogBody className="p-8 text-center bg-[var(--color-surface)] text-[var(--color-text)]">
+          <Loader2 className="w-12 h-12 text-[var(--color-primary-600)] animate-spin mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
             Setting up your wizard
           </h3>
-          <p className="text-gray-600 text-sm">
+          <p className="text-[var(--color-secondary-text)] text-sm">
             Loading your profile information...
           </p>
         </DialogBody>
@@ -729,14 +764,14 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
   return (
     <Dialog isOpen={isOpen} onClose={onClose} size="xl">
       <DialogHeader
-        className="relative bg-primary-500 text-white p-6"
+        className="relative bg-[var(--color-primary-500)] text-[var(--color-surface)] p-6"
         style={{ backgroundColor: "var(--color-primary-500)" }}
       >
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="absolute top-4 right-4 text-white hover:bg-white/20"
+          className="absolute top-4 right-4 text-[var(--color-surface)] hover:bg-white/20"
         >
           <X className="w-5 h-5" />
         </Button>
@@ -747,7 +782,7 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
           </div>
           <div>
             <h2 className="text-2xl font-bold">Create Your Store</h2>
-            <p className="text-white/80 text-sm">
+            <p className="text-[var(--color-surface)]/80 text-sm">
               Launch your digital storefront in minutes
             </p>
           </div>
@@ -763,10 +798,10 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
 
       <DialogBody className="p-6 overflow-y-auto max-h-[60vh]">
         <div className="mb-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-1">
+          <h3 className="text-xl font-semibold text-[var(--color-text)] mb-1">
             {STEPS[currentStep].title}
           </h3>
-          <p className="text-gray-600 text-sm">
+          <p className="text-[var(--color-secondary-text)] text-sm">
             {STEPS[currentStep].description}
           </p>
         </div>
@@ -774,10 +809,7 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
         {/* Step Content */}
         {currentStep === 0 && (
           <div className="space-y-5">
-            <FormField
-              label="Business Name (URL slug)"
-              required
-            >
+            <FormField label="Business Name (URL slug)" required>
               <Input
                 value={formData.businessName}
                 onChange={(e) =>
@@ -788,19 +820,18 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
                 useThemeColor
               />
               <p className="text-xs text-gray-500 mt-1">
-                This is used in your storefront URL and must be lowercase with no spaces.
+                This is used in your storefront URL and must be lowercase with
+                no spaces.
               </p>
               {businessUrlPreview() && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Preview: <span className="font-mono">{businessUrlPreview()}</span>
+                  Preview:{" "}
+                  <span className="font-mono">{businessUrlPreview()}</span>
                 </p>
               )}
             </FormField>
 
-            <FormField
-              label="Display Name"
-              required
-            >
+            <FormField label="Display Name" required>
               <Input
                 value={formData.displayName}
                 onChange={(e) =>
@@ -870,18 +901,19 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
                   <div key={option.type} className="space-y-3">
                     <Card
                       variant={isSelected ? "elevated" : "outlined"}
-                      className={`transition-all border-2 ${isSelected
-                        ? "border-primary-500 bg-primary-50"
-                        : option.available
-                          ? "border-gray-200 hover:border-gray-300"
-                          : "border-gray-200 opacity-60"
-                        } ${option.available ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                      className={`transition-all border-2 ${
+                        isSelected
+                          ? "border-primary-500 bg-primary-50"
+                          : option.available
+                            ? "border-gray-200 hover:border-gray-300"
+                            : "border-gray-200 opacity-60"
+                      } ${option.available ? "cursor-pointer" : "cursor-not-allowed"}`}
                       style={
                         isSelected
                           ? {
-                            borderColor: "var(--color-primary-500)",
-                            backgroundColor: "var(--color-primary-50)",
-                          }
+                              borderColor: "var(--color-primary-500)",
+                              backgroundColor: "var(--color-primary-50)",
+                            }
                           : undefined
                       }
                     >
@@ -898,21 +930,23 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-10 h-10 rounded-lg flex items-center justify-center ${isSelected ? "bg-primary-100" : "bg-gray-100"
-                              }`}
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              isSelected ? "bg-primary-100" : "bg-gray-100"
+                            }`}
                             style={
                               isSelected
                                 ? {
-                                  backgroundColor: "var(--color-primary-100)",
-                                }
+                                    backgroundColor: "var(--color-primary-100)",
+                                  }
                                 : undefined
                             }
                           >
                             <IconComponent
-                              className={`w-5 h-5 ${isSelected
-                                ? "text-primary-600"
-                                : "text-gray-600"
-                                }`}
+                              className={`w-5 h-5 ${
+                                isSelected
+                                  ? "text-primary-600"
+                                  : "text-gray-600"
+                              }`}
                               style={
                                 isSelected
                                   ? { color: "var(--color-primary-600)" }
@@ -929,16 +963,17 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
                             </p>
                           </div>
                           <div
-                            className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${isSelected
-                              ? "border-primary-500 bg-primary-500"
-                              : "border-gray-300"
-                              }`}
+                            className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${
+                              isSelected
+                                ? "border-primary-500 bg-primary-500"
+                                : "border-gray-300"
+                            }`}
                             style={
                               isSelected
                                 ? {
-                                  borderColor: "var(--color-primary-500)",
-                                  backgroundColor: "var(--color-primary-500)",
-                                }
+                                    borderColor: "var(--color-primary-500)",
+                                    backgroundColor: "var(--color-primary-500)",
+                                  }
                                 : undefined
                             }
                           >
@@ -954,73 +989,87 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
                       <div className="ml-4 space-y-3 p-4 bg-gray-50 rounded-lg">
                         {option.type === "mobile_money" && (
                           <div className="space-y-4">
-                            {(method.details.accounts || []).map((account, accountIndex) => (
-                              <div key={accountIndex} className="p-4 border border-gray-200 rounded-lg">
-                                <div className="flex items-center justify-between mb-3">
-                                  <h5 className="font-medium text-gray-900">
-                                    Account {accountIndex + 1}
-                                  </h5>
-                                  {(method.details.accounts || []).length > 1 && (
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => removeMobileMoneyAccount(accountIndex)}
-                                      className="text-red-600 hover:text-red-700"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </Button>
-                                  )}
+                            {(method.details.accounts || []).map(
+                              (account, accountIndex) => (
+                                <div
+                                  key={accountIndex}
+                                  className="p-4 border border-gray-200 rounded-lg"
+                                >
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h5 className="font-medium text-gray-900">
+                                      Account {accountIndex + 1}
+                                    </h5>
+                                    {(method.details.accounts || []).length >
+                                      1 && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          removeMobileMoneyAccount(accountIndex)
+                                        }
+                                        className="text-red-600 hover:text-red-700"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <FormField label="Provider">
+                                      <Select
+                                        value={account.provider}
+                                        onChange={(value) =>
+                                          updatePaymentDetails(
+                                            option.type,
+                                            `accounts.${accountIndex}.provider`,
+                                            value,
+                                          )
+                                        }
+                                        options={[
+                                          { value: "MTN", label: "MTN" },
+                                          {
+                                            value: "Vodafone",
+                                            label: "Vodafone",
+                                          },
+                                          {
+                                            value: "AirtelTigo",
+                                            label: "AirtelTigo",
+                                          },
+                                        ]}
+                                        placeholder="Select provider"
+                                      />
+                                    </FormField>
+                                    <FormField label="Phone Number">
+                                      <Input
+                                        value={account.number}
+                                        onChange={(e) =>
+                                          updatePaymentDetails(
+                                            option.type,
+                                            `accounts.${accountIndex}.number`,
+                                            e.target.value,
+                                          )
+                                        }
+                                        placeholder="e.g., 0241234567"
+                                        useThemeColor
+                                      />
+                                    </FormField>
+                                    <FormField label="Account Name">
+                                      <Input
+                                        value={account.accountName}
+                                        onChange={(e) =>
+                                          updatePaymentDetails(
+                                            option.type,
+                                            `accounts.${accountIndex}.accountName`,
+                                            e.target.value,
+                                          )
+                                        }
+                                        placeholder="Account holder name"
+                                        useThemeColor
+                                      />
+                                    </FormField>
+                                  </div>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                  <FormField label="Provider">
-                                    <Select
-                                      value={account.provider}
-                                      onChange={(value) =>
-                                        updatePaymentDetails(
-                                          option.type,
-                                          `accounts.${accountIndex}.provider`,
-                                          value,
-                                        )
-                                      }
-                                      options={[
-                                        { value: "MTN", label: "MTN" },
-                                        { value: "Vodafone", label: "Vodafone" },
-                                        { value: "AirtelTigo", label: "AirtelTigo" },
-                                      ]}
-                                      placeholder="Select provider"
-                                    />
-                                  </FormField>
-                                  <FormField label="Phone Number">
-                                    <Input
-                                      value={account.number}
-                                      onChange={(e) =>
-                                        updatePaymentDetails(
-                                          option.type,
-                                          `accounts.${accountIndex}.number`,
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="e.g., 0241234567"
-                                      useThemeColor
-                                    />
-                                  </FormField>
-                                  <FormField label="Account Name">
-                                    <Input
-                                      value={account.accountName}
-                                      onChange={(e) =>
-                                        updatePaymentDetails(
-                                          option.type,
-                                          `accounts.${accountIndex}.accountName`,
-                                          e.target.value,
-                                        )
-                                      }
-                                      placeholder="Account holder name"
-                                      useThemeColor
-                                    />
-                                  </FormField>
-                                </div>
-                              </div>
-                            ))}
+                              ),
+                            )}
                             {(method.details.accounts || []).length < 2 && (
                               <Button
                                 variant="outline"
@@ -1165,16 +1214,20 @@ const StoreSetupWizardDialog: React.FC<StoreSetupWizardDialogProps> = ({
                             )?.label
                           }
                         </Badge>
-                        {method.type === "mobile_money" && method.details.accounts && method.details.accounts.length > 0 && (
-                          <div className="text-sm text-gray-600">
-                            {method.details.accounts.map((account, idx) => (
-                              <div key={idx}>
-                                {account.provider} - {account.number}
-                                {idx < (method.details.accounts?.length || 0) - 1 && ", "}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {method.type === "mobile_money" &&
+                          method.details.accounts &&
+                          method.details.accounts.length > 0 && (
+                            <div className="text-sm text-gray-600">
+                              {method.details.accounts.map((account, idx) => (
+                                <div key={idx}>
+                                  {account.provider} - {account.number}
+                                  {idx <
+                                    (method.details.accounts?.length || 0) -
+                                      1 && ", "}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         {method.type === "bank_transfer" &&
                           Boolean(method.details.bank) && (
                             <span className="text-sm text-gray-600">

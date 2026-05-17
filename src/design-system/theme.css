@@ -116,6 +116,21 @@ body.theme-dark {
   --color-primary-700: #1d4ed8;
   --color-primary-800: #1e40af;
   --color-primary-900: #1e3a8a;
+  
+  --color-success-bg: #052e16;
+  --color-success-text: #bbf7d0;
+  --color-success-icon: #16a34a;
+  --color-pending-bg: #2b1600;
+  --color-pending-text: #fef3c7;
+  --color-pending-icon: #f59e0b;
+  --color-failed-bg: #2b0a0a;
+  --color-failed-text: #fecaca;
+  --color-failed-icon: #ef4444;
+
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: var(--color-primary-300);
   --color-whatsapp: #25d366;
   --color-whatsapp-dark: #128c7e;
   --color-whatsapp-text: #ffffff;

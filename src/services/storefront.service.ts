@@ -1,5 +1,5 @@
-import { apiClient, publicApiClient } from '@/utils/api-client';
-import { AxiosError } from 'axios';
+import { apiClient, publicApiClient } from "@/utils/api-client";
+import { AxiosError } from "axios";
 
 // =========================================================================
 // Types
@@ -19,7 +19,7 @@ export interface StorefrontData {
   suspendedAt?: string;
   suspendedBy?: string;
   paymentMethods: Array<{
-    type: 'mobile_money' | 'bank_transfer' | 'paystack';
+    type: "mobile_money" | "bank_transfer" | "paystack";
     details: Record<string, unknown>;
     isActive: boolean;
   }>;
@@ -30,7 +30,15 @@ export interface StorefrontData {
     whatsapp?: string;
   };
   settings?: {
-    theme?: 'blue' | 'green' | 'purple' | 'red' | 'orange' | 'teal' | 'indigo' | 'pink';
+    theme?:
+      | "blue"
+      | "green"
+      | "purple"
+      | "red"
+      | "orange"
+      | "teal"
+      | "indigo"
+      | "pink";
     showContact?: boolean;
   };
   branding?: StorefrontBranding;
@@ -57,7 +65,7 @@ export interface StorefrontBranding {
     twitter?: string;
     tiktok?: string;
   };
-  layout?: 'classic' | 'modern' | 'minimal';
+  layout?: "classic" | "modern" | "minimal";
   showBanner?: boolean;
   footerText?: string;
 }
@@ -72,21 +80,23 @@ export interface StorefrontResponse {
 export interface StorefrontPricing {
   _id?: string;
   storefrontId: string;
-  bundleId: string | {
-    _id: string;
-    name: string;
-    description?: string;
-    dataVolume: number;
-    dataUnit: string;
-    validity: number | string;
-    validityUnit: string;
-    providerId?: { _id: string; name: string; code: string };
-    category?: string;
-    isActive: boolean;
-    bundleCode?: string;
-    formattedDataVolume?: string;
-    formattedValidity?: string;
-  };
+  bundleId:
+    | string
+    | {
+        _id: string;
+        name: string;
+        description?: string;
+        dataVolume: number;
+        dataUnit: string;
+        validity: number | string;
+        validityUnit: string;
+        providerId?: { _id: string; name: string; code: string };
+        category?: string;
+        isActive: boolean;
+        bundleCode?: string;
+        formattedDataVolume?: string;
+        formattedValidity?: string;
+      };
   tierPrice: number;
   customPrice: number;
   markup: number;
@@ -130,7 +140,7 @@ export interface StorefrontOrderItem {
   unitPrice: number;
   tierPrice: number;
   totalPrice: number;
-  processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
+  processingStatus: "pending" | "processing" | "completed" | "failed";
   processingError?: string;
   processedAt?: string;
 }
@@ -138,8 +148,16 @@ export interface StorefrontOrderItem {
 export interface StorefrontOrder {
   _id: string;
   orderNumber: string;
-  orderType: 'storefront';
-  status: 'pending_payment' | 'pending' | 'confirmed' | 'processing' | 'partially_completed' | 'completed' | 'cancelled' | 'failed';
+  orderType: "storefront";
+  status:
+    | "pending_payment"
+    | "pending"
+    | "confirmed"
+    | "processing"
+    | "partially_completed"
+    | "completed"
+    | "cancelled"
+    | "failed";
   paymentStatus: string;
   paymentMethod: string;
   total: number;
@@ -153,7 +171,7 @@ export interface StorefrontOrder {
       ghanaCardNumber?: string;
     };
     paymentMethod: {
-      type: 'mobile_money' | 'bank_transfer' | 'paystack';
+      type: "mobile_money" | "bank_transfer" | "paystack";
       reference?: string;
       paymentProofUrl?: string;
       verified: boolean;
@@ -173,7 +191,7 @@ export interface StorefrontAnalytics {
   /** Gross revenue — sum of customer-paid totals for paid orders */
   totalRevenue: number;
   /** Total tier cost for completed orders (what left the wallet) */
-  totalCost: number;
+  totalFulfilmentCost: number;
   /** Net profit (markup) — only from completed orders */
   totalProfit: number;
   /** Net profit from orders completed today */
@@ -197,7 +215,7 @@ export interface StorefrontAnalytics {
 
 export interface EarningsTransactionRecord {
   _id: string;
-  type: 'credit' | 'debit' | 'payout';
+  type: "credit" | "debit" | "payout";
   amount: number;
   balanceAfter: number;
   description: string;
@@ -262,7 +280,7 @@ export interface PublicStorefront {
     };
     branding?: StorefrontBranding;
     paymentMethods: Array<{
-      type: 'mobile_money' | 'bank_transfer' | 'paystack';
+      type: "mobile_money" | "bank_transfer" | "paystack";
       details: Record<string, unknown>;
       isActive: boolean;
     }>;
@@ -299,7 +317,7 @@ export interface PublicOrderData {
     ghanaCardNumber?: string; // AFA-specific
   };
   paymentMethod: {
-    type: 'mobile_money' | 'bank_transfer' | 'paystack';
+    type: "mobile_money" | "bank_transfer" | "paystack";
     reference?: string;
     paymentProofUrl?: string;
   };
@@ -431,7 +449,7 @@ export interface PricingUpdateItem {
 // =========================================================================
 
 class StorefrontService {
-  private basePath = '/api/storefront';
+  private basePath = "/api/storefront";
 
   // =========================================================================
   // Agent Storefront Management
@@ -457,31 +475,47 @@ class StorefrontService {
     }
   }
 
-  async createStorefront(data: Omit<StorefrontData, '_id' | 'agentId'>): Promise<{ data: StorefrontData; message: string }> {
-    const response = await apiClient.post(`${this.basePath}/agent/storefront`, data);
+  async createStorefront(
+    data: Omit<StorefrontData, "_id" | "agentId">,
+  ): Promise<{ data: StorefrontData; message: string }> {
+    const response = await apiClient.post(
+      `${this.basePath}/agent/storefront`,
+      data,
+    );
     return { data: response.data.data, message: response.data.message };
   }
 
-  async updateStorefront(data: Partial<StorefrontData>): Promise<StorefrontData> {
-    const response = await apiClient.put(`${this.basePath}/agent/storefront`, data);
+  async updateStorefront(
+    data: Partial<StorefrontData>,
+  ): Promise<StorefrontData> {
+    const response = await apiClient.put(
+      `${this.basePath}/agent/storefront`,
+      data,
+    );
     return response.data.data;
   }
 
   /** Soft deactivate — agent can still see store, public can't */
   async deactivateStorefront(): Promise<{ message: string }> {
-    const response = await apiClient.put(`${this.basePath}/agent/storefront/deactivate`);
+    const response = await apiClient.put(
+      `${this.basePath}/agent/storefront/deactivate`,
+    );
     return { message: response.data.message };
   }
 
   /** Reactivate agent's own store (blocked if admin-suspended) */
   async reactivateStorefront(): Promise<StorefrontData> {
-    const response = await apiClient.put(`${this.basePath}/agent/storefront/reactivate`);
+    const response = await apiClient.put(
+      `${this.basePath}/agent/storefront/reactivate`,
+    );
     return response.data.data;
   }
 
   /** Graceful delete — checks for active orders first */
   async deleteStorefront(): Promise<{ message: string }> {
-    const response = await apiClient.delete(`${this.basePath}/agent/storefront`);
+    const response = await apiClient.delete(
+      `${this.basePath}/agent/storefront`,
+    );
     return { message: response.data.message };
   }
 
@@ -490,8 +524,13 @@ class StorefrontService {
    * Returns the updated storefront object and the Paystack subaccount payload.
    * Backend validation: agent must have an active bank_transfer payment method with account details.
    */
-  async createPaystackSubaccount(): Promise<{ storefront: StorefrontData; subaccount: Record<string, unknown> }> {
-    const response = await apiClient.post(`${this.basePath}/agent/storefront/paystack/subaccount`);
+  async createPaystackSubaccount(): Promise<{
+    storefront: StorefrontData;
+    subaccount: Record<string, unknown>;
+  }> {
+    const response = await apiClient.post(
+      `${this.basePath}/agent/storefront/paystack/subaccount`,
+    );
     return response.data.data;
   }
 
@@ -501,19 +540,28 @@ class StorefrontService {
 
   /** Get ALL admin-active bundles with pricing overlay (customPrice, markup, isEnabled) */
   async getAvailableBundles(): Promise<AgentBundle[]> {
-    const response = await apiClient.get(`${this.basePath}/agent/storefront/bundles`);
+    const response = await apiClient.get(
+      `${this.basePath}/agent/storefront/bundles`,
+    );
     return response.data.data || [];
   }
 
   /** Toggle bundles enabled/disabled in agent's store */
-  async toggleBundles(bundles: BundleToggleItem[]): Promise<{ enabled: number; disabled: number }> {
-    const response = await apiClient.put(`${this.basePath}/agent/storefront/bundles/toggle`, { bundles });
+  async toggleBundles(
+    bundles: BundleToggleItem[],
+  ): Promise<{ enabled: number; disabled: number }> {
+    const response = await apiClient.put(
+      `${this.basePath}/agent/storefront/bundles/toggle`,
+      { bundles },
+    );
     return response.data.data;
   }
 
   /** Get current pricing records for agent's storefront */
   async getMyPricing(): Promise<StorefrontPricing[]> {
-    const response = await apiClient.get(`${this.basePath}/agent/storefront/pricing`);
+    const response = await apiClient.get(
+      `${this.basePath}/agent/storefront/pricing`,
+    );
     return response.data.data || [];
   }
 
@@ -521,10 +569,15 @@ class StorefrontService {
    * Set pricing for bundles.
    * customPrice is optional — omit to enable bundle at tier price (hasCustomPrice: false).
    */
-  async updatePricing(pricingUpdates: PricingUpdateItem[]): Promise<{ updated: number; created: number }> {
-    const response = await apiClient.post(`${this.basePath}/agent/storefront/pricing`, {
-      pricing: pricingUpdates
-    });
+  async updatePricing(
+    pricingUpdates: PricingUpdateItem[],
+  ): Promise<{ updated: number; created: number }> {
+    const response = await apiClient.post(
+      `${this.basePath}/agent/storefront/pricing`,
+      {
+        pricing: pricingUpdates,
+      },
+    );
     return response.data.data;
   }
 
@@ -547,11 +600,14 @@ class StorefrontService {
     const params = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) params.append(key, value.toString());
+        if (value !== undefined && value !== null)
+          params.append(key, value.toString());
       });
     }
-    
-    const response = await apiClient.get(`${this.basePath}/agent/storefront/orders?${params}`);
+
+    const response = await apiClient.get(
+      `${this.basePath}/agent/storefront/orders?${params}`,
+    );
     return response.data.data;
   }
 
@@ -559,18 +615,30 @@ class StorefrontService {
    * Verify payment — deducts wallet and sets paymentStatus to 'paid'.
    * Order stays in 'pending' status and enters existing admin processing flow.
    */
-  async verifyPayment(orderId: string, notes?: string): Promise<StorefrontOrder> {
-    const response = await apiClient.put(`${this.basePath}/agent/storefront/orders/${orderId}/verify`, {
-      notes
-    });
+  async verifyPayment(
+    orderId: string,
+    notes?: string,
+  ): Promise<StorefrontOrder> {
+    const response = await apiClient.put(
+      `${this.basePath}/agent/storefront/orders/${orderId}/verify`,
+      {
+        notes,
+      },
+    );
     return response.data.data;
   }
 
   /** Reject order — refunds wallet if payment was already verified */
-  async rejectPayment(orderId: string, reason: string): Promise<StorefrontOrder> {
-    const response = await apiClient.put(`${this.basePath}/agent/storefront/orders/${orderId}/reject`, {
-      reason
-    });
+  async rejectPayment(
+    orderId: string,
+    reason: string,
+  ): Promise<StorefrontOrder> {
+    const response = await apiClient.put(
+      `${this.basePath}/agent/storefront/orders/${orderId}/reject`,
+      {
+        reason,
+      },
+    );
     return response.data.data;
   }
 
@@ -578,25 +646,53 @@ class StorefrontService {
   // Analytics
   // =========================================================================
 
-  async getAnalytics(dateRange?: { startDate?: string; endDate?: string }): Promise<StorefrontAnalytics> {
-    const params = new URLSearchParams();
-    if (dateRange?.startDate) params.append('startDate', dateRange.startDate);
-    if (dateRange?.endDate) params.append('endDate', dateRange.endDate);
-    
-    const response = await apiClient.get(`${this.basePath}/agent/storefront/analytics?${params}`);
+  /**
+   * Get centralized dashboard data — analytics, orders, bundles, and earnings summary
+   * This is the primary endpoint for the storefront dashboard.
+   */
+  async getDashboardData(): Promise<{
+    analytics: StorefrontAnalytics;
+    earnings: {
+      availableBalance: number;
+      totalEarned: number;
+      totalWithdrawn: number;
+      recentTransactions: EarningsTransactionRecord[];
+    };
+    orders: StorefrontOrder[];
+    bundles: AgentBundle[];
+    recentPayouts: Record<string, unknown>[];
+  }> {
+    const response = await apiClient.get(
+      `${this.basePath}/agent/storefront/dashboard`,
+    );
     return response.data.data;
+  }
+
+  /**
+   * Get analytics data only
+   * Extracts analytics from the dashboard endpoint
+   */
+  async getAnalytics(): Promise<StorefrontAnalytics> {
+    // Note: date filtering is not supported by the backend dashboard endpoint
+    // If date filtering is needed, the backend would need a separate analytics endpoint
+    const response = await apiClient.get(
+      `${this.basePath}/agent/storefront/dashboard`,
+    );
+    return response.data.data.analytics;
   }
 
   /** Authoritative earnings ledger for the agent — sourced from EarningsTransaction records */
   async getEarnings(): Promise<StorefrontEarnings> {
-    const response = await apiClient.get(`${this.basePath}/agent/storefront/earnings`);
+    const response = await apiClient.get(
+      `${this.basePath}/agent/storefront/earnings`,
+    );
     return response.data.data;
   }
 
   async getEarningsHistory(page = 1, limit = 20): Promise<StorefrontEarnings> {
     const params = new URLSearchParams();
-    params.append('page', String(page));
-    params.append('limit', String(limit));
+    params.append("page", String(page));
+    params.append("limit", String(limit));
     const response = await apiClient.get(
       `${this.basePath}/agent/storefront/earnings?${params.toString()}`,
     );
@@ -608,32 +704,48 @@ class StorefrontService {
   // =========================================================================
 
   /** Minimal store info returned by the discover/random endpoint */
-  async getRandomStorefronts(limit = 6): Promise<Array<{
-    businessName: string;
-    displayName: string;
-    description?: string;
-    branding?: { logoUrl?: string; tagline?: string };
-    settings?: { theme?: string };
-  }>> {
-    const response = await apiClient.get(`${this.basePath}/discover/random`, { params: { limit } });
+  async getRandomStorefronts(limit = 6): Promise<
+    Array<{
+      businessName: string;
+      displayName: string;
+      description?: string;
+      branding?: { logoUrl?: string; tagline?: string };
+      settings?: { theme?: string };
+    }>
+  > {
+    const response = await apiClient.get(`${this.basePath}/discover/random`, {
+      params: { limit },
+    });
     return response.data.data;
   }
 
   async getPublicStorefront(businessName: string): Promise<PublicStorefront> {
-    const response = await publicApiClient.get(`${this.basePath}/${businessName}`);
+    const response = await publicApiClient.get(
+      `${this.basePath}/${businessName}`,
+    );
     return response.data.data;
   }
 
-  async createPublicOrder(businessName: string, orderData: PublicOrderData): Promise<PublicOrderResult> {
-    const response = await publicApiClient.post(`${this.basePath}/${businessName}/order`, orderData);
+  async createPublicOrder(
+    businessName: string,
+    orderData: PublicOrderData,
+  ): Promise<PublicOrderResult> {
+    const response = await publicApiClient.post(
+      `${this.basePath}/${businessName}/order`,
+      orderData,
+    );
     return response.data.data;
   }
 
   /**
    * Verify a Paystack transaction reference for a storefront order (used by frontend callback)
    */
-  async verifyPaystackReference(reference: string): Promise<{ success: boolean; message?: string }> {
-    const response = await publicApiClient.get(`${this.basePath}/paystack/verify?reference=${encodeURIComponent(reference)}`);
+  async verifyPaystackReference(
+    reference: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    const response = await publicApiClient.get(
+      `${this.basePath}/paystack/verify?reference=${encodeURIComponent(reference)}`,
+    );
     return response.data;
   }
 
@@ -644,7 +756,7 @@ class StorefrontService {
   async trackOrder(businessName: string, ref: string): Promise<TrackedOrder> {
     const response = await publicApiClient.get(
       `${this.basePath}/${encodeURIComponent(businessName)}/orders/track`,
-      { params: { ref } }
+      { params: { ref } },
     );
     return response.data.data;
   }
@@ -654,7 +766,7 @@ class StorefrontService {
   // =========================================================================
 
   async getAdminStorefronts(filters?: {
-    status?: 'active' | 'inactive' | 'pending' | 'approved' | 'suspended';
+    status?: "active" | "inactive" | "pending" | "approved" | "suspended";
     search?: string;
     limit?: number;
     offset?: number;
@@ -667,11 +779,14 @@ class StorefrontService {
     const params = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) params.append(key, value.toString());
+        if (value !== undefined && value !== null)
+          params.append(key, value.toString());
       });
     }
-    
-    const response = await apiClient.get(`${this.basePath}/admin/storefronts?${params}`);
+
+    const response = await apiClient.get(
+      `${this.basePath}/admin/storefronts?${params}`,
+    );
     return response.data.data;
   }
 
@@ -681,41 +796,66 @@ class StorefrontService {
   }
 
   /** Full store detail including recent orders and order stats — fetched on demand */
-  async getAdminStorefrontById(storefrontId: string): Promise<AdminStorefrontDetail> {
-    const response = await apiClient.get(`${this.basePath}/admin/storefronts/${storefrontId}`);
+  async getAdminStorefrontById(
+    storefrontId: string,
+  ): Promise<AdminStorefrontDetail> {
+    const response = await apiClient.get(
+      `${this.basePath}/admin/storefronts/${storefrontId}`,
+    );
     return response.data.data;
   }
 
   async approveStorefront(storefrontId: string): Promise<StorefrontData> {
-    const response = await apiClient.put(`${this.basePath}/admin/storefronts/${storefrontId}/approve`);
+    const response = await apiClient.put(
+      `${this.basePath}/admin/storefronts/${storefrontId}/approve`,
+    );
     return response.data.data;
   }
 
   /** Suspend a storefront — blocks agent AND public access */
-  async suspendStorefront(storefrontId: string, reason?: string): Promise<StorefrontData> {
-    const response = await apiClient.put(`${this.basePath}/admin/storefronts/${storefrontId}/suspend`, {
-      reason
-    });
+  async suspendStorefront(
+    storefrontId: string,
+    reason?: string,
+  ): Promise<StorefrontData> {
+    const response = await apiClient.put(
+      `${this.basePath}/admin/storefronts/${storefrontId}/suspend`,
+      {
+        reason,
+      },
+    );
     return response.data.data;
   }
 
   /** Unsuspend — lifts admin ban, restores active status */
   async unsuspendStorefront(storefrontId: string): Promise<StorefrontData> {
-    const response = await apiClient.put(`${this.basePath}/admin/storefronts/${storefrontId}/unsuspend`);
+    const response = await apiClient.put(
+      `${this.basePath}/admin/storefronts/${storefrontId}/unsuspend`,
+    );
     return response.data.data;
   }
 
   /** Admin delete — graceful, checks active orders, notifies agent */
-  async adminDeleteStorefront(storefrontId: string, reason?: string): Promise<{ message: string }> {
-    const response = await apiClient.delete(`${this.basePath}/admin/storefronts/${storefrontId}`, {
-      data: { reason }
-    });
+  async adminDeleteStorefront(
+    storefrontId: string,
+    reason?: string,
+  ): Promise<{ message: string }> {
+    const response = await apiClient.delete(
+      `${this.basePath}/admin/storefronts/${storefrontId}`,
+      {
+        data: { reason },
+      },
+    );
     return { message: response.data.message };
   }
 
   /** Toggle auto-approve for new storefronts */
-  async toggleAutoApprove(enabled: boolean): Promise<{ autoApproveStorefronts: boolean }> {
-    const response = await apiClient.put(`${this.basePath}/admin/settings/auto-approve`, { enabled });
+  async toggleAutoApprove(
+    enabled: boolean,
+  ): Promise<{ autoApproveStorefronts: boolean }> {
+    const response = await apiClient.put(
+      `${this.basePath}/admin/settings/auto-approve`,
+      { enabled },
+    );
     return response.data.data;
   }
 }

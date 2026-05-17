@@ -6,22 +6,25 @@
  * Individual stores are at caskmafdatahub.shop/store/:businessName
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { storefrontService } from '../../services/storefront.service';
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { storefrontService } from "../../services/storefront.service";
 
-const PLATFORM_NAME = import.meta.env.VITE_STORE_PLATFORM_NAME ?? 'Caskmaf Datahub';
+const PLATFORM_NAME =
+  import.meta.env.VITE_STORE_PLATFORM_NAME ?? "Caskmaf Datahub";
 const OG_DESCRIPTION =
-  'Get instant mobile data bundles from verified agents across Ghana. MTN, Vodafone, AirtelTigo and more. Fast, reliable, no hassle.';
+  "Get instant mobile data bundles from verified agents across Ghana. MTN, Vodafone, AirtelTigo and more. Fast, reliable, no hassle.";
 
 function setMetaTag(property: string, content: string) {
-  let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
+  let el = document.querySelector(
+    `meta[property="${property}"]`,
+  ) as HTMLMetaElement | null;
   if (!el) {
-    el = document.createElement('meta');
-    el.setAttribute('property', property);
+    el = document.createElement("meta");
+    el.setAttribute("property", property);
     document.head.appendChild(el);
   }
-  el.setAttribute('content', content);
+  el.setAttribute("content", content);
 }
 
 export default function StoreLandingPage() {
@@ -33,20 +36,21 @@ export default function StoreLandingPage() {
   // Always /store on the consolidated domain.
   // VITE_STORE_ONLY is no longer used in production but kept as a fallback
   // for any legacy standalone-storefront deployments still in use.
-  const storePathPrefix = import.meta.env.VITE_STORE_ONLY === 'true' ? '' : '/store';
+  const storePathPrefix =
+    import.meta.env.VITE_STORE_ONLY === "true" ? "" : "/store";
 
   useEffect(() => {
     const title = `${PLATFORM_NAME} — Buy Data Bundles Instantly`;
     document.title = title;
-    setMetaTag('og:title', title);
-    setMetaTag('og:description', OG_DESCRIPTION);
-    setMetaTag('og:image', '/logo-512.svg');
-    setMetaTag('og:url', window.location.href);
-    setMetaTag('og:type', 'website');
-    setMetaTag('twitter:card', 'summary_large_image');
-    setMetaTag('twitter:title', title);
-    setMetaTag('twitter:description', OG_DESCRIPTION);
-    setMetaTag('twitter:image', '/logo-512.svg');
+    setMetaTag("og:title", title);
+    setMetaTag("og:description", OG_DESCRIPTION);
+    setMetaTag("og:image", "/logo-512.svg");
+    setMetaTag("og:url", window.location.href);
+    setMetaTag("og:type", "website");
+    setMetaTag("twitter:card", "summary_large_image");
+    setMetaTag("twitter:title", title);
+    setMetaTag("twitter:description", OG_DESCRIPTION);
+    setMetaTag("twitter:image", "/logo-512.svg");
   }, []);
 
   const loadStores = useCallback(async () => {
@@ -60,7 +64,9 @@ export default function StoreLandingPage() {
     }
   }, []);
 
-  useEffect(() => { loadStores(); }, [loadStores]);
+  useEffect(() => {
+    loadStores();
+  }, [loadStores]);
 
   const handleShopNow = () => {
     if (storeNames.length === 0) return;
@@ -73,12 +79,12 @@ export default function StoreLandingPage() {
   const btnDisabled = redirecting || loading || noStores;
 
   const btnLabel = redirecting
-    ? 'Finding a store…'
+    ? "Finding a store…"
     : loading
-      ? 'Loading…'
+      ? "Loading…"
       : noStores
-        ? 'No stores available yet'
-        : 'Shop now';
+        ? "No stores available yet"
+        : "Shop now";
 
   return (
     <>
@@ -87,7 +93,8 @@ export default function StoreLandingPage() {
 
         .dd-root {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          background: #F7F6F2;
+          background: var(--color-background);
+          color: var(--color-text);
           height: 100svh;
           width: 100vw;
           overflow: hidden;
@@ -105,11 +112,11 @@ export default function StoreLandingPage() {
           gap: 8px;
           padding: 8px 14px;
           border-radius: 100px;
-          background: #fff;
-          border: 1px solid #E5E4DF;
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
           font-size: 13px;
           font-weight: 600;
-          color: #111;
+          color: var(--color-text);
           margin-bottom: 40px;
           animation: ddFadeUp .5s ease both;
         }
@@ -117,7 +124,7 @@ export default function StoreLandingPage() {
         .dd-logo-dot {
           width: 8px; height: 8px;
           border-radius: 50%;
-          background: #2563EB;
+          background: var(--color-primary-600);
         }
 
         .dd-title {
@@ -125,25 +132,25 @@ export default function StoreLandingPage() {
           font-weight: 700;
           line-height: 1.1;
           letter-spacing: -1.5px;
-          color: #111;
+          color: var(--color-text);
           margin-bottom: 16px;
           animation: ddFadeUp .5s ease .1s both;
         }
 
         .dd-title-accent {
-          color: #2563EB;
+          color: var(--color-primary-600);
           display: inline-block;
           animation: ddColorShift 4s ease-in-out infinite;
         }
 
         @keyframes ddColorShift {
-          0%, 100% { color: #2563EB; }
-          50%       { color: #0EA5E9; }
+            0%, 100% { color: var(--color-primary-600); }
+            50%       { color: var(--color-info); }
         }
 
         .dd-sub {
           font-size: clamp(14px, 3.5vw, 17px);
-          color: #666;
+          color: var(--color-secondary-text);
           font-weight: 400;
           line-height: 1.6;
           max-width: 300px;
@@ -165,9 +172,9 @@ export default function StoreLandingPage() {
           border-radius: 100px;
           font-size: 11px;
           font-weight: 500;
-          background: #fff;
-          border: 1px solid #E5E4DF;
-          color: #444;
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          color: var(--color-secondary-text);
           letter-spacing: 0.3px;
         }
 
@@ -181,8 +188,8 @@ export default function StoreLandingPage() {
           gap: 8px;
           padding: 14px 32px;
           border-radius: 100px;
-          background: #111;
-          color: #fff;
+          background: var(--color-text);
+          color: var(--color-surface);
           font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 15px;
           font-weight: 600;
@@ -193,7 +200,7 @@ export default function StoreLandingPage() {
         }
 
         .dd-btn:hover:not(:disabled) {
-          background: #2563EB;
+          background: var(--color-primary-600);
           transform: translateY(-1px);
           box-shadow: 0 6px 20px rgba(37,99,235,0.25);
         }
@@ -212,7 +219,7 @@ export default function StoreLandingPage() {
           bottom: 24px; left: 0; right: 0;
           text-align: center;
           font-size: 11px;
-          color: #aaa;
+          color: var(--color-muted-text);
           letter-spacing: 0.5px;
           animation: ddFadeUp .5s ease .55s both;
         }
@@ -224,19 +231,20 @@ export default function StoreLandingPage() {
       `}</style>
 
       <div className="dd-root">
-
         <div className="dd-logo-pill">
           <span className="dd-logo-dot" />
           {PLATFORM_NAME}
         </div>
 
         <h1 className="dd-title">
-          Buy data bundles.<br />
+          Buy data bundles.
+          <br />
           <span className="dd-title-accent">Instantly.</span>
         </h1>
 
         <p className="dd-sub">
-          Verified agents across Ghana.<br />
+          Verified agents across Ghana.
+          <br />
           Fast, simple, no hassle.
         </p>
 
@@ -266,14 +274,19 @@ export default function StoreLandingPage() {
             )}
           </button>
           {noStores && (
-            <p style={{ marginTop: 12, fontSize: 13, color: '#aaa' }}>
+            <p
+              style={{
+                marginTop: 12,
+                fontSize: 13,
+                color: "var(--color-muted-text)",
+              }}
+            >
               Check back soon — stores are coming!
             </p>
           )}
         </div>
 
         <p className="dd-footnote">Fast · Reliable · No hassle</p>
-
       </div>
     </>
   );

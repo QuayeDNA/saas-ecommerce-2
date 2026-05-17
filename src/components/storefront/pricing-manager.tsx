@@ -93,9 +93,7 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
   );
 
   // Per-bundle pricing edits
-  const [edits, setEdits] = useState<Map<string, BundlePricingEdit>>(
-    new Map(),
-  );
+  const [edits, setEdits] = useState<Map<string, BundlePricingEdit>>(new Map());
 
   // -------------------------------------------------------------------------
   // Data Loading
@@ -388,7 +386,12 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
           <CardBody>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <Skeleton variant="text" height="1.5rem" width="220px" className="mb-2" />
+                <Skeleton
+                  variant="text"
+                  height="1.5rem"
+                  width="220px"
+                  className="mb-2"
+                />
                 <Skeleton variant="text" height="1rem" width="240px" />
               </div>
               <Skeleton variant="rectangular" height="2.25rem" width="150px" />
@@ -414,11 +417,11 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-green-600" />
+            <h2 className="text-lg sm:text-xl font-bold text-[var(--color-text)] flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-[var(--color-success)]" />
               Pricing Management
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-[var(--color-secondary-text)] mt-1">
               Select a package to manage bundle pricing &amp; visibility
             </p>
           </div>
@@ -453,13 +456,13 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
             <Card
               key={pkg.name}
               variant="outlined"
-              className="cursor-pointer hover:shadow-md hover:border-blue-300 transition-all"
+              className="cursor-pointer hover:shadow-md hover:border-[var(--color-primary-300)] transition-all"
               onClick={() => setSelectedPackage(pkg.name)}
             >
               <CardBody className="p-4 sm:p-5">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Package className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-[var(--color-primary-50)] rounded-lg">
+                    <Package className="w-5 h-5 text-[var(--color-primary-600)]" />
                   </div>
                   <Badge
                     colorScheme={pkg.enabledCount > 0 ? "success" : "gray"}
@@ -469,10 +472,10 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                     {pkg.enabledCount}/{pkg.count} enabled
                   </Badge>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1 truncate">
+                <h3 className="font-semibold text-[var(--color-text)] mb-1 truncate">
                   {pkg.name}
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-[var(--color-muted-text)]">
                   {pkg.count} bundle{pkg.count !== 1 ? "s" : ""}
                 </p>
               </CardBody>
@@ -507,7 +510,7 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                 setShowEnabledOnly(false);
                 setSelectedBundleIds(new Set());
               }}
-              className="shrink-0 p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-500"
+              className="shrink-0 p-1.5 rounded-lg hover:bg-[var(--color-control-bg)] transition-colors text-[var(--color-muted-text)]"
               title="Back to packages"
             >
               <svg
@@ -525,11 +528,11 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
               </svg>
             </button>
             <div className="min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-green-600 shrink-0" />
+              <h2 className="text-lg sm:text-xl font-bold text-[var(--color-text)] truncate flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-[var(--color-success)] shrink-0" />
                 {selectedPackage}
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[var(--color-muted-text)]">
                 {filteredBundles.length} of {currentPkg?.count || 0} bundles
                 {showEnabledOnly ? " (enabled only)" : ""}
               </p>
@@ -565,26 +568,26 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
         </div>
 
         {/* Instructions Accordion */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg overflow-hidden">
+        <div className="bg-[var(--color-primary-50)] border border-[var(--color-border)] rounded-lg overflow-hidden">
           <button
             onClick={() => setIsInstructionsOpen(!isInstructionsOpen)}
-            className="w-full flex items-center justify-between p-3 text-left hover:bg-blue-100 transition-colors"
+            className="w-full flex items-center justify-between p-3 text-left hover:bg-[var(--color-primary-100)] transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-blue-600 shrink-0" />
-              <span className="text-xs sm:text-sm font-semibold text-blue-800">
+              <Info className="w-4 h-4 text-[var(--color-primary-600)] shrink-0" />
+              <span className="text-xs sm:text-sm font-semibold text-[var(--color-primary-600)]">
                 How pricing works
               </span>
             </div>
             {isInstructionsOpen ? (
-              <ChevronUp className="w-4 h-4 text-blue-600 shrink-0" />
+              <ChevronUp className="w-4 h-4 text-[var(--color-primary-600)] shrink-0" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-blue-600 shrink-0" />
+              <ChevronDown className="w-4 h-4 text-[var(--color-primary-600)] shrink-0" />
             )}
           </button>
           {isInstructionsOpen && (
-            <div className="px-3 pb-3 border-t border-blue-200">
-              <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-blue-800 mt-2">
+            <div className="px-3 pb-3 border-t border-[var(--color-border)]">
+              <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-[var(--color-secondary-text)] mt-2">
                 <li>
                   <strong>Tier Price</strong> is your cost — set by admin based
                   on your account type
@@ -627,7 +630,7 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
             {/* ============================================================ */}
             <TabsContent value="individual">
               {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4 p-3 bg-[var(--color-control-bg)] rounded-lg">
                 <div className="flex-1">
                   <Input
                     value={searchTerm}
@@ -671,9 +674,9 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
               <div className="hidden lg:block border rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-[var(--color-control-bg)]">
                       <tr>
-                        <th className="px-3 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
+                        <th className="px-3 py-2.5 text-left text-xs font-medium text-[var(--color-muted-text)] uppercase tracking-wider min-w-[200px]">
                           Bundle
                         </th>
                         <th className="px-3 py-2.5 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
@@ -749,10 +752,11 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                                     parseFloat(e.target.value) || 0,
                                   )
                                 }
-                                className={`w-full px-2 py-1 text-sm text-center border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${isChanged
-                                  ? "border-yellow-400 bg-yellow-50"
-                                  : "border-gray-300"
-                                  }`}
+                                className={`w-full px-2 py-1 text-sm text-center border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                  isChanged
+                                    ? "border-yellow-400 bg-yellow-50"
+                                    : "border-gray-300"
+                                }`}
                               />
                             </td>
                             <td className="px-3 py-2.5 text-center">
@@ -818,8 +822,7 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                     bundle.tierPrice,
                     edit.customPrice,
                   );
-                  const originalCustom =
-                    bundle.customPrice ?? bundle.tierPrice;
+                  const originalCustom = bundle.customPrice ?? bundle.tierPrice;
                   const isChanged =
                     edit.customPrice !== originalCustom ||
                     edit.isEnabled !== bundle.isEnabled;
@@ -827,10 +830,11 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                   return (
                     <div
                       key={bundle._id}
-                      className={`border rounded-lg p-3 sm:p-4 space-y-3 transition-all ${isChanged
-                        ? "border-yellow-300 bg-yellow-50/50"
-                        : "border-gray-200"
-                        } ${!edit.isEnabled ? "opacity-60" : ""}`}
+                      className={`border rounded-lg p-3 sm:p-4 space-y-3 transition-all ${
+                        isChanged
+                          ? "border-yellow-300 bg-yellow-50/50"
+                          : "border-gray-200"
+                      } ${!edit.isEnabled ? "opacity-60" : ""}`}
                     >
                       {/* Name + toggle */}
                       <div className="flex items-start justify-between gap-2">
@@ -881,10 +885,11 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                                 parseFloat(e.target.value) || 0,
                               )
                             }
-                            className={`w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${isChanged
-                              ? "border-yellow-400 bg-yellow-50"
-                              : "border-gray-300"
-                              }`}
+                            className={`w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                              isChanged
+                                ? "border-yellow-400 bg-yellow-50"
+                                : "border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
@@ -906,19 +911,11 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                             +GHS {diff.toFixed(2)}
                           </Badge>
                         ) : diff < 0 ? (
-                          <Badge
-                            colorScheme="error"
-                            variant="subtle"
-                            size="sm"
-                          >
+                          <Badge colorScheme="error" variant="subtle" size="sm">
                             GHS {diff.toFixed(2)}
                           </Badge>
                         ) : (
-                          <Badge
-                            colorScheme="gray"
-                            variant="subtle"
-                            size="sm"
-                          >
+                          <Badge colorScheme="gray" variant="subtle" size="sm">
                             At Tier
                           </Badge>
                         )}
@@ -1016,10 +1013,7 @@ export const PricingManager: React.FC<PricingManagerProps> = () => {
                             type="checkbox"
                             checked={selectedBundleIds.has(bundle._id)}
                             onChange={(e) =>
-                              toggleBulkSelection(
-                                bundle._id,
-                                e.target.checked,
-                              )
+                              toggleBulkSelection(bundle._id, e.target.checked)
                             }
                             className="rounded border-gray-300"
                           />

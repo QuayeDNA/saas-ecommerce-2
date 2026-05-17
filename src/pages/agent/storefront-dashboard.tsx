@@ -82,8 +82,12 @@ export const StorefrontDashboardPage: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-  const [settingsInitialTab, setSettingsInitialTab] = useState<string | undefined>(undefined);
-  const [earningsDefaultTab, setEarningsDefaultTab] = useState<'payouts' | 'earnings' | undefined>(undefined);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<
+    string | undefined
+  >(undefined);
+  const [earningsDefaultTab, setEarningsDefaultTab] = useState<
+    "payouts" | "earnings" | undefined
+  >(undefined);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [showBreakdownInfoModal, setShowBreakdownInfoModal] = useState(false);
@@ -97,8 +101,8 @@ export const StorefrontDashboardPage: React.FC = () => {
   const [availableBundles, setAvailableBundles] = useState<AgentBundle[]>([]);
 
   // Checklist visibility — auto-hide when all done, or manually hidden
-  const [checklistManuallyHidden, setChecklistManuallyHidden] = useState(() =>
-    localStorage.getItem("storefront-checklist-hidden") === "true"
+  const [checklistManuallyHidden, setChecklistManuallyHidden] = useState(
+    () => localStorage.getItem("storefront-checklist-hidden") === "true",
   );
 
   const loadStorefront = useCallback(async () => {
@@ -133,16 +137,12 @@ export const StorefrontDashboardPage: React.FC = () => {
     if (!storefront) return;
     setAnalyticsLoading(true);
     try {
-      const [analyticsData, ordersData, bundlesData, earningsData] = await Promise.all([
-        storefrontService.getAnalytics(),
-        storefrontService.getMyOrders({ limit: 5, offset: 0 }),
-        storefrontService.getAvailableBundles(),
-        storefrontService.getEarnings().catch(() => null),
-      ]);
-      setAnalytics(analyticsData);
-      setRecentOrders(ordersData.orders || []);
-      setAvailableBundles(bundlesData);
-      if (earningsData) setEarnings(earningsData);
+      // Use the consolidated dashboard endpoint instead of multiple calls
+      const dashboardData = await storefrontService.getDashboardData();
+      setAnalytics(dashboardData.analytics);
+      setRecentOrders(dashboardData.orders || []);
+      setAvailableBundles(dashboardData.bundles);
+      setEarnings(dashboardData.earnings);
     } catch (error) {
       console.error("Failed to load analytics:", error);
     } finally {
@@ -193,7 +193,11 @@ export const StorefrontDashboardPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Skeleton variant="text" height="2rem" width="220px" />
-                  <Skeleton variant="rectangular" height="1.25rem" width="60px" />
+                  <Skeleton
+                    variant="rectangular"
+                    height="1.25rem"
+                    width="60px"
+                  />
                 </div>
                 <Skeleton variant="text" height="0.875rem" width="180px" />
               </div>
@@ -206,7 +210,7 @@ export const StorefrontDashboardPage: React.FC = () => {
         </Card>
 
         {/* Tab bar skeleton */}
-        <div className="bg-white rounded-lg border border-gray-200 px-3 sm:px-6 py-3 sm:py-4">
+        <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-wrap justify-center gap-2">
             {[...Array(4)].map((_, i) => (
               <Skeleton
@@ -224,8 +228,18 @@ export const StorefrontDashboardPage: React.FC = () => {
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
               <CardBody>
-                <Skeleton variant="text" height="0.75rem" width="70px" className="mb-2" />
-                <Skeleton variant="text" height="1.75rem" width="110px" className="mb-1" />
+                <Skeleton
+                  variant="text"
+                  height="0.75rem"
+                  width="70px"
+                  className="mb-2"
+                />
+                <Skeleton
+                  variant="text"
+                  height="1.75rem"
+                  width="110px"
+                  className="mb-1"
+                />
                 <Skeleton variant="text" height="0.75rem" width="90px" />
               </CardBody>
             </Card>
@@ -298,7 +312,7 @@ export const StorefrontDashboardPage: React.FC = () => {
     {
       label: "Configure bundle pricing",
       // consider pricing configured only if the store has at least one enabled bundle
-      done: availableBundles.some(b => b.isEnabled),
+      done: availableBundles.some((b) => b.isEnabled),
       action: () => setActiveTab("pricing"),
     },
     {
@@ -334,14 +348,19 @@ export const StorefrontDashboardPage: React.FC = () => {
 
   const getOrderStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "success";
+      case "completed":
+        return "success";
       case "confirmed":
-      case "processing": return "info";
+      case "processing":
+        return "info";
       case "pending_payment":
-      case "pending": return "warning";
+      case "pending":
+        return "warning";
       case "failed":
-      case "cancelled": return "error";
-      default: return "gray";
+      case "cancelled":
+        return "error";
+      default:
+        return "gray";
     }
   };
 
@@ -412,7 +431,8 @@ export const StorefrontDashboardPage: React.FC = () => {
 
       {!storefrontsOpen && (
         <Alert status="warning" variant="left-accent">
-          All storefronts are currently closed by the admin. Customers cannot place new orders at this time.
+          All storefronts are currently closed by the admin. Customers cannot
+          place new orders at this time.
         </Alert>
       )}
 
@@ -448,7 +468,7 @@ export const StorefrontDashboardPage: React.FC = () => {
       {/* Tab Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         {/* Tab bar */}
-        <div className="bg-white rounded-lg border border-gray-200 px-3 sm:px-6 py-3 sm:py-4 overflow-x-auto flex justify-center">
+        <div className="overflow-x-auto flex justify-center">
           <TabsList className="inline-flex justify-center sm:grid sm:w-full sm:grid-cols-4 sm:justify-items-center gap-1 min-w-max sm:min-w-0">
             {TABS.map((tab) => (
               <TabsTrigger
@@ -471,49 +491,67 @@ export const StorefrontDashboardPage: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
               <StatCard
                 title="Gross Revenue"
-                value={analyticsLoading ? "—" : formatCurrency(analytics?.totalRevenue ?? 0)}
+                value={
+                  analyticsLoading
+                    ? "—"
+                    : formatCurrency(analytics?.totalRevenue ?? 0)
+                }
                 subtitle="From paid customer orders"
                 icon={<DollarSign className="w-4 h-4" />}
                 size="md"
               />
               <StatCard
                 title="Net Profit (All Time)"
-                value={analyticsLoading ? "—" : formatCurrency(analytics?.totalProfit ?? 0)}
+                value={
+                  analyticsLoading
+                    ? "—"
+                    : formatCurrency(analytics?.totalProfit ?? 0)
+                }
                 subtitle="Secured (completed orders)"
                 icon={<TrendingUp className="w-4 h-4" />}
                 size="md"
               />
               <StatCard
                 title="Net Profit (Today)"
-                value={analyticsLoading ? "—" : formatCurrency(analytics?.todayNetProfit ?? 0)}
+                value={
+                  analyticsLoading
+                    ? "—"
+                    : formatCurrency(analytics?.todayNetProfit ?? 0)
+                }
                 subtitle={`${analytics?.todayCompletedOrders ?? 0} completed today`}
                 icon={<CheckCircle2 className="w-4 h-4" />}
                 size="md"
               />
               <StatCard
                 title="Available Earnings"
-                value={analyticsLoading ? "—" : formatCurrency(earnings?.availableBalance ?? 0)}
+                value={
+                  analyticsLoading
+                    ? "—"
+                    : formatCurrency(earnings?.availableBalance ?? 0)
+                }
                 subtitle="Ready to withdraw"
                 icon={<Wallet className="w-4 h-4" />}
                 size="md"
               />
               <StatCard
                 title="Withdrawn Earnings"
-                value={analyticsLoading ? "—" : formatCurrency(earnings?.totalWithdrawn ?? 0)}
+                value={
+                  analyticsLoading
+                    ? "—"
+                    : formatCurrency(earnings?.totalWithdrawn ?? 0)
+                }
                 subtitle="Completed payouts"
                 icon={<ArrowDownRight className="w-4 h-4" />}
                 size="md"
               />
               <StatCard
                 title="Total Orders"
-                value={analyticsLoading ? "—" : analytics?.totalOrders ?? 0}
+                value={analyticsLoading ? "—" : (analytics?.totalOrders ?? 0)}
                 subtitle={`${analytics?.completedOrders ?? 0} completed`}
                 icon={<ShoppingCart className="w-4 h-4" />}
                 size="md"
               />
             </div>
-
-
 
             <Dialog
               isOpen={showBreakdownInfoModal}
@@ -523,7 +561,9 @@ export const StorefrontDashboardPage: React.FC = () => {
               <DialogHeader>
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 text-emerald-600" />
-                  <h3 className="text-base font-semibold">Profit vs Earnings Explained</h3>
+                  <h3 className="text-base font-semibold">
+                    Profit vs Earnings Explained
+                  </h3>
                 </div>
               </DialogHeader>
               <DialogBody className="space-y-3 text-sm text-gray-700">
@@ -531,33 +571,57 @@ export const StorefrontDashboardPage: React.FC = () => {
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-                        <p className="text-xs text-gray-500">Net Profit (All Time)</p>
-                        <p className="text-sm font-bold text-gray-900">{formatCurrency(analytics.totalProfit)}</p>
+                        <p className="text-xs text-gray-500">
+                          Net Profit (All Time)
+                        </p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {formatCurrency(analytics.totalProfit)}
+                        </p>
                       </div>
                       <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-                        <p className="text-xs text-gray-500">Net Profit (Today)</p>
-                        <p className="text-sm font-bold text-gray-900">{formatCurrency(analytics.todayNetProfit ?? 0)}</p>
+                        <p className="text-xs text-gray-500">
+                          Net Profit (Today)
+                        </p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {formatCurrency(analytics.todayNetProfit ?? 0)}
+                        </p>
                       </div>
                       <div className="rounded-lg border border-green-100 bg-green-50 px-3 py-2">
-                        <p className="text-xs text-green-700">Total Earned (Credited)</p>
-                        <p className="text-sm font-bold text-green-800">{formatCurrency(earnings.totalEarned)}</p>
+                        <p className="text-xs text-green-700">
+                          Total Earned (Credited)
+                        </p>
+                        <p className="text-sm font-bold text-green-800">
+                          {formatCurrency(earnings.totalEarned)}
+                        </p>
                       </div>
                       <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
-                        <p className="text-xs text-blue-700">Total Withdrawn (Completed)</p>
-                        <p className="text-sm font-bold text-blue-800">{formatCurrency(earnings.totalWithdrawn)}</p>
+                        <p className="text-xs text-blue-700">
+                          Total Withdrawn (Completed)
+                        </p>
+                        <p className="text-sm font-bold text-blue-800">
+                          {formatCurrency(earnings.totalWithdrawn)}
+                        </p>
                       </div>
                       <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 sm:col-span-2">
-                        <p className="text-xs text-emerald-700">Available Earnings</p>
-                        <p className="text-sm font-bold text-emerald-800">{formatCurrency(earnings.availableBalance)}</p>
+                        <p className="text-xs text-emerald-700">
+                          Available Earnings
+                        </p>
+                        <p className="text-sm font-bold text-emerald-800">
+                          {formatCurrency(earnings.availableBalance)}
+                        </p>
                       </div>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      Net Profit tracks completed storefront order markup. Earnings tracks credited ledger balance and payout movements.
-                      Available Earnings reflects what can be withdrawn now.
+                      Net Profit tracks completed storefront order markup.
+                      Earnings tracks credited ledger balance and payout
+                      movements. Available Earnings reflects what can be
+                      withdrawn now.
                     </p>
                   </>
                 ) : (
-                  <p className="text-gray-500">Breakdown data is not available yet.</p>
+                  <p className="text-gray-500">
+                    Breakdown data is not available yet.
+                  </p>
                 )}
               </DialogBody>
               <DialogFooter justify="end">
@@ -579,7 +643,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <BarChart2 className="w-4 h-4 text-indigo-500" />
-                      <h3 className="text-base font-semibold">Revenue Breakdown</h3>
+                      <h3 className="text-base font-semibold">
+                        Revenue Breakdown
+                      </h3>
                     </div>
                     <Button
                       type="button"
@@ -596,9 +662,20 @@ export const StorefrontDashboardPage: React.FC = () => {
                   {analyticsLoading ? (
                     <div className="space-y-2">
                       {[...Array(3)].map((_, i) => (
-                        <div key={i} className="flex items-center justify-between py-2 border-b border-gray-100">
-                          <Skeleton variant="text" height="0.75rem" width="120px" />
-                          <Skeleton variant="text" height="0.75rem" width="90px" />
+                        <div
+                          key={i}
+                          className="flex items-center justify-between py-2 border-b border-gray-100"
+                        >
+                          <Skeleton
+                            variant="text"
+                            height="0.75rem"
+                            width="120px"
+                          />
+                          <Skeleton
+                            variant="text"
+                            height="0.75rem"
+                            width="90px"
+                          />
                         </div>
                       ))}
                     </div>
@@ -607,7 +684,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                       <div className="flex items-center justify-between py-2 border-b border-gray-100">
                         <div className="flex items-center gap-2">
                           <ArrowUpRight className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                          <span className="text-sm text-gray-600">Gross Revenue</span>
+                          <span className="text-sm text-gray-600">
+                            Gross Revenue
+                          </span>
                         </div>
                         <span className="text-sm font-semibold text-gray-900">
                           {formatCurrency(analytics.totalRevenue)}
@@ -616,16 +695,20 @@ export const StorefrontDashboardPage: React.FC = () => {
                       <div className="flex items-center justify-between py-2 border-b border-gray-100">
                         <div className="flex items-center gap-2">
                           <ArrowDownRight className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                          <span className="text-sm text-gray-600">Fulfilment Cost</span>
+                          <span className="text-sm text-gray-600">
+                            Fulfilment Cost
+                          </span>
                         </div>
                         <span className="text-sm font-semibold text-gray-900">
-                          − {formatCurrency(analytics.totalCost)}
+                          − {formatCurrency(analytics.totalFulfilmentCost ?? 0)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between py-2.5">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                          <span className="text-sm font-medium text-gray-800">Net Profit</span>
+                          <span className="text-sm font-medium text-gray-800">
+                            Net Profit
+                          </span>
                         </div>
                         <span className="text-sm font-bold text-green-700">
                           {formatCurrency(analytics.totalProfit)}
@@ -636,47 +719,51 @@ export const StorefrontDashboardPage: React.FC = () => {
                       {(analytics.pendingProfit > 0 ||
                         analytics.confirmedProfit > 0 ||
                         analytics.processingProfit > 0) && (
-                          <div className="pt-2 mt-1 border-t border-dashed border-gray-200">
-                            <p className="text-xs text-gray-400 font-medium mb-2 uppercase tracking-wide">
-                              Pipeline — not yet earned
-                            </p>
-                            <div className="space-y-1.5">
-                              {analytics.pendingProfit > 0 && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-amber-600 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" /> Pending orders
-                                  </span>
-                                  <span className="text-xs font-semibold text-amber-600">
-                                    {formatCurrency(analytics.pendingProfit)}
-                                  </span>
-                                </div>
-                              )}
-                              {analytics.confirmedProfit > 0 && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-blue-600 flex items-center gap-1">
-                                    <CheckCircle className="w-3 h-3" /> Confirmed orders
-                                  </span>
-                                  <span className="text-xs font-semibold text-blue-600">
-                                    {formatCurrency(analytics.confirmedProfit)}
-                                  </span>
-                                </div>
-                              )}
-                              {analytics.processingProfit > 0 && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-indigo-600 flex items-center gap-1">
-                                    <RefreshCw className="w-3 h-3" /> Processing orders
-                                  </span>
-                                  <span className="text-xs font-semibold text-indigo-600">
-                                    {formatCurrency(analytics.processingProfit)}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
+                        <div className="pt-2 mt-1 border-t border-dashed border-gray-200">
+                          <p className="text-xs text-gray-400 font-medium mb-2 uppercase tracking-wide">
+                            Pipeline — not yet earned
+                          </p>
+                          <div className="space-y-1.5">
+                            {analytics.pendingProfit > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-amber-600 flex items-center gap-1">
+                                  <Clock className="w-3 h-3" /> Pending orders
+                                </span>
+                                <span className="text-xs font-semibold text-amber-600">
+                                  {formatCurrency(analytics.pendingProfit)}
+                                </span>
+                              </div>
+                            )}
+                            {analytics.confirmedProfit > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-blue-600 flex items-center gap-1">
+                                  <CheckCircle className="w-3 h-3" /> Confirmed
+                                  orders
+                                </span>
+                                <span className="text-xs font-semibold text-blue-600">
+                                  {formatCurrency(analytics.confirmedProfit)}
+                                </span>
+                              </div>
+                            )}
+                            {analytics.processingProfit > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-indigo-600 flex items-center gap-1">
+                                  <RefreshCw className="w-3 h-3" /> Processing
+                                  orders
+                                </span>
+                                <span className="text-xs font-semibold text-indigo-600">
+                                  {formatCurrency(analytics.processingProfit)}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <div className="text-center py-4 text-sm text-gray-400">No data yet</div>
+                    <div className="text-center py-4 text-sm text-gray-400">
+                      No data yet
+                    </div>
                   )}
                 </CardBody>
               </Card>
@@ -694,8 +781,17 @@ export const StorefrontDashboardPage: React.FC = () => {
                     <div className="grid grid-cols-2 gap-2">
                       {[...Array(6)].map((_, i) => (
                         <div key={i} className="p-2 bg-gray-100 rounded-lg">
-                          <Skeleton variant="text" height="0.75rem" width="80px" className="mb-2" />
-                          <Skeleton variant="text" height="1.1rem" width="70px" />
+                          <Skeleton
+                            variant="text"
+                            height="0.75rem"
+                            width="80px"
+                            className="mb-2"
+                          />
+                          <Skeleton
+                            variant="text"
+                            height="1.1rem"
+                            width="70px"
+                          />
                         </div>
                       ))}
                     </div>
@@ -757,7 +853,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-4 text-sm text-gray-400">No order data</div>
+                    <div className="text-center py-4 text-sm text-gray-400">
+                      No order data
+                    </div>
                   )}
                 </CardBody>
               </Card>
@@ -770,7 +868,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
                       <Wallet className="w-4 h-4 text-green-600" />
-                      <h3 className="text-base font-semibold">Earnings History</h3>
+                      <h3 className="text-base font-semibold">
+                        Earnings History
+                      </h3>
                     </div>
                     <div className="flex items-center gap-3">
                       <Button
@@ -801,10 +901,11 @@ export const StorefrontDashboardPage: React.FC = () => {
                         className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-gray-50 transition"
                       >
                         <div
-                          className={`p-1.5 rounded-full shrink-0 ${txn.type === "credit"
-                            ? "bg-green-100"
-                            : "bg-red-100"
-                            }`}
+                          className={`p-1.5 rounded-full shrink-0 ${
+                            txn.type === "credit"
+                              ? "bg-green-100"
+                              : "bg-red-100"
+                          }`}
                         >
                           {txn.type === "credit" ? (
                             <ArrowUpRight className="w-3.5 h-3.5 text-green-600" />
@@ -813,7 +914,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-800 truncate">{txn.description}</p>
+                          <p className="text-sm text-gray-800 truncate">
+                            {txn.description}
+                          </p>
                           <p className="text-xs text-gray-400">
                             {formatRelativeTime(txn.createdAt)}
                             {txn.reference && (
@@ -825,10 +928,11 @@ export const StorefrontDashboardPage: React.FC = () => {
                         </div>
                         <div className="text-right shrink-0">
                           <p
-                            className={`text-sm font-semibold ${txn.type === "credit"
-                              ? "text-green-700"
-                              : "text-red-600"
-                              }`}
+                            className={`text-sm font-semibold ${
+                              txn.type === "credit"
+                                ? "text-green-700"
+                                : "text-red-600"
+                            }`}
                           >
                             {txn.type === "credit" ? "+" : "−"}
                             {formatCurrency(txn.amount)}
@@ -842,7 +946,8 @@ export const StorefrontDashboardPage: React.FC = () => {
                   </div>
                   {earnings.recentTransactions.length > 8 && (
                     <p className="text-xs text-center text-gray-400 mt-2 pt-2 border-t border-gray-100">
-                      Showing 8 of {earnings.recentTransactions.length} recent transactions
+                      Showing 8 of {earnings.recentTransactions.length} recent
+                      transactions
                     </p>
                   )}
                 </CardBody>
@@ -903,7 +1008,13 @@ export const StorefrontDashboardPage: React.FC = () => {
                       className="w-full justify-start"
                       variant="outline"
                       size="sm"
-                      leftIcon={urlCopied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      leftIcon={
+                        urlCopied ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )
+                      }
                     >
                       {urlCopied ? "Copied!" : "Copy Link"}
                     </Button>
@@ -912,7 +1023,11 @@ export const StorefrontDashboardPage: React.FC = () => {
                       className="w-full justify-start"
                       variant="outline"
                       size="sm"
-                      leftIcon={<RefreshCw className={`w-4 h-4 ${analyticsLoading ? "animate-spin" : ""}`} />}
+                      leftIcon={
+                        <RefreshCw
+                          className={`w-4 h-4 ${analyticsLoading ? "animate-spin" : ""}`}
+                        />
+                      }
                       disabled={analyticsLoading}
                     >
                       Refresh Data
@@ -926,7 +1041,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                 <Card variant="outlined">
                   <CardHeader>
                     <div className="flex items-center justify-between w-full">
-                      <h3 className="text-base font-semibold">Getting Started</h3>
+                      <h3 className="text-base font-semibold">
+                        Getting Started
+                      </h3>
                       <button
                         onClick={toggleChecklist}
                         className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 transition"
@@ -949,7 +1066,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                         )}
                         <span
                           className={
-                            item.done ? "text-gray-500 line-through" : "text-gray-700"
+                            item.done
+                              ? "text-gray-500 line-through"
+                              : "text-gray-700"
                           }
                         >
                           {item.label}
@@ -970,7 +1089,8 @@ export const StorefrontDashboardPage: React.FC = () => {
                           />
                         </div>
                         <span className="text-xs text-gray-400">
-                          {setupChecklist.filter((i) => i.done).length}/{setupChecklist.length}
+                          {setupChecklist.filter((i) => i.done).length}/
+                          {setupChecklist.length}
                         </span>
                       </div>
                     </div>
@@ -983,7 +1103,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
                         <Package className="w-4 h-4 text-blue-500" />
-                        <h3 className="text-base font-semibold">Latest Orders</h3>
+                        <h3 className="text-base font-semibold">
+                          Latest Orders
+                        </h3>
                       </div>
                       <div className="flex items-center gap-2">
                         {!allChecklistDone && (
@@ -1014,13 +1136,35 @@ export const StorefrontDashboardPage: React.FC = () => {
                             className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-100"
                           >
                             <div className="flex-1 min-w-0">
-                              <Skeleton variant="text" height="1rem" width="40%" className="mb-2" />
-                              <Skeleton variant="text" height="0.85rem" width="55%" className="mb-1" />
-                              <Skeleton variant="text" height="0.75rem" width="30%" />
+                              <Skeleton
+                                variant="text"
+                                height="1rem"
+                                width="40%"
+                                className="mb-2"
+                              />
+                              <Skeleton
+                                variant="text"
+                                height="0.85rem"
+                                width="55%"
+                                className="mb-1"
+                              />
+                              <Skeleton
+                                variant="text"
+                                height="0.75rem"
+                                width="30%"
+                              />
                             </div>
                             <div className="text-right">
-                              <Skeleton variant="text" height="1rem" width="60px" />
-                              <Skeleton variant="text" height="0.75rem" width="60px" />
+                              <Skeleton
+                                variant="text"
+                                height="1rem"
+                                width="60px"
+                              />
+                              <Skeleton
+                                variant="text"
+                                height="0.75rem"
+                                width="60px"
+                              />
                             </div>
                           </div>
                         ))}
@@ -1047,7 +1191,15 @@ export const StorefrontDashboardPage: React.FC = () => {
                                   #{order.orderNumber}
                                 </span>
                                 <Badge
-                                  colorScheme={getOrderStatusColor(order.status) as "success" | "error" | "warning" | "info" | "gray" | "default"}
+                                  colorScheme={
+                                    getOrderStatusColor(order.status) as
+                                      | "success"
+                                      | "error"
+                                      | "warning"
+                                      | "info"
+                                      | "gray"
+                                      | "default"
+                                  }
                                   size="xs"
                                   variant="subtle"
                                 >
@@ -1055,22 +1207,35 @@ export const StorefrontDashboardPage: React.FC = () => {
                                 </Badge>
                               </div>
                               <p className="text-xs text-gray-500 mt-0.5 truncate">
-                                {order.storefrontData?.customerInfo?.name || "Customer"}
-                                {order.storefrontData?.customerInfo?.ghanaCardNumber && (
+                                {order.storefrontData?.customerInfo?.name ||
+                                  "Customer"}
+                                {order.storefrontData?.customerInfo
+                                  ?.ghanaCardNumber && (
                                   <span className="ml-1 text-blue-600">
-                                    • {order.storefrontData.customerInfo.ghanaCardNumber}
+                                    •{" "}
+                                    {
+                                      order.storefrontData.customerInfo
+                                        .ghanaCardNumber
+                                    }
                                   </span>
                                 )}
                                 {" • "}
                                 {order.storefrontData?.items?.length ?? 0} item
-                                {(order.storefrontData?.items?.length ?? 0) !== 1 ? "s" : ""}
+                                {(order.storefrontData?.items?.length ?? 0) !==
+                                1
+                                  ? "s"
+                                  : ""}
                               </p>
                             </div>
                             <div className="text-right shrink-0">
                               {(() => {
-                                const tierCost = order.storefrontData?.totalTierCost;
-                                const markup = order.storefrontData?.totalMarkup;
-                                const hasMarkup = typeof tierCost === "number" && typeof markup === "number";
+                                const tierCost =
+                                  order.storefrontData?.totalTierCost;
+                                const markup =
+                                  order.storefrontData?.totalMarkup;
+                                const hasMarkup =
+                                  typeof tierCost === "number" &&
+                                  typeof markup === "number";
                                 const displayPrice = hasMarkup
                                   ? tierCost + markup
                                   : order.total;
@@ -1107,7 +1272,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Store className="w-4 h-4 text-gray-500" />
-                    <h3 className="text-base font-semibold">Store Information</h3>
+                    <h3 className="text-base font-semibold">
+                      Store Information
+                    </h3>
                   </div>
                 </CardHeader>
                 <CardBody className="space-y-3 text-sm">
@@ -1115,7 +1282,11 @@ export const StorefrontDashboardPage: React.FC = () => {
                     <span className="text-gray-500">Status</span>
                     <Badge
                       colorScheme={
-                        suspended ? "error" : storefront.isActive ? "success" : "gray"
+                        suspended
+                          ? "error"
+                          : storefront.isActive
+                            ? "success"
+                            : "gray"
                       }
                       size="xs"
                       variant="subtle"
@@ -1130,7 +1301,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500">Approval</span>
                     <Badge
-                      colorScheme={storefront.isApproved ? "success" : "warning"}
+                      colorScheme={
+                        storefront.isApproved ? "success" : "warning"
+                      }
                       size="xs"
                       variant="subtle"
                     >
@@ -1165,7 +1338,9 @@ export const StorefrontDashboardPage: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Share2 className="w-4 h-4 text-gray-500" />
-                    <h3 className="text-base font-semibold">Share Your Store</h3>
+                    <h3 className="text-base font-semibold">
+                      Share Your Store
+                    </h3>
                   </div>
                 </CardHeader>
                 <CardBody>
@@ -1197,16 +1372,18 @@ export const StorefrontDashboardPage: React.FC = () => {
                   <div className="mt-4 border border-gray-200 rounded-lg bg-gray-50 p-4">
                     <div className="flex items-start gap-3">
                       <img
-                        src={storefront.branding?.logoUrl || '/logo.png'}
+                        src={storefront.branding?.logoUrl || "/logo.png"}
                         alt="Store logo"
                         className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
                       />
                       <div className="flex-1">
                         <div className="text-sm font-semibold text-gray-900 line-clamp-2">
-                          {storefront.displayName || storefront.businessName} | Caskmaf Datahub
+                          {storefront.displayName || storefront.businessName} |
+                          Caskmaf Datahub
                         </div>
                         <div className="text-xs text-gray-600 mt-1 line-clamp-2">
-                          {storefront.description || 'Instant data bundles from trusted agents across Ghana.'}
+                          {storefront.description ||
+                            "Instant data bundles from trusted agents across Ghana."}
                         </div>
                         <div className="text-xs text-blue-600 mt-2 truncate">
                           {getStorefrontUrl()}

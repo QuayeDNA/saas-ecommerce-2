@@ -12,10 +12,28 @@
 import { useState, useEffect, useCallback } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Home, ShoppingBag, Wallet, User, Store, ShieldCheck, FileText,
-  LayoutDashboard, Users, Package, ClipboardList, Settings,
-  Menu, X, Megaphone, CreditCard, Banknote, History,
-  Building2, BadgeDollarSign, BarChart3, ChevronRight,
+  Home,
+  ShoppingBag,
+  Wallet,
+  User,
+  Store,
+  ShieldCheck,
+  FileText,
+  LayoutDashboard,
+  Users,
+  Package,
+  ClipboardList,
+  Settings,
+  Menu,
+  X,
+  Megaphone,
+  CreditCard,
+  Banknote,
+  History,
+  Building2,
+  // BadgeDollarSign,
+  BarChart3,
+  ChevronRight,
 } from "lucide-react";
 import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubble";
 
@@ -39,43 +57,158 @@ interface OverflowItem {
 // ─── navigation config ────────────────────────────────────────────────────────
 
 const AGENT_PRIMARY: PrimaryTab[] = [
-  { label: "Home",    path: "/agent/dashboard",        icon: <Home        className="w-[18px] h-[18px]" strokeWidth={1.8} />, exact: true },
-  { label: "Orders",  path: "/agent/dashboard/orders", icon: <ShoppingBag className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Wallet",  path: "/agent/dashboard/wallet", icon: <Wallet      className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Profile", path: "/agent/dashboard/profile",icon: <User        className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
+  {
+    label: "Home",
+    path: "/agent/dashboard",
+    icon: <Home className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+    exact: true,
+  },
+  {
+    label: "Orders",
+    path: "/agent/dashboard/orders",
+    icon: <ShoppingBag className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Wallet",
+    path: "/agent/dashboard/wallet",
+    icon: <Wallet className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Profile",
+    path: "/agent/dashboard/profile",
+    icon: <User className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
 ];
 
 const AGENT_OVERFLOW: OverflowItem[] = [
-  { label: "Storefront",      path: "/agent/dashboard/storefront",      icon: <Store       className="w-5 h-5" />, description: "Manage your public shop" },
-  { label: "AFA Registration",path: "/agent/dashboard/afa-registration",icon: <ShieldCheck className="w-5 h-5" />, description: "Customer registration flow" },
-  { label: "Privacy Policy",  path: "/agent/dashboard/privacy-policy",  icon: <FileText    className="w-5 h-5" />, description: "View platform privacy details" },
+  {
+    label: "Storefront",
+    path: "/agent/dashboard/storefront",
+    icon: <Store className="w-5 h-5" />,
+    description: "Manage your public shop",
+  },
+  {
+    label: "AFA Registration",
+    path: "/agent/dashboard/afa-registration",
+    icon: <ShieldCheck className="w-5 h-5" />,
+    description: "Customer registration flow",
+  },
+  {
+    label: "Privacy Policy",
+    path: "/agent/dashboard/privacy-policy",
+    icon: <FileText className="w-5 h-5" />,
+    description: "View platform privacy details",
+  },
 ];
 
 const SUPER_ADMIN_PRIMARY: PrimaryTab[] = [
-  { label: "Dashboard", path: "/superadmin",          icon: <LayoutDashboard className="w-[18px] h-[18px]" strokeWidth={1.8} />, exact: true },
-  { label: "Users",     path: "/superadmin/users",    icon: <Users           className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Packages",  path: "/superadmin/packages", icon: <Package         className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Orders",    path: "/superadmin/orders",   icon: <ClipboardList   className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
+  {
+    label: "Dashboard",
+    path: "/superadmin",
+    icon: <LayoutDashboard className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+    exact: true,
+  },
+  {
+    label: "Users",
+    path: "/superadmin/users",
+    icon: <Users className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Packages",
+    path: "/superadmin/packages",
+    icon: <Package className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Orders",
+    path: "/superadmin/orders",
+    icon: <ClipboardList className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
 ];
 
 const SUPER_ADMIN_OVERFLOW: OverflowItem[] = [
-  { label: "Analytics",     path: "/superadmin/analytics",       icon: <BarChart3        className="w-5 h-5" />, description: "Performance dashboards" },
-  { label: "Settings",      path: "/superadmin/settings",        icon: <Settings         className="w-5 h-5" />, description: "Platform configuration" },
-  { label: "Providers",     path: "/superadmin/providers",       icon: <Building2        className="w-5 h-5" />, description: "Manage telecom providers" },
-  { label: "Commissions",   path: "/superadmin/commissions",     icon: <BadgeDollarSign  className="w-5 h-5" />, description: "Reseller commission rates" },
-  { label: "Announcements", path: "/superadmin/announcements",   icon: <Megaphone        className="w-5 h-5" />, description: "Platform-wide notices" },
-  { label: "Stores",        path: "/superadmin/stores",          icon: <Store            className="w-5 h-5" />, description: "Agent storefronts" },
-  { label: "Top-ups",       path: "/superadmin/wallet/top-ups",  icon: <CreditCard       className="w-5 h-5" />, description: "Wallet funding requests" },
-  { label: "Payouts",       path: "/superadmin/wallet/payouts",  icon: <Banknote         className="w-5 h-5" />, description: "Withdrawal processing" },
-  { label: "Tx History",    path: "/superadmin/wallet/history",  icon: <History          className="w-5 h-5" />, description: "All wallet transactions" },
+  {
+    label: "Analytics",
+    path: "/superadmin/analytics",
+    icon: <BarChart3 className="w-5 h-5" />,
+    description: "Performance dashboards",
+  },
+  {
+    label: "Settings",
+    path: "/superadmin/settings",
+    icon: <Settings className="w-5 h-5" />,
+    description: "Platform configuration",
+  },
+  {
+    label: "Providers",
+    path: "/superadmin/providers",
+    icon: <Building2 className="w-5 h-5" />,
+    description: "Manage telecom providers",
+  },
+  // {
+  //   label: "Commissions",
+  //   path: "/superadmin/commissions",
+  //   icon: <BadgeDollarSign className="w-5 h-5" />,
+  //   description: "Reseller commission rates",
+  // },
+  {
+    label: "Announcements",
+    path: "/superadmin/announcements",
+    icon: <Megaphone className="w-5 h-5" />,
+    description: "Platform-wide notices",
+  },
+  {
+    label: "Stores",
+    path: "/superadmin/stores",
+    icon: <Store className="w-5 h-5" />,
+    description: "Agent storefronts",
+  },
+  {
+    label: "Top-ups",
+    path: "/superadmin/wallet/top-ups",
+    icon: <CreditCard className="w-5 h-5" />,
+    description: "Wallet funding requests",
+  },
+  {
+    label: "Payouts",
+    path: "/superadmin/wallet/payouts",
+    icon: <Banknote className="w-5 h-5" />,
+    description: "Withdrawal processing",
+  },
+  {
+    label: "Tx History",
+    path: "/superadmin/wallet/history",
+    icon: <History className="w-5 h-5" />,
+    description: "All wallet transactions",
+  },
 ];
 
 const ADMIN_PRIMARY: PrimaryTab[] = [
-  { label: "Dashboard", path: "/admin/dashboard",          icon: <LayoutDashboard className="w-[18px] h-[18px]" strokeWidth={1.8} />, exact: true },
-  { label: "Users",     path: "/admin/dashboard/users",    icon: <Users           className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Packages",  path: "/admin/dashboard/packages", icon: <Package         className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Wallet",    path: "/admin/dashboard/wallet",   icon: <Wallet          className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
-  { label: "Profile",   path: "/admin/dashboard/profile",  icon: <User            className="w-[18px] h-[18px]" strokeWidth={1.8} /> },
+  {
+    label: "Dashboard",
+    path: "/admin/dashboard",
+    icon: <LayoutDashboard className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+    exact: true,
+  },
+  {
+    label: "Users",
+    path: "/admin/dashboard/users",
+    icon: <Users className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Packages",
+    path: "/admin/dashboard/packages",
+    icon: <Package className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Wallet",
+    path: "/admin/dashboard/wallet",
+    icon: <Wallet className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
+  {
+    label: "Profile",
+    path: "/admin/dashboard/profile",
+    icon: <User className="w-[18px] h-[18px]" strokeWidth={1.8} />,
+  },
 ];
 
 // ─── scoped styles (module-level, injected once) ──────────────────────────────
@@ -360,6 +493,12 @@ const NAV_STYLES = `
     to   { opacity: 1; transform: none; }
   }
   .bn-item { animation: bn-item-in .22s ease both; }
+
+  /* Ensure nav is hidden on md+ (desktop) even if Tailwind classes are missing */
+  @media (min-width: 768px) {
+    .bn-root { display: none !important; }
+    .bn-sheet, .bn-backdrop { display: none !important; }
+  }
 `;
 
 // ─── shared sub-components ────────────────────────────────────────────────────
@@ -396,7 +535,11 @@ interface MoreButtonProps {
   onClick: () => void;
 }
 
-const MoreButton: React.FC<MoreButtonProps> = ({ isOpen, isActive, onClick }) => (
+const MoreButton: React.FC<MoreButtonProps> = ({
+  isOpen,
+  isActive,
+  onClick,
+}) => (
   <button
     onClick={onClick}
     className="bn-tab"
@@ -404,12 +547,16 @@ const MoreButton: React.FC<MoreButtonProps> = ({ isOpen, isActive, onClick }) =>
     aria-expanded={isOpen}
   >
     <span className={`bn-dot ${isActive ? "bn-dot--visible" : ""}`} />
-    <span className={`bn-pill ${(isOpen || isActive) ? "bn-pill--active" : ""}`}>
-      {isOpen
-        ? <X className="w-[18px] h-[18px]" strokeWidth={2} />
-        : <Menu className="w-[18px] h-[18px]" strokeWidth={1.8} />}
+    <span className={`bn-pill ${isOpen || isActive ? "bn-pill--active" : ""}`}>
+      {isOpen ? (
+        <X className="w-[18px] h-[18px]" strokeWidth={2} />
+      ) : (
+        <Menu className="w-[18px] h-[18px]" strokeWidth={1.8} />
+      )}
     </span>
-    <span className={`bn-label ${(isOpen || isActive) ? "bn-label--active" : ""}`}>
+    <span
+      className={`bn-label ${isOpen || isActive ? "bn-label--active" : ""}`}
+    >
       More
     </span>
   </button>
@@ -424,11 +571,19 @@ interface OverflowSheetProps {
 }
 
 const OverflowSheet: React.FC<OverflowSheetProps> = ({
-  items, isOpen, barHeight, isItemActive, onClose,
+  items,
+  isOpen,
+  barHeight,
+  isItemActive,
+  onClose,
 }) => (
   <>
     {isOpen && (
-      <div className="bn-backdrop md:hidden" onClick={onClose} aria-hidden="true" />
+      <div
+        className="bn-backdrop md:hidden"
+        onClick={onClose}
+        aria-hidden="true"
+      />
     )}
 
     <div
@@ -476,7 +631,13 @@ const OverflowSheet: React.FC<OverflowSheetProps> = ({
 
 // ─── main BottomNav component ─────────────────────────────────────────────────
 
-type UserType = "agent" | "super_agent" | "dealer" | "super_dealer" | "admin" | "super_admin";
+type UserType =
+  | "agent"
+  | "super_agent"
+  | "dealer"
+  | "super_dealer"
+  | "admin"
+  | "super_admin";
 
 interface BottomNavProps {
   userType: UserType;
@@ -489,24 +650,38 @@ export const BottomNav: React.FC<BottomNavProps> = ({ userType }) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const BAR_HEIGHT = 64; // px — matches CSS
 
-  const isAgent     = AGENT_TYPES.has(userType);
+  const isAgent = AGENT_TYPES.has(userType);
   const isSuperAdmin = userType === "super_admin";
 
-  const primaryTabs  = isAgent ? AGENT_PRIMARY : isSuperAdmin ? SUPER_ADMIN_PRIMARY : ADMIN_PRIMARY;
-  const overflowItems = isAgent ? AGENT_OVERFLOW : isSuperAdmin ? SUPER_ADMIN_OVERFLOW : [];
-  const hasOverflow  = overflowItems.length > 0;
+  const primaryTabs = isAgent
+    ? AGENT_PRIMARY
+    : isSuperAdmin
+      ? SUPER_ADMIN_PRIMARY
+      : ADMIN_PRIMARY;
+  const overflowItems = isAgent
+    ? AGENT_OVERFLOW
+    : isSuperAdmin
+      ? SUPER_ADMIN_OVERFLOW
+      : [];
+  const hasOverflow = overflowItems.length > 0;
 
   // order badge (only relevant when on an orders tab)
   const isOrdersPage = location.pathname.includes("/orders");
   const newOrderCount = useOrderNotificationBubble(isOrdersPage);
 
-  const isActive = useCallback((path: string, exact = false) => {
-    if (exact) return location.pathname === path || location.pathname === path + "/";
-    return location.pathname.startsWith(path);
-  }, [location.pathname]);
+  const isActive = useCallback(
+    (path: string, exact = false) => {
+      if (exact)
+        return location.pathname === path || location.pathname === path + "/";
+      return location.pathname.startsWith(path);
+    },
+    [location.pathname],
+  );
 
   // close sheet on route change
-  useEffect(() => { setSheetOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    setSheetOpen(false);
+  }, [location.pathname]);
 
   // close on Escape
   useEffect(() => {
@@ -560,7 +735,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({ userType }) => {
 
 export const AgentBottomNav: React.FC = () => <BottomNav userType="agent" />;
 
-interface AdminBottomNavProps { userType?: string; }
-export const AdminBottomNav: React.FC<AdminBottomNavProps> = ({ userType = "admin" }) => (
-  <BottomNav userType={userType as UserType} />
-);
+interface AdminBottomNavProps {
+  userType?: string;
+}
+export const AdminBottomNav: React.FC<AdminBottomNavProps> = ({
+  userType = "admin",
+}) => <BottomNav userType={userType as UserType} />;

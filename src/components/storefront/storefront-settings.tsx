@@ -21,7 +21,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "../../design-system";
-import { EarningsManager } from './earnings-manager';
+import { EarningsManager } from "./earnings-manager";
 import { useToast } from "../../design-system";
 import {
   storefrontService,
@@ -67,7 +67,7 @@ interface StorefrontSettingsProps {
   storefront: StorefrontData;
   onUpdate: (updatedStorefront: StorefrontData) => void;
   initialTab?: string;
-  earningsDefaultTab?: 'payouts' | 'earnings';
+  earningsDefaultTab?: "payouts" | "earnings";
 }
 
 interface PaymentMethodForm {
@@ -166,19 +166,22 @@ function getSystemDescription(displayName: string): string {
 }
 
 /** SVG data-URI used as the store logo when none is set */
-function getSystemLogoDataUrl(initials: string, theme: string = 'blue'): string {
+function getSystemLogoDataUrl(
+  initials: string,
+  theme: string = "blue",
+): string {
   const themeColors: Record<string, [string, string]> = {
-    blue: ['#2563EB', '#1E40AF'],
-    green: ['#16A34A', '#15803D'],
-    purple: ['#7C3AED', '#6D28D9'],
-    orange: ['#EA580C', '#C2410C'],
-    red: ['#DC2626', '#B91C1C'],
-    teal: ['#0D9488', '#0F766E'],
-    indigo: ['#4F46E5', '#4338CA'],
-    pink: ['#DB2777', '#BE185D'],
+    blue: ["#2563EB", "#1E40AF"],
+    green: ["#16A34A", "#15803D"],
+    purple: ["#7C3AED", "#6D28D9"],
+    orange: ["#EA580C", "#C2410C"],
+    red: ["#DC2626", "#B91C1C"],
+    teal: ["#0D9488", "#0F766E"],
+    indigo: ["#4F46E5", "#4338CA"],
+    pink: ["#DB2777", "#BE185D"],
   };
   const [from, to] = themeColors[theme] || themeColors.blue;
-  const letter = (initials || 'S').charAt(0).toUpperCase();
+  const letter = (initials || "S").charAt(0).toUpperCase();
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:${from}'/><stop offset='100%' style='stop-color:${to}'/></linearGradient></defs><rect width='200' height='200' rx='40' fill='url(#g)'/><text x='100' y='130' font-family='Arial Black,Arial,sans-serif' font-size='110' font-weight='900' fill='white' text-anchor='middle'>${letter}</text></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
@@ -202,7 +205,7 @@ function SubaccountTooltip() {
     <span className="relative inline-flex items-center">
       <button
         type="button"
-        className="text-gray-400 hover:text-gray-600 focus:outline-none"
+        className="text-[var(--color-muted-text)] hover:text-[var(--color-text)] focus:outline-none"
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
         onFocus={() => setVisible(true)}
@@ -213,8 +216,10 @@ function SubaccountTooltip() {
         <HelpCircle className="w-3.5 h-3.5" />
       </button>
       {visible && (
-        <span className="absolute left-5 top-1/2 -translate-y-1/2 z-50 w-64 rounded-lg bg-gray-900 text-white text-xs px-3 py-2 shadow-lg pointer-events-none">
-          Paystack subaccount configuration is managed by the platform administrator. Contact support if you need a direct-payout subaccount linked to your store.
+        <span className="absolute left-5 top-1/2 -translate-y-1/2 z-50 w-64 rounded-lg bg-[var(--color-text)] text-[var(--color-surface)] text-xs px-3 py-2 shadow-lg pointer-events-none">
+          Paystack subaccount configuration is managed by the platform
+          administrator. Contact support if you need a direct-payout subaccount
+          linked to your store.
         </span>
       )}
     </span>
@@ -255,10 +260,10 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
       .toString()
       .trim()
       .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9_-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9_-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
   // Branding state
@@ -283,7 +288,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodForm[]>(
     storefront.paymentMethods && storefront.paymentMethods.length > 0
       ? (storefront.paymentMethods as PaymentMethodForm[])
-      : [{ type: 'paystack', details: {}, isActive: false }],
+      : [{ type: "paystack", details: {}, isActive: false }],
   );
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -311,10 +316,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
       newErrors.phone = "Please enter a valid phone number";
     }
 
-    if (
-      formData.email &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
     }
 
@@ -365,7 +367,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
       }
 
       // Paystack (platform checkout) requires no storefront-level credentials by default
-      if (payment.type === 'paystack') {
+      if (payment.type === "paystack") {
         // Accept as valid — optional storefront `paystackSubaccountId` may be present but not required
         continue;
       }
@@ -548,13 +550,24 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
       setIsLoading(true);
       // Inject system-generated placeholders when the agent leaves fields blank.
       // These are stored in the DB so the public store always has something to show.
-      const resolvedTagline = brandingData.tagline.trim()
-        || getSystemTagline(formData.businessName || storefront.businessName);
-      const resolvedDescription = formData.description.trim()
-        || getSystemDescription(storefront.displayName || formData.businessName || storefront.businessName);
-      const resolvedLogoUrl = brandingData.logoUrl.trim()
-        || getSystemLogoDataUrl(
-          (storefront.displayName || formData.businessName || storefront.businessName).charAt(0),
+      const resolvedTagline =
+        brandingData.tagline.trim() ||
+        getSystemTagline(formData.businessName || storefront.businessName);
+      const resolvedDescription =
+        formData.description.trim() ||
+        getSystemDescription(
+          storefront.displayName ||
+            formData.businessName ||
+            storefront.businessName,
+        );
+      const resolvedLogoUrl =
+        brandingData.logoUrl.trim() ||
+        getSystemLogoDataUrl(
+          (
+            storefront.displayName ||
+            formData.businessName ||
+            storefront.businessName
+          ).charAt(0),
           brandingData.theme,
         );
 
@@ -644,7 +657,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
     }
   };
 
-  const businessSlugPreview = slugifyBusinessName(formData.businessName || storefront.businessName || '');
+  const businessSlugPreview = slugifyBusinessName(
+    formData.businessName || storefront.businessName || "",
+  );
   const storefrontUrlPreview = getStoreUrl(businessSlugPreview);
   const getStorefrontUrl = () => getStoreUrl(storefront.businessName);
 
@@ -731,10 +746,10 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               {(method.details.accounts || []).map((account, accountIdx) => (
                 <div
                   key={accountIdx}
-                  className="p-3 border border-gray-200 rounded-lg"
+                  className="p-3 border border-[var(--color-border)] rounded-lg"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h5 className="text-sm font-medium text-gray-900">
+                    <h5 className="text-sm font-medium text-[var(--color-text)]">
                       Account {accountIdx + 1}
                     </h5>
                     {(method.details.accounts || []).length > 1 && (
@@ -743,7 +758,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                         size="xs"
                         onClick={() => removeMomoAccount(index, accountIdx)}
                       >
-                        <X className="w-4 h-4 text-red-500" />
+                        <X className="w-4 h-4 text-[var(--color-error)]" />
                       </Button>
                     )}
                   </div>
@@ -813,11 +828,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 <Input
                   value={method.details.bank || ""}
                   onChange={(e) =>
-                    handlePaymentMethodChange(
-                      index,
-                      "bank",
-                      e.target.value,
-                    )
+                    handlePaymentMethodChange(index, "bank", e.target.value)
                   }
                   placeholder="e.g., GCB Bank"
                   leftIcon={<Banknote className="w-4 h-4" />}
@@ -827,11 +838,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 <Input
                   value={method.details.account || ""}
                   onChange={(e) =>
-                    handlePaymentMethodChange(
-                      index,
-                      "account",
-                      e.target.value,
-                    )
+                    handlePaymentMethodChange(index, "account", e.target.value)
                   }
                   placeholder="Account number"
                   leftIcon={<CreditCard className="w-4 h-4" />}
@@ -841,11 +848,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 <Input
                   value={method.details.name || ""}
                   onChange={(e) =>
-                    handlePaymentMethodChange(
-                      index,
-                      "name",
-                      e.target.value,
-                    )
+                    handlePaymentMethodChange(index, "name", e.target.value)
                   }
                   placeholder="Account holder name"
                 />
@@ -853,20 +856,26 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             </div>
           )}
 
-          {method.type === 'paystack' && (
+          {method.type === "paystack" && (
             <div className="space-y-3 text-sm">
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-gray-700">Paystack Subaccount</span>
+                  <span className="text-sm font-medium text-[var(--color-secondary-text)]">
+                    Paystack Subaccount
+                  </span>
                   <SubaccountTooltip />
                 </div>
                 <Input
-                  value={method.details?.subaccountId || storefront.paystackSubaccountId || ''}
-                  onChange={() => { }}
+                  value={
+                    method.details?.subaccountId ||
+                    storefront.paystackSubaccountId ||
+                    ""
+                  }
+                  onChange={() => {}}
                   placeholder="Managed by platform"
                   size="sm"
                   disabled
-                  className="bg-gray-50 cursor-not-allowed"
+                  className="bg-[var(--color-control-bg)] cursor-not-allowed"
                 />
               </div>
             </div>
@@ -882,19 +891,19 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
     <div className="space-y-4 sm:space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-3">
-        <Settings className="w-6 h-6 text-gray-700 shrink-0" />
+        <Settings className="w-6 h-6 text-[var(--color-secondary-text)] shrink-0" />
         <div className="min-w-0">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+          <h2 className="text-lg sm:text-xl font-bold text-[var(--color-text)]">
             Storefront Settings
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[var(--color-muted-text)]">
             Manage your storefront configuration and preferences
           </p>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="overflow-x-auto -mx-1 px-1 sticky top-0 z-10 bg-white pb-2">
+        <div className="overflow-x-auto -mx-1 px-1 sticky top-0 z-10 bg-[var(--color-background)] pb-2">
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 min-w-max sm:min-w-0">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="branding">Branding</TabsTrigger>
@@ -908,13 +917,11 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         {/* ===== General Settings ===== */}
         <TabsContent value="general" className="space-y-6">
           {/* Store Status banner */}
-          <div className="p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
+          <div className="p-3 sm:p-4 bg-[var(--color-control-bg)] border border-[var(--color-border)] rounded-xl space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge colorScheme={storeStatusColor}>
-                  {storeStatusLabel}
-                </Badge>
-                <span className="text-sm text-gray-600">
+                <Badge colorScheme={storeStatusColor}>{storeStatusLabel}</Badge>
+                <span className="text-sm text-[var(--color-secondary-text)]">
                   {storefront.suspendedByAdmin
                     ? "Suspended by an administrator"
                     : storefront.isActive
@@ -929,23 +936,27 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                   onClick={toggleStoreStatus}
                   isLoading={isLoading}
                 >
-                  {storefront.isActive ? "Deactivate Store" : "Reactivate Store"}
+                  {storefront.isActive
+                    ? "Deactivate Store"
+                    : "Reactivate Store"}
                 </Button>
               )}
             </div>
             {storefront.suspendedByAdmin && storefront.suspensionReason && (
               <Alert status="error" variant="left-accent">
                 <AlertTriangle className="w-4 h-4" />
-                <span className="ml-2">Reason: {storefront.suspensionReason}</span>
+                <span className="ml-2">
+                  Reason: {storefront.suspensionReason}
+                </span>
               </Alert>
             )}
           </div>
 
           {/* Business Information */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Store className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Store className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Business Information
               </h3>
             </div>
@@ -953,30 +964,40 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             <FormField label="Business Name (URL slug)" required>
               <Input
                 value={formData.businessName}
-                onChange={(e) => handleFormChange("businessName", e.target.value)}
+                onChange={(e) =>
+                  handleFormChange("businessName", e.target.value)
+                }
                 placeholder="your-business-name"
                 leftIcon={<Store className="w-4 h-4" />}
               />
-              <p className="text-xs text-gray-500 mt-1">
-                This controls your storefront URL and must be lowercase with no spaces.
+              <p className="text-xs text-[var(--color-muted-text)] mt-1">
+                This controls your storefront URL and must be lowercase with no
+                spaces.
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Preview: <span className="font-mono">{storefrontUrlPreview}</span>
+              <p className="text-xs text-[var(--color-muted-text)] mt-1">
+                Preview:{" "}
+                <span className="font-mono">{storefrontUrlPreview}</span>
               </p>
               {errors.businessName && (
-                <p className="text-sm text-red-600 mt-1">{errors.businessName}</p>
+                <p className="text-sm text-[var(--color-error)] mt-1">
+                  {errors.businessName}
+                </p>
               )}
             </FormField>
 
             <FormField label="Display Name" required>
               <Input
                 value={formData.displayName}
-                onChange={(e) => handleFormChange("displayName", e.target.value)}
+                onChange={(e) =>
+                  handleFormChange("displayName", e.target.value)
+                }
                 placeholder="Your store name"
                 leftIcon={<Store className="w-4 h-4" />}
               />
               {errors.displayName && (
-                <p className="text-sm text-red-600 mt-1">{errors.displayName}</p>
+                <p className="text-sm text-[var(--color-error)] mt-1">
+                  {errors.displayName}
+                </p>
               )}
             </FormField>
 
@@ -990,7 +1011,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 rows={3}
                 maxLength={500}
               />
-              <p className="text-xs text-gray-400 mt-1 text-right">
+              <p className="text-xs text-[var(--color-muted-text)] mt-1 text-right">
                 {formData.description.length}/500
               </p>
             </FormField>
@@ -998,9 +1019,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
 
           {/* Contact Details */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Phone className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Phone className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Contact Details
               </h3>
             </div>
@@ -1014,7 +1035,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                   leftIcon={<Phone className="w-4 h-4" />}
                 />
                 {errors.phone && (
-                  <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
+                  <p className="text-sm text-[var(--color-error)] mt-1">
+                    {errors.phone}
+                  </p>
                 )}
               </FormField>
 
@@ -1027,7 +1050,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                   leftIcon={<Mail className="w-4 h-4" />}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                  <p className="text-sm text-[var(--color-error)] mt-1">
+                    {errors.email}
+                  </p>
                 )}
               </FormField>
 
@@ -1044,7 +1069,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             <FormField label="Business Address">
               <div className="relative">
                 <div className="absolute top-3 left-3 pointer-events-none">
-                  <MapPin className="h-4 w-4 text-gray-400" />
+                  <MapPin className="h-4 w-4 text-[var(--color-muted-text)]" />
                 </div>
                 <Textarea
                   value={formData.address}
@@ -1072,12 +1097,16 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         </TabsContent>
 
         {/* ===== Branding & Customization ===== */}
-        <TabsContent value="branding" className="space-y-6" data-tour="storefront-branding">
+        <TabsContent
+          value="branding"
+          className="space-y-6"
+          data-tour="storefront-branding"
+        >
           {/* Appearance & Theme */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Palette className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Palette className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Appearance & Theme
               </h3>
             </div>
@@ -1098,7 +1127,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                     { value: "pink", label: "Pink" },
                   ]}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--color-muted-text)] mt-1">
                   Sets the accent color on your public storefront page
                 </p>
               </FormField>
@@ -1110,10 +1139,13 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                   options={[
                     { value: "classic", label: "Classic — Standard header" },
                     { value: "modern", label: "Modern — Large banner overlay" },
-                    { value: "minimal", label: "Minimal — Clean, text-focused" },
+                    {
+                      value: "minimal",
+                      label: "Minimal — Clean, text-focused",
+                    },
                   ]}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--color-muted-text)] mt-1">
                   How your public storefront looks to customers
                 </p>
               </FormField>
@@ -1122,12 +1154,16 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             <FormField label="Store Tagline">
               <Input
                 value={brandingData.tagline}
-                onChange={(e) => handleBrandingChange("tagline", e.target.value)}
-                placeholder={getSystemTagline(formData.businessName || storefront.businessName)}
+                onChange={(e) =>
+                  handleBrandingChange("tagline", e.target.value)
+                }
+                placeholder={getSystemTagline(
+                  formData.businessName || storefront.businessName,
+                )}
                 leftIcon={<Type className="w-4 h-4" />}
                 maxLength={120}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-[var(--color-muted-text)] mt-1">
                 {brandingData.tagline.trim()
                   ? `${brandingData.tagline.length}/120`
                   : `Auto-generated when left blank: "${getSystemTagline(formData.businessName || storefront.businessName)}"`}
@@ -1137,45 +1173,59 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             <FormField label="Footer Text">
               <Input
                 value={brandingData.footerText}
-                onChange={(e) => handleBrandingChange("footerText", e.target.value)}
+                onChange={(e) =>
+                  handleBrandingChange("footerText", e.target.value)
+                }
                 placeholder="Optional — leave blank to auto-generate a footer message."
                 maxLength={200}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-[var(--color-muted-text)] mt-1">
                 {brandingData.footerText.trim()
                   ? `${brandingData.footerText.length}/200`
                   : `Auto-generated when left blank: "${getSystemFooterText(
-                    formData.businessName || storefront.businessName,
-                  )}"`}
+                      formData.businessName || storefront.businessName,
+                    )}"`}
               </p>
             </FormField>
 
             {/* Toggle row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-[var(--color-control-bg)] rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-gray-500" />
+                  <Eye className="w-4 h-4 text-[var(--color-muted-text)]" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Show Contact Info</p>
-                    <p className="text-xs text-gray-500">Phone, email on public store</p>
+                    <p className="text-sm font-medium text-[var(--color-text)]">
+                      Show Contact Info
+                    </p>
+                    <p className="text-xs text-[var(--color-muted-text)]">
+                      Phone, email on public store
+                    </p>
                   </div>
                 </div>
                 <Switch
                   checked={brandingData.showContact}
-                  onCheckedChange={(checked) => handleBrandingChange("showContact", checked)}
+                  onCheckedChange={(checked) =>
+                    handleBrandingChange("showContact", checked)
+                  }
                 />
               </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-[var(--color-control-bg)] rounded-lg">
                 <div className="flex items-center gap-2">
-                  <Image className="w-4 h-4 text-gray-500" />
+                  <Image className="w-4 h-4 text-[var(--color-muted-text)]" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Show Banner</p>
-                    <p className="text-xs text-gray-500">Display banner on public store</p>
+                    <p className="text-sm font-medium text-[var(--color-text)]">
+                      Show Banner
+                    </p>
+                    <p className="text-xs text-[var(--color-muted-text)]">
+                      Display banner on public store
+                    </p>
                   </div>
                 </div>
                 <Switch
                   checked={brandingData.showBanner}
-                  onCheckedChange={(checked) => handleBrandingChange("showBanner", checked)}
+                  onCheckedChange={(checked) =>
+                    handleBrandingChange("showBanner", checked)
+                  }
                 />
               </div>
             </div>
@@ -1183,9 +1233,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
 
           {/* Logo & Banner */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Image className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Image className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Logo & Banner
               </h3>
             </div>
@@ -1195,44 +1245,53 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               <FormField label="Store Logo URL">
                 <Input
                   value={brandingData.logoUrl}
-                  onChange={(e) => handleBrandingChange("logoUrl", e.target.value)}
+                  onChange={(e) =>
+                    handleBrandingChange("logoUrl", e.target.value)
+                  }
                   placeholder="https://example.com/logo.png"
                   leftIcon={<Image className="w-4 h-4" />}
                   helperText="Square image recommended (200×200 px). Paste a public image URL or leave blank to use the initials fallback."
                 />
               </FormField>
               {/* Logo preview — always visible */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-3 p-3 bg-[var(--color-control-bg)] rounded-xl border border-[var(--color-border)]">
                 {brandingData.logoUrl ? (
                   <img
                     src={brandingData.logoUrl}
                     alt="Store logo"
-                    className="w-14 h-14 rounded-xl object-cover border border-gray-200 shadow-sm"
+                    className="w-14 h-14 rounded-xl object-cover border border-[var(--color-border)] shadow-sm"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
+                      (e.target as HTMLImageElement).style.display = "none";
+                      const fallback = (e.target as HTMLImageElement)
+                        .nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = "flex";
                     }}
                   />
                 ) : null}
                 {/* Auto-generated logo — shown when no URL is set */}
                 <img
                   src={getSystemLogoDataUrl(
-                    (formData.businessName || storefront.businessName || 'S').charAt(0),
+                    (
+                      formData.businessName ||
+                      storefront.businessName ||
+                      "S"
+                    ).charAt(0),
                     brandingData.theme,
                   )}
                   alt="Auto logo"
-                  className="w-14 h-14 rounded-xl object-cover border border-gray-200 shadow-sm shrink-0"
-                  style={{ display: brandingData.logoUrl ? 'none' : 'block' }}
+                  className="w-14 h-14 rounded-xl object-cover border border-[var(--color-border)] shadow-sm shrink-0"
+                  style={{ display: brandingData.logoUrl ? "none" : "block" }}
                 />
                 <div>
-                  <p className="text-sm font-medium text-gray-700">
-                    {brandingData.logoUrl ? 'Logo preview' : 'Auto-generated logo (no URL set)'}
-                  </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium text-[var(--color-secondary-text)]">
                     {brandingData.logoUrl
-                      ? 'This is how your logo appears on your storefront.'
-                      : 'An initial-letter logo matching your theme is shown automatically when no logo URL is uploaded.'}
+                      ? "Logo preview"
+                      : "Auto-generated logo (no URL set)"}
+                  </p>
+                  <p className="text-xs text-[var(--color-muted-text)]">
+                    {brandingData.logoUrl
+                      ? "This is how your logo appears on your storefront."
+                      : "An initial-letter logo matching your theme is shown automatically when no logo URL is uploaded."}
                   </p>
                 </div>
               </div>
@@ -1243,24 +1302,29 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               <FormField label="Store Banner URL">
                 <Input
                   value={brandingData.bannerUrl}
-                  onChange={(e) => handleBrandingChange("bannerUrl", e.target.value)}
+                  onChange={(e) =>
+                    handleBrandingChange("bannerUrl", e.target.value)
+                  }
                   placeholder="https://example.com/banner.jpg"
                   leftIcon={<Image className="w-4 h-4" />}
                   helperText="Wide image recommended (1200×300 px). Leave blank to use the auto-generated gradient banner."
                 />
               </FormField>
               {/* Banner preview — always visible */}
-              <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
-                <p className="text-xs font-medium text-gray-500">Banner preview</p>
+              <div className="p-3 bg-[var(--color-control-bg)] rounded-xl border border-[var(--color-border)] space-y-2">
+                <p className="text-xs font-medium text-[var(--color-muted-text)]">
+                  Banner preview
+                </p>
                 {brandingData.bannerUrl ? (
                   <img
                     src={brandingData.bannerUrl}
                     alt="Store banner"
-                    className="w-full h-24 rounded-lg object-cover border border-gray-200"
+                    className="w-full h-24 rounded-lg object-cover border border-[var(--color-border)]"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      (target.nextElementSibling as HTMLElement).style.display = 'flex';
+                      target.style.display = "none";
+                      (target.nextElementSibling as HTMLElement).style.display =
+                        "flex";
                     }}
                   />
                 ) : null}
@@ -1268,16 +1332,17 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 <div
                   className="w-full h-24 rounded-lg flex items-center justify-center text-white font-bold text-lg"
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
-                    display: brandingData.bannerUrl ? 'none' : 'flex',
+                    background:
+                      "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)",
+                    display: brandingData.bannerUrl ? "none" : "flex",
                   }}
                 >
-                  {formData.businessName || 'Your Store'}
+                  {formData.businessName || "Your Store"}
                 </div>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--color-muted-text)]">
                   {brandingData.bannerUrl
-                    ? 'Your custom banner image will be shown on the storefront.'
-                    : 'A gradient banner is generated from the theme color when no image is set.'}
+                    ? "Your custom banner image will be shown on the storefront."
+                    : "A gradient banner is generated from the theme color when no image is set."}
                 </p>
               </div>
             </div>
@@ -1285,9 +1350,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
 
           {/* Social Links */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Globe className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Globe className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Social Links
               </h3>
             </div>
@@ -1296,7 +1361,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               <FormField label="Facebook">
                 <Input
                   value={brandingData.facebook}
-                  onChange={(e) => handleBrandingChange("facebook", e.target.value)}
+                  onChange={(e) =>
+                    handleBrandingChange("facebook", e.target.value)
+                  }
                   placeholder="https://facebook.com/yourbusiness"
                   leftIcon={<Facebook className="w-4 h-4" />}
                 />
@@ -1304,7 +1371,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               <FormField label="Instagram">
                 <Input
                   value={brandingData.instagram}
-                  onChange={(e) => handleBrandingChange("instagram", e.target.value)}
+                  onChange={(e) =>
+                    handleBrandingChange("instagram", e.target.value)
+                  }
                   placeholder="https://instagram.com/yourbusiness"
                   leftIcon={<Instagram className="w-4 h-4" />}
                 />
@@ -1312,7 +1381,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               <FormField label="Twitter / X">
                 <Input
                   value={brandingData.twitter}
-                  onChange={(e) => handleBrandingChange("twitter", e.target.value)}
+                  onChange={(e) =>
+                    handleBrandingChange("twitter", e.target.value)
+                  }
                   placeholder="https://x.com/yourbusiness"
                   leftIcon={<Twitter className="w-4 h-4" />}
                 />
@@ -1320,7 +1391,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               <FormField label="TikTok">
                 <Input
                   value={brandingData.tiktok}
-                  onChange={(e) => handleBrandingChange("tiktok", e.target.value)}
+                  onChange={(e) =>
+                    handleBrandingChange("tiktok", e.target.value)
+                  }
                   placeholder="https://tiktok.com/@yourbusiness"
                   leftIcon={<Globe className="w-4 h-4" />}
                 />
@@ -1348,19 +1421,17 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         {/* ===== Payment Methods ===== */}
         <TabsContent value="payment" className="space-y-6">
           <section className="space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--color-border)]">
               <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-gray-500" />
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                <CreditCard className="w-4 h-4 text-[var(--color-muted-text)]" />
+                <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                   Payment Methods
                 </h3>
               </div>
-              <p className="text-xs text-gray-500 hidden sm:block">
+              <p className="text-xs text-[var(--color-muted-text)] hidden sm:block">
                 Configure how customers can pay
               </p>
             </div>
-
-
 
             {errors.paymentMethods && (
               <Alert status="error" variant="left-accent">
@@ -1393,9 +1464,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         {/* ===== Share & Promote ===== */}
         <TabsContent value="sharing" className="space-y-6">
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Share2 className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Share2 className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Share Your Storefront
               </h3>
             </div>
@@ -1405,7 +1476,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 <Input
                   value={getStorefrontUrl()}
                   readOnly
-                  className="flex-1 bg-gray-50"
+                  className="flex-1 bg-[var(--color-control-bg)]"
                 />
                 <Button
                   variant={urlCopied ? "success" : "outline"}
@@ -1432,9 +1503,11 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               </span>
             </Alert>
 
-            <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Promotion Tips</h4>
-              <ul className="text-sm text-gray-600 space-y-1.5">
+            <div className="p-3 sm:p-4 bg-[var(--color-control-bg)] rounded-lg">
+              <h4 className="font-medium text-[var(--color-text)] mb-2">
+                Promotion Tips
+              </h4>
+              <ul className="text-sm text-[var(--color-secondary-text)] space-y-1.5">
                 <li>• Share on WhatsApp groups and social media</li>
                 <li>• Include in business cards and promotional materials</li>
                 <li>• Add to your WhatsApp status and social media bios</li>
@@ -1448,16 +1521,16 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         <TabsContent value="advanced" className="space-y-6">
           {/* Storefront Information */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-              <Info className="w-4 h-4 text-gray-500" />
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
+              <Info className="w-4 h-4 text-[var(--color-muted-text)]" />
+              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
                 Storefront Information
               </h3>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-3 sm:p-4 bg-[var(--color-control-bg)] rounded-lg">
               <div>
-                <p className="text-xs text-gray-500 flex items-center gap-1 mb-0.5">
+                <p className="text-xs text-[var(--color-muted-text)] flex items-center gap-1 mb-0.5">
                   <Calendar className="w-3 h-3" /> Created
                 </p>
                 <p className="font-medium text-sm">
@@ -1465,7 +1538,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 flex items-center gap-1 mb-0.5">
+                <p className="text-xs text-[var(--color-muted-text)] flex items-center gap-1 mb-0.5">
                   <Calendar className="w-3 h-3" /> Updated
                 </p>
                 <p className="font-medium text-sm">
@@ -1473,7 +1546,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-0.5">Status</p>
+                <p className="text-xs text-[var(--color-muted-text)] mb-0.5">
+                  Status
+                </p>
                 <Badge variant="subtle" colorScheme={storeStatusColor}>
                   {storefront.suspendedByAdmin ? (
                     "Suspended"
@@ -1487,7 +1562,9 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                 </Badge>
               </div>
               <div className="col-span-2 sm:col-span-1">
-                <p className="text-xs text-gray-500 mb-0.5">Storefront ID</p>
+                <p className="text-xs text-[var(--color-muted-text)] mb-0.5">
+                  Storefront ID
+                </p>
                 <p className="font-mono text-xs truncate">{storefront._id}</p>
               </div>
             </div>
@@ -1495,11 +1572,11 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
 
           {/* Danger Zone */}
           <section>
-            <div className="border border-red-200 rounded-xl p-4 bg-red-50">
-              <h4 className="font-medium text-red-900 mb-2 flex items-center gap-2">
+            <div className="border border-[var(--color-failed-bg)] rounded-xl p-4 bg-[var(--color-failed-bg)]">
+              <h4 className="font-medium text-[var(--color-failed-text)] mb-2 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" /> Danger Zone
               </h4>
-              <p className="text-sm text-red-700 mb-4">
+              <p className="text-sm text-[var(--color-failed-text)] mb-4">
                 Deleting your storefront is permanent and cannot be undone. All
                 custom pricing and order history will be lost.
               </p>
@@ -1521,7 +1598,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         onClose={() => setShowDeleteDialog(false)}
       >
         <DialogHeader>
-          <h3 className="text-lg font-semibold text-red-900">
+          <h3 className="text-lg font-semibold text-[var(--color-failed-text)]">
             Delete Storefront
           </h3>
         </DialogHeader>
@@ -1535,21 +1612,20 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               </div>
             </Alert>
 
-            <p className="text-gray-700 text-sm sm:text-base">
+            <p className="text-[var(--color-secondary-text)] text-sm sm:text-base">
               Are you sure you want to delete your storefront &quot;
               {storefront.businessName}&quot;? This will permanently remove:
             </p>
 
-            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+            <ul className="list-disc list-inside text-sm text-[var(--color-secondary-text)] space-y-1">
               <li>Your custom bundle pricing</li>
               <li>Order history and customer data</li>
               <li>Payment method configurations</li>
               <li>Public storefront link access</li>
             </ul>
 
-            <p className="text-sm text-gray-700">
-              You can create a new storefront later, but all data will be
-              lost.
+            <p className="text-sm text-[var(--color-secondary-text)]">
+              You can create a new storefront later, but all data will be lost.
             </p>
           </div>
         </DialogBody>

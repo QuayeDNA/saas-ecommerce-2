@@ -6,6 +6,7 @@ import { useProvider } from "../hooks/use-provider";
 import { useSiteStatus } from "../contexts/site-status-context";
 import { orderService } from "../services/order.service";
 import { Card, CardHeader, CardBody, Badge } from "../design-system";
+import { StatsGrid } from "../design-system/components/stats-card";
 import { Skeleton } from "../design-system/components/loading";
 import {
   FaPhone,
@@ -22,8 +23,6 @@ import type { Order } from "../types/order";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -514,12 +513,54 @@ export const DashboardPage = () => {
     }
   };
 
-  // Prepare sales chart data - Timeline of revenue for recharts
-  const prepareSalesChartData = () => {
-    const labels = analyticsData.charts.labels || [];
-    const revenueData = analyticsData.charts.revenue || [];
+  const getSalesChartLabels = () => {
+    switch (analyticsTimeframe) {
+      case "7d":
+        return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      case "30d":
+        return Array.from({ length: 15 }, (_, index) => {
+          const day = index * 2 + 1;
+          if (day === 1) return "1st";
+          if (day === 3) return "3rd";
+          return `${day}th`;
+        });
+      case "365d":
+        return [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+      default:
+        return analyticsData.charts.labels || [];
+    }
+  };
 
-    // Convert to recharts format
+  // Prepare sales chart data for the bar chart with timeframe-aware labels
+  const prepareSalesChartData = () => {
+    const revenueData = analyticsData.charts.revenue || [];
+    const labels = getSalesChartLabels();
+
+    if (analyticsTimeframe === "30d") {
+      return labels.map((label, index) => {
+        const firstDay = revenueData[index * 2] || 0;
+        const secondDay = revenueData[index * 2 + 1] || 0;
+
+        return {
+          name: label,
+          revenue: firstDay + secondDay,
+        };
+      });
+    }
+
     return labels.map((label, index) => ({
       name: label,
       revenue: revenueData[index] || 0,
@@ -737,8 +778,9 @@ export const DashboardPage = () => {
                             </span>
                             <span className="text-xs text-gray-500">
                               {order.items?.length || 0} item
-                              {(order.items?.length || 0) !== 1 ? "s" : ""} ·{" "}
-                              {getTimeAgo(order.createdAt)}
+                              {(order.items?.length || 0) !== 1
+                                ? "s"
+                                : ""} · {getTimeAgo(order.createdAt)}
                             </span>
                           </div>
                         </div>
@@ -785,79 +827,42 @@ export const DashboardPage = () => {
             A quick summary of your performance and spending.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Card
-            size="sm"
-            style={{
-              backgroundColor: "var(--color-primary-500)",
-              borderColor: "var(--color-primary-600)",
-            }}
-          >
-            <CardBody className="text-center">
-              <div className="text-gray-300 text-xs mb-1">
-                Total Orders Today
-              </div>
-              <div className="text-xl font-bold text-white">
-                {analyticsData.orders.todayCounts.total}
-              </div>
-              <div className="text-xs text-gray-400 mt-2">
-                Total: {analyticsData.orders.total}
-              </div>
-            </CardBody>
-          </Card>
-          <Card
-            size="sm"
-            style={{
-              backgroundColor: "var(--color-primary-500)",
-              borderColor: "var(--color-primary-600)",
-            }}
-          >
-            <CardBody className="text-center">
-              <div className="text-gray-300 text-xs mb-1">Today's Spending</div>
-              <div className="text-3xl font-bold text-white">
-                ₵{analyticsData.revenue.today.toFixed(2)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card
-            size="sm"
-            style={{
-              backgroundColor: "var(--color-primary-500)",
-              borderColor: "var(--color-primary-600)",
-            }}
-          >
-            <CardBody className="text-center">
-              <div className="text-gray-300 text-xs mb-1">
-                Total Sales Today
-              </div>
-              <div className="text-xl font-bold text-white">
-                ₵{analyticsData.revenue.today.toFixed(2)}
-              </div>
-            </CardBody>
-          </Card>
-          <Card
-            size="sm"
-            style={{
-              backgroundColor: "var(--color-primary-500)",
-              borderColor: "var(--color-primary-600)",
-            }}
-          >
-            <CardBody className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <div className="text-gray-300 text-xs">
-                  Commission Earned This Month
-                </div>
-              </div>
-              <div className="text-xl font-bold text-white">
-                ₵{(analyticsData.commissions.totalCommission || 0).toFixed(2)}
-              </div>
-              <div className="text-xs text-gray-300 mt-2">
-                Paid: ₵
-                {(analyticsData.commissions.paidCommission || 0).toFixed(2)}
-              </div>
-            </CardBody>
-          </Card>
-        </div>
+        <StatsGrid
+          columns={4}
+          gap="sm"
+          stats={[
+            {
+              title: "Total Orders Today",
+              value: analyticsData.orders.todayCounts.total,
+              subtitle: `Total: ${analyticsData.orders.total}`,
+              icon: <FaShoppingCart />,
+              size: "sm",
+              variant: "solid",
+            },
+            {
+              title: "Today's Spending",
+              value: `₵${analyticsData.revenue.today.toFixed(2)}`,
+              icon: <FaWallet />,
+              size: "sm",
+              variant: "solid",
+            },
+            {
+              title: "Total Sales Today",
+              value: `₵${analyticsData.revenue.today.toFixed(2)}`,
+              icon: <FaChartLine />,
+              size: "sm",
+              variant: "solid",
+            },
+            {
+              title: "Commission Earned This Month",
+              value: `₵${(analyticsData.commissions.totalCommission || 0).toFixed(2)}`,
+              subtitle: `Paid: ₵${(analyticsData.commissions.paidCommission || 0).toFixed(2)}`,
+              icon: <FaClock />,
+              size: "sm",
+              variant: "solid",
+            },
+          ]}
+        />
       </div>
 
       {/* Sales Analytics Chart */}
@@ -901,7 +906,7 @@ export const DashboardPage = () => {
           ) : (
             <div className="h-40 sm:h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
+                <BarChart
                   data={salesChartData}
                   margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
                 >
@@ -911,6 +916,7 @@ export const DashboardPage = () => {
                     tick={{ fill: "#6b7280", fontSize: 11 }}
                     axisLine={{ stroke: "#d1d5db" }}
                     tickLine={{ stroke: "#d1d5db" }}
+                    interval={0}
                   />
                   <YAxis
                     tick={{ fill: "#6b7280", fontSize: 11 }}
@@ -927,16 +933,16 @@ export const DashboardPage = () => {
                       border: "1px solid #e5e7eb",
                       backgroundColor: "#ffffff",
                     }}
+                    labelStyle={{ color: "#374151" }}
+                    labelFormatter={(label) => `${label}`}
                   />
-                  <Line
-                    type="monotone"
+                  <Bar
                     dataKey="revenue"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ fill: "#10b981", r: 4 }}
-                    activeDot={{ r: 6 }}
+                    fill="var(--color-primary-500)"
+                    radius={[8, 8, 0, 0]}
+                    maxBarSize={28}
                   />
-                </LineChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           )}
