@@ -146,7 +146,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
   }, []);
 
   // Fetch analytics data
-  const fetchAnalytics = useCallback(async () => {
+  const fetchAnalytics = useCallback(async (forceRefresh = false) => {
     if (!isAdmin && !isAgent) return;
 
     setAnalyticsLoading(true);
@@ -155,7 +155,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     try {
       if (isAdmin) {
         // For super admin, use the dedicated analytics service
-        const analytics = await analyticsService.getSuperAdminAnalytics("30d");
+        const analytics = await analyticsService.getSuperAdminAnalytics("30d", forceRefresh);
 
         const transformedData = {
           totalOrders: analytics.orders.total || 0,

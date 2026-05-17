@@ -33,6 +33,7 @@ import {
 } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { User } from "../types";
+import { parseApiError } from "../utils/error-handler";
 import { authService, type RegisterAgentData } from "../services/auth.service";
 import { tokenRefreshService } from "../utils/token-refresh";
 import { useToast, queueToast } from "../design-system/components/toast";
@@ -68,7 +69,11 @@ export interface AuthContextValue {
   ) => Promise<void>; // User login
   registerAgent: (data: RegisterAgentData) => Promise<{ agentCode: string }>; // Agent registration
   logout: () => Promise<void>; // User logout
-  forgotPassword: (email: string) => Promise<void>; // Request password reset
+  forgotPassword: (
+    identifier: string,
+    pin: string,
+  ) => Promise<{ resetToken?: string } | void>; // Request password reset
+  setupPin: (pin: string) => Promise<void>; // Configure security PIN
   resetPassword: (token: string, password: string) => Promise<void>; // Complete password reset
   verifyAccount: (token: string) => Promise<{ userType: string }>; // Verify user account (kept for backward compatibility)
   clearErrors: () => void; // Clear error state
@@ -179,9 +184,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Token is invalid, attempt refresh
       await handleTokenRefresh();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Authentication failed";
-      setUnauthenticatedState(errorMessage);
+      setUnauthenticatedState(parseApiError(error, "authenticate"));
     }
   }, [setAuthenticatedState, setUnauthenticatedState, handleTokenRefresh]);
 
@@ -308,8 +311,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         navigate(from, { replace: true });
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to login";
+        const errorMessage = parseApiError(error, "login");
 
         setState((prev) => ({
           ...prev,
@@ -321,13 +323,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw error;
       }
     },
-    [
-      addToast,
-      navigate,
-      location.state,
-      location.pathname,
-      setAuthenticatedState,
-    ],
+    [navigate, location.state, location.pathname, setAuthenticatedState],
   );
 
   // Register agent method
@@ -340,8 +336,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setState((prev) => ({ ...prev, isLoading: false }));
         return result;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to register agent";
+        const errorMessage = parseApiError(error, "register agent");
+
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: errorMessage,
+        }));
+
+        throw error;
+      }
+    },
+    [],
+  );
+
+  // Forgot password method
+  const forgotPassword = useCallback(
+    async (identifier: string, pin: string) => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      try {
+        const response = await authService.forgotPassword({ identifier, pin });
+        setState((prev) => ({ ...prev, isLoading: false }));
+        addToast(
+          "PIN verified successfully. You can now reset your password.",
+          "success",
+        );
+        return response;
+      } catch (error) {
+        const errorMessage = parseApiError(error);
 
         setState((prev) => ({
           ...prev,
@@ -355,18 +378,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [addToast],
   );
 
-  // Forgot password method
-  const forgotPassword = useCallback(
-    async (email: string) => {
+  const setupPin = useCallback(
+    async (pin: string) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        await authService.forgotPassword({ email });
+        await authService.setupPin({ pin });
         setState((prev) => ({ ...prev, isLoading: false }));
-        addToast("Password reset email sent successfully!", "success");
+        addToast("Security PIN configured successfully.", "success");
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to send reset email";
+        const errorMessage = parseApiError(error, "set up PIN");
 
         setState((prev) => ({
           ...prev,
@@ -390,8 +411,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setState((prev) => ({ ...prev, isLoading: false }));
         addToast("Password reset successfully!", "success");
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to reset password";
+        const errorMessage = parseApiError(error, "reset password");
 
         setState((prev) => ({
           ...prev,
@@ -419,8 +439,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         );
         return result;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to verify account";
+        const errorMessage = parseApiError(error, "verify account");
 
         setState((prev) => ({
           ...prev,
@@ -457,7 +476,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Clear any redirect state and go to login
       navigate("/login", { replace: true });
     }
-  }, [addToast, navigate, setUnauthenticatedState]);
+  }, [navigate, setUnauthenticatedState]);
 
   // Update first-time flag after completing guided tour or setup wizard
   const updateFirstTimeFlag = useCallback(async (): Promise<void> => {
@@ -488,6 +507,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       registerAgent,
       logout,
       forgotPassword,
+      setupPin,
       resetPassword,
       verifyAccount,
       clearErrors,
@@ -500,6 +520,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       registerAgent,
       logout,
       forgotPassword,
+      setupPin,
       resetPassword,
       verifyAccount,
       clearErrors,

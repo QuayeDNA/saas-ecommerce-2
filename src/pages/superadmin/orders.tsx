@@ -11,7 +11,7 @@ export default function SuperAdminOrdersPage() {
   return (
     <OrderProvider>
       <PackageProvider>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
           <div className="max-w-7xl mx-auto">
             <UnifiedOrderList 
               isAdmin={isAdmin}

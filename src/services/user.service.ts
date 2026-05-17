@@ -302,7 +302,7 @@ export const userService = {
     return resp.data.user;
   },
   async changePassword(data: ChangePasswordData): Promise<void> {
-    await apiClient.patch("/api/users/change-password", data);
+    await apiClient.post("/api/users/change-password", data);
   },
   async submitAfaRegistration(
     data: AfaRegistrationData

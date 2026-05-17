@@ -1,33 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Button,
-  Input,
-  Alert,
-} from "../design-system";
+import { Button, Input, Alert } from "../design-system";
 import { queueToast } from "../design-system/components/toast";
-import {
-  FaEnvelope,
-  FaExclamationTriangle,
-  FaCheck,
-} from "react-icons/fa";
+import { FaUser, FaExclamationTriangle, FaCheck, FaLock } from "react-icons/fa";
 import { AuthLayout } from "../layouts/auth-layout";
 
 export const ForgotPasswordPage = () => {
   const { authState, forgotPassword } = useAuth();
+  const navigate = useNavigate();
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
+    const identifier = formData.get("identifier") as string;
+    const pin = formData.get("pin") as string;
 
     try {
-      await forgotPassword(email);
-      queueToast("Password reset email sent successfully!", "success", 4500);
-      setIsSubmitted(true);
+      const response = await forgotPassword(identifier, pin);
+      if (response && response.resetToken) {
+        queueToast("PIN verified successfully.", "success", 4500);
+        navigate(`/reset-password/${response.resetToken}`);
+      } else {
+        setIsSubmitted(true);
+      }
     } catch (error) {
       console.error("Password reset request failed:", error);
     }
@@ -35,8 +33,8 @@ export const ForgotPasswordPage = () => {
 
   return (
     <AuthLayout
-      title="Reset your password"
-      subtitle="Enter your email and we'll send you a reset link"
+      title="Verify your account"
+      subtitle="Enter your identifier and security PIN to continue"
       showLogo={true}
     >
       {isSubmitted ? (
@@ -50,10 +48,10 @@ export const ForgotPasswordPage = () => {
             <FaCheck className="text-[var(--color-primary-700)] text-3xl" />
           </div>
           <h3 className="text-xl font-bold text-[var(--color-text)] mb-2">
-            Check your email
+            Verification complete
           </h3>
           <p className="text-[var(--color-muted-text)] text-[15px] mb-8 leading-relaxed">
-            We've sent a password reset link to your email address.
+            Your PIN was verified. You can now continue to reset your password.
           </p>
           <div>
             <Link to="/login" className="block">
@@ -89,20 +87,41 @@ export const ForgotPasswordPage = () => {
 
           <div className="space-y-1.5">
             <label
-              htmlFor="email"
+              htmlFor="identifier"
               className="block text-sm font-semibold text-[var(--color-text)]"
             >
-              Email address
+              Account identifier
             </label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
+              id="identifier"
+              name="identifier"
+              type="text"
+              autoComplete="username"
               required
-              placeholder="Enter your email"
+              placeholder="Phone, email, or agent code"
               className="w-full h-12"
-              leftIcon={<FaEnvelope className="text-[var(--color-muted-text)]" />}
+              leftIcon={<FaUser className="text-[var(--color-muted-text)]" />}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label
+              htmlFor="pin"
+              className="block text-sm font-semibold text-[var(--color-text)]"
+            >
+              Security PIN
+            </label>
+            <Input
+              id="pin"
+              name="pin"
+              type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              required
+              placeholder="Enter your PIN"
+              className="w-full h-12"
+              leftIcon={<FaLock className="text-[var(--color-muted-text)]" />}
             />
           </div>
 
@@ -116,7 +135,7 @@ export const ForgotPasswordPage = () => {
               fullWidth
               className="h-12 w-full font-bold text-[16px] shadow-sm rounded-xl"
             >
-              {authState.isLoading ? "Sending..." : "Send reset link"}
+              {authState.isLoading ? "Verifying..." : "Verify PIN"}
             </Button>
           </div>
 
