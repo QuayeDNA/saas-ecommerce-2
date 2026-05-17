@@ -10,9 +10,22 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 import type { ReactNode } from "react";
 import {
-  FaBox, FaMobile, FaUsers, FaUsersCog, FaWallet, FaUser,
-  FaCog, FaTachometerAlt, FaBuilding, FaClipboardList, FaChartLine,
-  FaMoneyBillWave, FaCreditCard, FaHistory, FaBullhorn, FaStore,
+  FaBox,
+  FaMobile,
+  FaUsers,
+  FaUsersCog,
+  FaWallet,
+  FaUser,
+  FaCog,
+  FaTachometerAlt,
+  FaBuilding,
+  FaClipboardList,
+  FaChartLine,
+  FaMoneyBillWave,
+  FaCreditCard,
+  FaHistory,
+  FaBullhorn,
+  FaStore,
 } from "react-icons/fa";
 import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubble";
 import { Home, Plus, LogOut, ChevronRight, Check, X } from "lucide-react";
@@ -37,51 +50,123 @@ interface SidebarProps {
 // ─── Nav configs (unchanged from original) ───────────────────────────────────
 
 const getAgentNavItems = (): NavItem[] => [
-  { label: "Dashboard", path: "/agent/dashboard", icon: <Home className="w-4 h-4" /> },
   {
-    label: "Packages", path: "/agent/dashboard/packages", icon: <FaBox />,
+    label: "Dashboard",
+    path: "/agent/dashboard",
+    icon: <Home className="w-4 h-4" />,
+  },
+  {
+    label: "Packages",
+    path: "/agent/dashboard/packages",
+    icon: <FaBox />,
     children: [
-      { label: "MTN Packages", path: "/agent/dashboard/packages/mtn", icon: <FaBox /> },
-      { label: "Telecel Packages", path: "/agent/dashboard/packages/telecel", icon: <FaBox /> },
-      { label: "AT BIG TIME", path: "/agent/dashboard/packages/at-big-time", icon: <FaBox /> },
-      { label: "AT iShare Premium", path: "/agent/dashboard/packages/at-ishare-premium", icon: <FaBox /> },
+      {
+        label: "MTN Packages",
+        path: "/agent/dashboard/packages/mtn",
+        icon: <FaBox />,
+      },
+      {
+        label: "Telecel Packages",
+        path: "/agent/dashboard/packages/telecel",
+        icon: <FaBox />,
+      },
+      {
+        label: "AT BIG TIME",
+        path: "/agent/dashboard/packages/at-big-time",
+        icon: <FaBox />,
+      },
+      {
+        label: "AT iShare Premium",
+        path: "/agent/dashboard/packages/at-ishare-premium",
+        icon: <FaBox />,
+      },
     ],
   },
   { label: "Orders", path: "/agent/dashboard/orders", icon: <FaMobile /> },
   { label: "Wallet", path: "/agent/dashboard/wallet", icon: <FaWallet /> },
-  { label: "My Storefront", path: "/agent/dashboard/storefront", icon: <FaStore /> },
-  { label: "AFA Registration", path: "/agent/dashboard/afa-registration", icon: <Plus className="w-4 h-4" /> },
+  {
+    label: "My Storefront",
+    path: "/agent/dashboard/storefront",
+    icon: <FaStore />,
+  },
+  {
+    label: "AFA Registration",
+    path: "/agent/dashboard/afa-registration",
+    icon: <Plus className="w-4 h-4" />,
+  },
   { label: "Profile", path: "/agent/dashboard/profile", icon: <FaUser /> },
 ];
 
 const getAdminNavItems = (): NavItem[] => [
-  { label: "Dashboard", path: "/admin/dashboard", icon: <Home className="w-4 h-4" /> },
-  { label: "User Management", path: "/admin/dashboard/users", icon: <FaUsersCog /> },
+  {
+    label: "Dashboard",
+    path: "/admin/dashboard",
+    icon: <Home className="w-4 h-4" />,
+  },
+  {
+    label: "User Management",
+    path: "/admin/dashboard/users",
+    icon: <FaUsersCog />,
+  },
   { label: "Packages", path: "/admin/dashboard/packages", icon: <FaBox /> },
   { label: "Wallet", path: "/admin/dashboard/wallet", icon: <FaWallet /> },
   { label: "Profile", path: "/admin/dashboard/profile", icon: <FaUser /> },
 ];
 
-const getSuperAdminNavItems = (): NavItem[] => [
-  { label: "Dashboard", path: "/superadmin", icon: <FaTachometerAlt /> },
-  { label: "Analytics", path: "/superadmin/analytics", icon: <FaChartLine /> },
-  { label: "Users", path: "/superadmin/users", icon: <FaUsers /> },
-  { label: "Providers", path: "/superadmin/providers", icon: <FaBuilding /> },
-  { label: "Packages", path: "/superadmin/packages", icon: <FaBox /> },
-  { label: "Orders", path: "/superadmin/orders", icon: <FaClipboardList /> },
-  { label: "Commissions", path: "/superadmin/commissions", icon: <FaMoneyBillWave /> },
-  { label: "Announcements", path: "/superadmin/announcements", icon: <FaBullhorn /> },
-  { label: "Stores", path: "/superadmin/stores", icon: <FaStore /> },
-  {
-    label: "Wallet", path: "/superadmin/wallet", icon: <FaWallet />,
-    children: [
-      { label: "Top-ups", path: "/superadmin/wallet/top-ups", icon: <FaCreditCard /> },
-      { label: "Payouts", path: "/superadmin/wallet/payouts", icon: <FaMoneyBillWave /> },
-      { label: "History", path: "/superadmin/wallet/history", icon: <FaHistory /> },
-    ],
-  },
-  { label: "Settings", path: "/superadmin/settings", icon: <FaCog /> },
-];
+const getSuperAdminNavItems = (): NavItem[] => {
+  const items: NavItem[] = [
+    { label: "Dashboard", path: "/superadmin", icon: <FaTachometerAlt /> },
+    {
+      label: "Analytics",
+      path: "/superadmin/analytics",
+      icon: <FaChartLine />,
+    },
+    { label: "Users", path: "/superadmin/users", icon: <FaUsers /> },
+    { label: "Providers", path: "/superadmin/providers", icon: <FaBuilding /> },
+    { label: "Packages", path: "/superadmin/packages", icon: <FaBox /> },
+    { label: "Orders", path: "/superadmin/orders", icon: <FaClipboardList /> },
+    {
+      label: "Announcements",
+      path: "/superadmin/announcements",
+      icon: <FaBullhorn />,
+    },
+    { label: "Stores", path: "/superadmin/stores", icon: <FaStore /> },
+    {
+      label: "Wallet",
+      path: "/superadmin/wallet",
+      icon: <FaWallet />,
+      children: [
+        {
+          label: "Top-ups",
+          path: "/superadmin/wallet/top-ups",
+          icon: <FaCreditCard />,
+        },
+        {
+          label: "Payouts",
+          path: "/superadmin/wallet/payouts",
+          icon: <FaMoneyBillWave />,
+        },
+        {
+          label: "History",
+          path: "/superadmin/wallet/history",
+          icon: <FaHistory />,
+        },
+      ],
+    },
+    { label: "Settings", path: "/superadmin/settings", icon: <FaCog /> },
+  ];
+
+  if (import.meta.env.DEV) {
+    // Insert commissions near other superadmin management items
+    items.splice(6, 0, {
+      label: "Commissions",
+      path: "/superadmin/commissions",
+      icon: <FaMoneyBillWave />,
+    });
+  }
+
+  return items;
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -104,7 +189,10 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   const getNavItems = (): NavItem[] => {
     switch (authState.user?.userType) {
-      case "agent": case "super_agent": case "dealer": case "super_dealer":
+      case "agent":
+      case "super_agent":
+      case "dealer":
+      case "super_dealer":
         return getAgentNavItems();
       case "super_admin":
         return getSuperAdminNavItems();
@@ -124,10 +212,23 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const newOrderCount = useOrderNotificationBubble(isOrdersPage);
 
   const isActivePath = (path: string) => {
-    if (path === "/superadmin") return location.pathname === "/superadmin" || location.pathname === "/superadmin/";
-    if (path === "/agent/dashboard") return location.pathname === "/agent/dashboard" || location.pathname === "/agent/dashboard/";
-    if (path === "/admin/dashboard") return location.pathname === "/admin/dashboard" || location.pathname === "/admin/dashboard/";
-    if (path === "/superadmin/wallet") return location.pathname.startsWith("/superadmin/wallet");
+    if (path === "/superadmin")
+      return (
+        location.pathname === "/superadmin" ||
+        location.pathname === "/superadmin/"
+      );
+    if (path === "/agent/dashboard")
+      return (
+        location.pathname === "/agent/dashboard" ||
+        location.pathname === "/agent/dashboard/"
+      );
+    if (path === "/admin/dashboard")
+      return (
+        location.pathname === "/admin/dashboard" ||
+        location.pathname === "/admin/dashboard/"
+      );
+    if (path === "/superadmin/wallet")
+      return location.pathname.startsWith("/superadmin/wallet");
     return location.pathname === path;
   };
 
@@ -161,11 +262,15 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               onClick={() => toggleExpanded(item.path)}
               className={`${baseClasses} ${isActive || hasActiveChildItem ? activeClasses : inactiveClasses}`}
             >
-              <span className={`${iconClasses} ${isActive || hasActiveChildItem ? iconActive : iconInactive}`}>
+              <span
+                className={`${iconClasses} ${isActive || hasActiveChildItem ? iconActive : iconInactive}`}
+              >
                 {item.icon}
               </span>
               <div className="min-w-0 flex-1 text-left">
-                <p className={`text-sm font-semibold ${isActive || hasActiveChildItem ? "text-white" : "text-slate-200"}`}>
+                <p
+                  className={`text-sm font-semibold ${isActive || hasActiveChildItem ? "text-white" : "text-slate-200"}`}
+                >
                   {item.label}
                 </p>
               </div>
@@ -186,19 +291,29 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             onClick={onClose}
             className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
           >
-            <span className={`${iconClasses} ${isActive ? iconActive : iconInactive}`}>
+            <span
+              className={`${iconClasses} ${isActive ? iconActive : iconInactive}`}
+            >
               {item.icon}
             </span>
             <div className="min-w-0 flex-1">
-              <p className={`text-sm font-semibold ${isActive ? "text-white" : "text-slate-200"}`}>
+              <p
+                className={`text-sm font-semibold ${isActive ? "text-white" : "text-slate-200"}`}
+              >
                 {item.label}
               </p>
             </div>
-            {item.path.includes("/orders") && newOrderCount > 0 && !isActive && (
-              <Badge variant="solid" colorScheme="error" className="ml-auto text-[10px] font-semibold">
-                {newOrderCount}
-              </Badge>
-            )}
+            {item.path.includes("/orders") &&
+              newOrderCount > 0 &&
+              !isActive && (
+                <Badge
+                  variant="solid"
+                  colorScheme="error"
+                  className="ml-auto text-[10px] font-semibold"
+                >
+                  {newOrderCount}
+                </Badge>
+              )}
             {isActive && <Check size={16} className="text-primary-400" />}
           </Link>
         )}
@@ -216,8 +331,12 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             <CaskmafDatahubLogo width={26} height={26} />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-base font-semibold text-white">Caskmaf Datahub</p>
-            <p className="truncate text-xs uppercase tracking-[0.24em] text-slate-500">User Portal</p>
+            <p className="truncate text-base font-semibold text-white">
+              Caskmaf Datahub
+            </p>
+            <p className="truncate text-xs uppercase tracking-[0.24em] text-slate-500">
+              User Portal
+            </p>
           </div>
         </div>
 
@@ -239,7 +358,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto px-2 pb-3">
-        <ul className="space-y-2">{navItems.map((item) => renderNavItem(item))}</ul>
+        <ul className="space-y-2">
+          {navItems.map((item) => renderNavItem(item))}
+        </ul>
       </nav>
 
       {/* ── User profile + logout ── */}
