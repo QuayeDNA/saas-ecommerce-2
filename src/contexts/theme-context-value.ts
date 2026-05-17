@@ -17,7 +17,7 @@ export interface ThemeContextType {
 
 // Create context with default values
 export const ThemeContext = createContext<ThemeContextType>({
-  themeMode: "light",
+  themeMode: "dark",
   setThemeMode: () => {},
   toggleThemeMode: () => {},
   primaryColor: "default",

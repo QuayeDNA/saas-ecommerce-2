@@ -50,21 +50,21 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           noPadding
           className="border border-[var(--color-border)] bg-[var(--color-background)] backdrop-blur-xl"
         >
-          <CardHeader className="hidden sm:block w-full border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 pt-8 pb-6 text-center text-[var(--color-text)] rounded-t-[24px] dark:bg-gradient-to-br dark:from-primary-900 dark:to-primary-800 dark:text-white">
+          <CardHeader className="hidden sm:block w-full border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 pt-8 pb-6 text-center text-[var(--color-text)] rounded-t-[24px]">
             {showLogo && (
               <div className="mb-4 flex justify-center items-center">
                 <CaskmafDatahubLogoCompact width={300} height={54} />
               </div>
             )}
-            <h1 className="mb-2 text-2xl font-bold text-[var(--color-text)] dark:text-[var(--color-surface)]">
+            <h1 className="mb-2 text-2xl font-bold text-[var(--color-text)]">
               {title}
             </h1>
             {footerText && footerLinkText && footerLinkTo && (
-              <p className="text-sm text-[var(--color-secondary-text)] dark:text-primary-100/85">
+              <p className="text-sm text-[var(--color-text)]">
                 {footerText}{" "}
                 <Link
                   to={footerLinkTo}
-                  className="font-semibold text-[var(--color-primary-700)] hover:text-[var(--color-primary-800)] transition-colors dark:text-white dark:hover:text-primary-100"
+                  className="font-semibold text-[var(--color-primary-700)] hover:text-[var(--color-primary-800)] transition-colors"
                 >
                   {footerLinkText}
                 </Link>

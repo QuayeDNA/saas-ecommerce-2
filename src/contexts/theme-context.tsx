@@ -1,12 +1,16 @@
 import { useState, useEffect, useMemo, type ReactNode } from "react";
-import { ThemeContext, type ThemeColor, type ThemeMode } from "./theme-context-value";
+import {
+  ThemeContext,
+  type ThemeColor,
+  type ThemeMode,
+} from "./theme-context-value";
 
 interface ThemeProviderProps {
   children: ReactNode;
   initialMode?: ThemeMode;
 }
 
-const DEFAULT_MODE: ThemeMode = "light";
+const DEFAULT_MODE: ThemeMode = "dark";
 const MODE_STORAGE_KEY = "saas-telecom-theme-mode";
 
 const PWA_THEME_COLORS: Record<ThemeMode, string> = {
@@ -43,7 +47,7 @@ export const ThemeProvider = ({
     }
 
     const tileColorMeta = document.querySelector(
-      'meta[name="msapplication-TileColor"]'
+      'meta[name="msapplication-TileColor"]',
     );
     if (tileColorMeta) {
       tileColorMeta.setAttribute("content", color);
@@ -53,7 +57,7 @@ export const ThemeProvider = ({
     if (manifestLink) {
       manifestLink.setAttribute(
         "href",
-        `/manifest?theme=${encodeURIComponent(color)}`
+        `/manifest?theme=${encodeURIComponent(color)}`,
       );
     }
   };
@@ -68,9 +72,9 @@ export const ThemeProvider = ({
       setThemeMode,
       toggleThemeMode,
       primaryColor,
-      setPrimaryColor: () => { },
+      setPrimaryColor: () => {},
     }),
-    [themeMode, primaryColor]
+    [themeMode, primaryColor],
   );
 
   return (

@@ -19,53 +19,55 @@ import { SiteStatusProvider } from "./contexts/site-status-context";
 import { AnnouncementProvider } from "./contexts/AnnouncementContext";
 import { MaintenanceBanner } from "./components/maintenance-banner";
 
-const StoreLandingPage = lazy(() => import("./pages/public/store-landing-page"));
+const StoreLandingPage = lazy(
+  () => import("./pages/public/store-landing-page"),
+);
 
 const PublicStorePage = lazy(() =>
-    import("./pages/public/public-store").then((m) => ({
-        default: m.PublicStorePage,
-    }))
+  import("./pages/public/public-store").then((m) => ({
+    default: m.PublicStorePage,
+  })),
 );
 
 export default function StoreOnlyApp() {
-    return (
-        <ThemeProvider initialMode="light">
-            <ToastProvider>
-                <SiteStatusProvider>
-                    <AnnouncementProvider isPublic={true}>
-                        <MaintenanceBanner />
-                        <Routes>
-                            {/* Root: customdomain.com/ → landing + discovery page */}
-                            <Route
-                                path="/"
-                                element={
-                                    <Suspense fallback={<PageLoader />}>
-                                        <StoreLandingPage />
-                                    </Suspense>
-                                }
-                            />
-                            {/* Store: customdomain.com/:businessName */}
-                            <Route
-                                path="/:businessName"
-                                element={
-                                    <Suspense fallback={<PageLoader />}>
-                                        <PublicStorePage />
-                                    </Suspense>
-                                }
-                            />
-                            {/* Any unrecognised path falls back to the landing page */}
-                            <Route
-                                path="*"
-                                element={
-                                    <Suspense fallback={<PageLoader />}>
-                                        <StoreLandingPage />
-                                    </Suspense>
-                                }
-                            />
-                        </Routes>
-                    </AnnouncementProvider>
-                </SiteStatusProvider>
-            </ToastProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider initialMode="dark">
+      <ToastProvider>
+        <SiteStatusProvider>
+          <AnnouncementProvider isPublic={true}>
+            <MaintenanceBanner />
+            <Routes>
+              {/* Root: customdomain.com/ → landing + discovery page */}
+              <Route
+                path="/"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <StoreLandingPage />
+                  </Suspense>
+                }
+              />
+              {/* Store: customdomain.com/:businessName */}
+              <Route
+                path="/:businessName"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <PublicStorePage />
+                  </Suspense>
+                }
+              />
+              {/* Any unrecognised path falls back to the landing page */}
+              <Route
+                path="*"
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <StoreLandingPage />
+                  </Suspense>
+                }
+              />
+            </Routes>
+          </AnnouncementProvider>
+        </SiteStatusProvider>
+      </ToastProvider>
+    </ThemeProvider>
+  );
 }
