@@ -31,7 +31,6 @@ import {
   Banknote,
   History,
   Building2,
-  // BadgeDollarSign,
   BarChart3,
   ChevronRight,
 } from "lucide-react";
@@ -144,12 +143,6 @@ const SUPER_ADMIN_OVERFLOW: OverflowItem[] = [
     icon: <Building2 className="w-5 h-5" />,
     description: "Manage telecom providers",
   },
-  // {
-  //   label: "Commissions",
-  //   path: "/superadmin/commissions",
-  //   icon: <BadgeDollarSign className="w-5 h-5" />,
-  //   description: "Reseller commission rates",
-  // },
   {
     label: "Announcements",
     path: "/superadmin/announcements",

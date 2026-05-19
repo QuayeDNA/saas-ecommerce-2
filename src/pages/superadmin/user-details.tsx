@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { userService, type User } from "../../services/user.service";
+import { UserActivityTimeline } from "../../components/audit";
 import {
   FaArrowLeft,
   FaEdit,
@@ -86,7 +87,7 @@ export default function SuperAdminUserDetailsPage() {
   };
 
   const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
   };
@@ -294,8 +295,11 @@ export default function SuperAdminUserDetailsPage() {
       }
 
       // Call the impersonation API (now returns refreshToken too)
-      const { token, refreshToken, user: impersonatedUser } =
-        await userService.impersonateUser(user._id);
+      const {
+        token,
+        refreshToken,
+        user: impersonatedUser,
+      } = await userService.impersonateUser(user._id);
 
       // Use the impersonation service to start impersonation
       const ImpersonationService = (await import("../../utils/impersonation"))
@@ -305,7 +309,7 @@ export default function SuperAdminUserDetailsPage() {
         adminUser,
         impersonatedUser,
         token,
-        refreshToken
+        refreshToken,
       );
 
       // Show success message
@@ -316,7 +320,7 @@ export default function SuperAdminUserDetailsPage() {
         window.location.href = "/agent/dashboard";
       } else if (
         ["dealer", "super_dealer", "super_agent"].includes(
-          impersonatedUser.userType
+          impersonatedUser.userType,
         )
       ) {
         window.location.href = "/agent/dashboard";
@@ -344,7 +348,7 @@ export default function SuperAdminUserDetailsPage() {
       if (order && order.orderNumber) {
         // Navigate to orders page with order number as search parameter
         navigate(
-          `/superadmin/orders?search=${encodeURIComponent(order.orderNumber)}`
+          `/superadmin/orders?search=${encodeURIComponent(order.orderNumber)}`,
         );
         addToast("Navigating to order", "info");
       } else {
@@ -356,7 +360,7 @@ export default function SuperAdminUserDetailsPage() {
   };
 
   const getStatusBadgeScheme = (
-    status: string
+    status: string,
   ): "success" | "warning" | "error" | "gray" => {
     switch (status) {
       case "active":
@@ -727,7 +731,12 @@ export default function SuperAdminUserDetailsPage() {
             </CardHeader>
             <CardBody>
               {editError && (
-                <Alert status="error" variant="left-accent" className="mb-4" title="Update failed">
+                <Alert
+                  status="error"
+                  variant="left-accent"
+                  className="mb-4"
+                  title="Update failed"
+                >
                   {editError}
                 </Alert>
               )}
@@ -757,35 +766,41 @@ export default function SuperAdminUserDetailsPage() {
                   options={userTypeOptions}
                 />
                 {["agent", "super_agent", "dealer", "super_dealer"].includes(
-                  editData.userType || user.userType
+                  editData.userType || user.userType,
                 ) && (
-                    <>
-                      <Input
-                        label="Business Name"
-                        name="businessName"
-                        value={editData.businessName || ""}
-                        onChange={handleEditChange}
-                      />
-                      <Select
-                        label="Business Category"
-                        value={String(editData.businessCategory || "")}
-                        onChange={(value) => updateEditField("businessCategory", value)}
-                        options={businessCategoryOptions}
-                      />
-                      <Select
-                        label="Subscription Plan"
-                        value={String(editData.subscriptionPlan || "")}
-                        onChange={(value) => updateEditField("subscriptionPlan", value)}
-                        options={subscriptionPlanOptions}
-                      />
-                      <Select
-                        label="Subscription Status"
-                        value={String(editData.subscriptionStatus || "")}
-                        onChange={(value) => updateEditField("subscriptionStatus", value)}
-                        options={subscriptionStatusOptions}
-                      />
-                    </>
-                  )}
+                  <>
+                    <Input
+                      label="Business Name"
+                      name="businessName"
+                      value={editData.businessName || ""}
+                      onChange={handleEditChange}
+                    />
+                    <Select
+                      label="Business Category"
+                      value={String(editData.businessCategory || "")}
+                      onChange={(value) =>
+                        updateEditField("businessCategory", value)
+                      }
+                      options={businessCategoryOptions}
+                    />
+                    <Select
+                      label="Subscription Plan"
+                      value={String(editData.subscriptionPlan || "")}
+                      onChange={(value) =>
+                        updateEditField("subscriptionPlan", value)
+                      }
+                      options={subscriptionPlanOptions}
+                    />
+                    <Select
+                      label="Subscription Status"
+                      value={String(editData.subscriptionStatus || "")}
+                      onChange={(value) =>
+                        updateEditField("subscriptionStatus", value)
+                      }
+                      options={subscriptionStatusOptions}
+                    />
+                  </>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <Button
@@ -844,7 +859,10 @@ export default function SuperAdminUserDetailsPage() {
               <>
                 <div className="space-y-2 sm:hidden">
                   {orders.map((order) => (
-                    <div key={order._id || order.orderNumber} className="rounded-2xl border border-gray-200 p-3">
+                    <div
+                      key={order._id || order.orderNumber}
+                      className="rounded-2xl border border-gray-200 p-3"
+                    >
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-gray-900 truncate">
                           {order.orderNumber || order._id}
@@ -867,7 +885,10 @@ export default function SuperAdminUserDetailsPage() {
                           {order.items.length} item
                           {order.items.length !== 1 ? "s" : ""}
                         </p>
-                        <Badge variant="subtle" colorScheme={getStatusBadgeScheme(order.status)}>
+                        <Badge
+                          variant="subtle"
+                          colorScheme={getStatusBadgeScheme(order.status)}
+                        >
                           {order.status}
                         </Badge>
                       </div>
@@ -882,7 +903,9 @@ export default function SuperAdminUserDetailsPage() {
                         <TableHeaderCell>Order</TableHeaderCell>
                         <TableHeaderCell>Status</TableHeaderCell>
                         <TableHeaderCell>Total</TableHeaderCell>
-                        <TableHeaderCell className="hidden sm:table-cell">Created</TableHeaderCell>
+                        <TableHeaderCell className="hidden sm:table-cell">
+                          Created
+                        </TableHeaderCell>
                         <TableHeaderCell>Actions</TableHeaderCell>
                       </TableRow>
                     </TableHeader>
@@ -899,13 +922,20 @@ export default function SuperAdminUserDetailsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge variant="subtle" colorScheme={getStatusBadgeScheme(order.status)}>
+                            <Badge
+                              variant="subtle"
+                              colorScheme={getStatusBadgeScheme(order.status)}
+                            >
                               {order.status}
                             </Badge>
                           </TableCell>
-                          <TableCell>{formatCurrency(order.total || 0)}</TableCell>
+                          <TableCell>
+                            {formatCurrency(order.total || 0)}
+                          </TableCell>
                           <TableCell className="hidden sm:table-cell">
-                            {order.createdAt ? formatDate(order.createdAt) : "N/A"}
+                            {order.createdAt
+                              ? formatDate(order.createdAt)
+                              : "N/A"}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -923,6 +953,19 @@ export default function SuperAdminUserDetailsPage() {
                 </div>
               </>
             )}
+          </CardBody>
+        </Card>
+
+        {/* User Activity Timeline */}
+        <Card>
+          <CardHeader>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+              <FaClock className="mr-2 text-blue-600" />
+              Activity Timeline
+            </h3>
+          </CardHeader>
+          <CardBody>
+            <UserActivityTimeline userId={user._id} />
           </CardBody>
         </Card>
 
@@ -947,7 +990,11 @@ export default function SuperAdminUserDetailsPage() {
                 required
               />
               {resetError && (
-                <Alert status="error" variant="left-accent" title="Reset failed">
+                <Alert
+                  status="error"
+                  variant="left-accent"
+                  title="Reset failed"
+                >
                   {resetError}
                 </Alert>
               )}
@@ -989,8 +1036,8 @@ export default function SuperAdminUserDetailsPage() {
                 title="Warning"
                 icon={<FaExclamationTriangle className="w-4 h-4" />}
               >
-                Are you sure you want to delete this user? This action cannot
-                be undone and will permanently remove all user data.
+                Are you sure you want to delete this user? This action cannot be
+                undone and will permanently remove all user data.
               </Alert>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
