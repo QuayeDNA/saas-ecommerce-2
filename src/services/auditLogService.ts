@@ -116,7 +116,7 @@ export const auditLogService = {
   async getUserActivity(
     userId: string,
     page = 1,
-    limit = 50,
+    limit = 10,
     startDate?: string,
     endDate?: string,
   ): Promise<AuditLogResponse> {
