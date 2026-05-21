@@ -121,12 +121,6 @@ export const DashboardPage = () => {
       orderCount: 0,
       averageOrderValue: 0,
     },
-    commissions: {
-      totalCommission: 0,
-      paidCommission: 0,
-      pendingCommission: 0,
-      commissionCount: 0,
-    },
     wallet: {
       balance: 0,
     },
@@ -262,12 +256,6 @@ export const DashboardPage = () => {
                 orderCount: number;
                 averageOrderValue: number;
               };
-              commissions: {
-                totalCommission: number;
-                paidCommission: number;
-                pendingCommission: number;
-                commissionCount: number;
-              };
               wallet: {
                 balance: number;
               };
@@ -307,12 +295,6 @@ export const DashboardPage = () => {
                 today: data.revenue?.today || 0,
                 orderCount: data.revenue?.orderCount || 0,
                 averageOrderValue: data.revenue?.averageOrderValue || 0,
-              },
-              commissions: {
-                totalCommission: data.commissions?.totalCommission || 0,
-                paidCommission: data.commissions?.paidCommission || 0,
-                pendingCommission: data.commissions?.pendingCommission || 0,
-                commissionCount: data.commissions?.commissionCount || 0,
               },
               wallet: {
                 balance: data.wallet?.balance || 0,
@@ -354,12 +336,6 @@ export const DashboardPage = () => {
                 orderCount: 0,
                 averageOrderValue: 0,
               },
-              commissions: {
-                totalCommission: 0,
-                paidCommission: 0,
-                pendingCommission: 0,
-                commissionCount: 0,
-              },
               wallet: { balance: 0 },
               charts: {
                 labels: [],
@@ -399,12 +375,6 @@ export const DashboardPage = () => {
               today: 0,
               orderCount: 0,
               averageOrderValue: 0,
-            },
-            commissions: {
-              totalCommission: 0,
-              paidCommission: 0,
-              pendingCommission: 0,
-              commissionCount: 0,
             },
             wallet: { balance: 0 },
             charts: {
@@ -828,7 +798,7 @@ export const DashboardPage = () => {
           </p>
         </div>
         <StatsGrid
-          columns={4}
+          columns={3}
           gap="sm"
           stats={[
             {
@@ -850,14 +820,6 @@ export const DashboardPage = () => {
               title: "Total Sales Today",
               value: `₵${analyticsData.revenue.today.toFixed(2)}`,
               icon: <FaChartLine />,
-              size: "sm",
-              variant: "solid",
-            },
-            {
-              title: "Commission Earned This Month",
-              value: `₵${(analyticsData.commissions.totalCommission || 0).toFixed(2)}`,
-              subtitle: `Paid: ₵${(analyticsData.commissions.paidCommission || 0).toFixed(2)}`,
-              icon: <FaClock />,
               size: "sm",
               variant: "solid",
             },

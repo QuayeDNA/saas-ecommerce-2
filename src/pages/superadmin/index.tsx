@@ -409,13 +409,6 @@ export default function SuperAdminDashboard() {
               ),
             },
             {
-              title: "Total Commissions",
-              value: formatCurrency(stats.commissions.totalEarned),
-              subtitle: `Paid: ${formatCurrency(stats.commissions.totalPaid)} · ${stats.commissions.pendingCount} pending`,
-              icon: <FaMoneyBillWave />,
-              variant: "solid",
-            },
-            {
               title: "Active Providers",
               value: stats.providers.active,
               subtitle: `${stats.providers.newThisMonth} new this month`,

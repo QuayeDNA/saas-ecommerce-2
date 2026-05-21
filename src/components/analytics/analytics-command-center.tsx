@@ -123,7 +123,7 @@ export function AnalyticsCommandCenter({
                             </h1>
                         </div>
                         <p className="text-sm text-[var(--color-muted-text)] max-w-2xl">
-                            Monitor platform performance across revenue, orders, users, commissions, and payouts.
+                            Monitor platform performance across revenue, orders, users, and payouts.
                         </p>
                         <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted-text)]">
                             <span className="inline-flex items-center gap-1">
