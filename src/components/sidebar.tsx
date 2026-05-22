@@ -182,7 +182,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           isActive: true,
         });
         const items: NavItem[] = (response.packages || [])
-          .filter((pkg) => pkg._id)
+          .filter((pkg) => pkg._id && pkg.provider !== "AFA")
           .map((pkg) => ({
             label: pkg.name,
             path: `/agent/dashboard/packages/${pkg._id}`,
