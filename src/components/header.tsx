@@ -27,7 +27,7 @@ import {
 import { ChevronDown, Moon, Sun } from "lucide-react";
 import { NotificationDropdown } from "./notifications/NotificationDropdown";
 import { ImpersonationService } from "../utils/impersonation";
-import { canHaveWallet, isAdminUser } from "../utils/userTypeHelpers";
+import { canHaveWallet, isAdminUser, isBusinessUser } from "../utils/userTypeHelpers";
 import { Badge } from "../design-system/components/badge";
 import { useTheme } from "../hooks/use-theme";
 
@@ -372,7 +372,22 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
 
   const canShowWallet = canHaveWallet(authState.user?.userType ?? "");
   const isAdmin = isAdminUser(authState.user?.userType ?? "");
+  const isAgent = isBusinessUser(authState.user?.userType ?? "");
   const isImpersonating = ImpersonationService.isImpersonating();
+  const [referralCopied, setReferralCopied] = useState(false);
+
+  const copyReferralCode = async () => {
+    const code = authState.user?.agentCode;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setReferralCopied(true);
+      addToast("Referral code copied", "success");
+      setTimeout(() => setReferralCopied(false), 2000);
+    } catch {
+      addToast("Failed to copy", "error");
+    }
+  };
 
   const firstName = authState.user?.fullName.split(" ")[0] ?? "";
   const initials =
@@ -518,6 +533,22 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
               {themeMode === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
 
+            {isAgent && authState.user?.agentCode && (
+              <button
+                onClick={copyReferralCode}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all"
+                style={{
+                  backgroundColor: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  color: "var(--color-accent)",
+                }}
+                title="Click to copy referral code"
+              >
+                {authState.user.agentCode}
+                {referralCopied && <span className="ml-0.5 text-green-500">✓</span>}
+              </button>
+            )}
+
             <NotificationDropdown />
 
             <div className="relative">
@@ -623,6 +654,23 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                     <FaPowerOff className="w-3 h-3" />
                   )}
                   {isTogglingSite ? "Updating…" : siteStatus?.isSiteOpen ? "Site Open" : "Site Closed"}
+                </button>
+              )}
+
+              {/* referral code badge */}
+              {isAgent && authState.user?.agentCode && (
+                <button
+                  onClick={copyReferralCode}
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all"
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-accent)",
+                  }}
+                  title="Click to copy referral code"
+                >
+                  {authState.user.agentCode}
+                  {referralCopied && <span className="ml-0.5 text-green-500">✓</span>}
                 </button>
               )}
 
