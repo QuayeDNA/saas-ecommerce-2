@@ -14,7 +14,7 @@ import React from "react";
  * - Enhanced UX with micro-interactions
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -32,6 +32,9 @@ import {
   FaLock,
   FaCheckCircle,
   FaClock,
+  FaMobileAlt,
+  FaShareAlt,
+  FaCheck,
 } from "react-icons/fa";
 import {
   Button,
@@ -45,6 +48,7 @@ import {
 import { useAuth } from "../hooks";
 import { useSiteStatus } from "../contexts/site-status-context";
 import { useToast } from "../design-system/components/toast";
+import { authService } from "../services/auth.service";
 import type { RegisterAgentData } from "../services/auth.service";
 import { AuthLayout } from "../layouts/auth-layout";
 import { StepProgress } from "../components/common/StepProgress";
@@ -56,6 +60,7 @@ interface FormData {
   phone: string;
   password: string;
   confirmPassword: string;
+  referralCode: string;
 }
 
 interface PasswordValidation {
@@ -73,6 +78,7 @@ interface FieldErrors {
   phone?: string;
   password?: string;
   confirmPassword?: string;
+  referralCode?: string;
 }
 
 export const RegisterPage = () => {
@@ -97,6 +103,7 @@ export const RegisterPage = () => {
     phone: "",
     password: "",
     confirmPassword: "",
+    referralCode: "",
   });
 
   const [passwordValidation, setPasswordValidation] =
@@ -108,7 +115,30 @@ export const RegisterPage = () => {
       match: false,
     });
 
-  const totalSteps = 3;
+  // OTP state
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  useEffect(() => {
+    if (currentStep === 3) {
+      otpInputRefs.current[0]?.focus();
+    }
+  }, [currentStep]);
+
+  const totalSteps = 4;
 
   // Validate individual fields
   const validateField = (
@@ -147,6 +177,9 @@ export const RegisterPage = () => {
       case "confirmPassword":
         if (!value) return "Please confirm your password";
         if (value !== formData.password) return "Passwords do not match";
+        return undefined;
+
+      case "referralCode":
         return undefined;
 
       default:
@@ -210,15 +243,56 @@ export const RegisterPage = () => {
           formData.phone.trim() !== ""
         );
       case 3:
+        return otpVerified;
+      case 4:
         return Object.values(passwordValidation).every(Boolean);
       default:
         return false;
     }
   };
 
+  // OTP handlers
+  const handleSendOtp = async () => {
+    setOtpSending(true);
+    setOtpError(null);
+    try {
+      await authService.sendOtp(formData.phone, formData.email);
+      setOtpSent(true);
+      setResendCooldown(60);
+    } catch (err: any) {
+      setOtpError(err?.message || "Failed to send OTP");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const code = otpCode.join("");
+    if (code.length !== 6) return;
+
+    setOtpVerifying(true);
+    setOtpError(null);
+    try {
+      await authService.verifyOtp(formData.phone, code);
+      setOtpVerified(true);
+    } catch (err: any) {
+      setOtpError(err?.message || "Invalid or expired OTP");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+    await handleSendOtp();
+  };
+
   // Step navigation
   const nextStep = () => {
     if (currentStep < totalSteps && validateCurrentStep()) {
+      if (currentStep === 2) {
+        handleSendOtp();
+      }
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -255,6 +329,9 @@ export const RegisterPage = () => {
         phone: formData.phone.trim(),
         password: formData.password,
         businessName: formData.businessName.trim(),
+        ...(formData.referralCode.trim()
+          ? { referralCode: formData.referralCode.trim() }
+          : {}),
       };
 
       await registerAgent(agentData);
@@ -300,7 +377,7 @@ export const RegisterPage = () => {
 
   const passwordStrength = getPasswordStrength();
 
-  const steps = ["Personal Info", "Business Info", "Security Setup"];
+  const steps = ["Personal Info", "Business Info", "Verify Phone", "Security Setup"];
 
   return (
     <AuthLayout
@@ -448,8 +525,108 @@ export const RegisterPage = () => {
           </motion.div>
         )}
 
-        {/* Step 3: Security */}
+        {/* Step 3: Verify Phone */}
         {currentStep === 3 && (
+          <motion.div
+            className="space-y-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <div className="bg-[var(--color-primary-100)] rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <FaMobileAlt className="text-xl text-[var(--color-primary-700)]" />
+                <p className="text-sm font-medium text-[var(--color-primary-700)]">
+                  A 6-digit code has been sent to {formData.phone}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-2 py-4">
+              {otpCode.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => { otpInputRefs.current[idx] = el; }}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    const newOtp = [...otpCode];
+                    newOtp[idx] = val;
+                    setOtpCode(newOtp);
+                    if (val && idx < 5) {
+                      otpInputRefs.current[idx + 1]?.focus();
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace" && !digit && idx > 0) {
+                      otpInputRefs.current[idx - 1]?.focus();
+                    }
+                  }}
+                  onPaste={(e) => {
+                    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                    if (pasted.length === 6) {
+                      setOtpCode(pasted.split(""));
+                      otpInputRefs.current[5]?.focus();
+                    }
+                    e.preventDefault();
+                  }}
+                  className="w-11 h-12 text-center text-lg font-bold border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] transition-all"
+                  style={{
+                    borderColor: otpVerified
+                      ? "var(--color-success-500)"
+                      : "var(--color-border)",
+                  }}
+                  disabled={otpVerified}
+                />
+              ))}
+            </div>
+
+            {otpError && (
+              <Alert status="error" variant="solid" className="font-semibold text-sm">
+                <div className="flex items-start">
+                  <FaExclamationTriangle className="mr-2.5 mt-0.5 flex-shrink-0" />
+                  <span>{otpError}</span>
+                </div>
+              </Alert>
+            )}
+
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full"
+              onClick={handleVerifyOtp}
+              disabled={otpCode.join("").length !== 6 || otpVerifying || otpVerified}
+            >
+              {otpVerifying ? (
+                <><FaSpinner className="mr-2 animate-spin" /> Verifying...</>
+              ) : otpVerified ? (
+                <><FaCheck className="mr-2" /> Verified</>
+              ) : (
+                <><FaMobileAlt className="mr-2" /> Verify OTP</>
+              )}
+            </Button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resendCooldown > 0 || otpSending}
+                className="text-sm text-[var(--color-primary-600)] hover:underline disabled:opacity-50 disabled:no-underline"
+              >
+                {otpSending
+                  ? "Sending..."
+                  : resendCooldown > 0
+                    ? `Resend in ${resendCooldown}s`
+                    : "Resend OTP"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Step 4: Security */}
+        {currentStep === 4 && (
           <motion.div
             className="space-y-5"
             initial={{ opacity: 0, y: 10 }}
@@ -536,6 +713,24 @@ export const RegisterPage = () => {
                     : undefined
                 }
               />
+            </div>
+
+            <div>
+              <Input
+                label="Referral Code (optional)"
+                value={formData.referralCode}
+                onChange={(e) =>
+                  handleInputChange("referralCode", e.target.value)
+                }
+                type="text"
+                placeholder="Enter referral code"
+                leftIcon={
+                  <FaShareAlt className="text-[var(--color-muted-text)]" />
+                }
+              />
+              <p className="text-xs text-[var(--color-muted-text)] mt-1 ml-1">
+                Enter a referral code if you were referred by an existing agent
+              </p>
             </div>
 
             {/* Password Requirements */}
