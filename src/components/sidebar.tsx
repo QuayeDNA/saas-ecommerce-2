@@ -28,10 +28,11 @@ import {
   FaStore,
 } from "react-icons/fa";
 import { useOrderNotificationBubble } from "../hooks/use-order-notification-bubble";
-import { Home, Plus, LogOut, ChevronRight, Check, X } from "lucide-react";
+import { Home, Plus, LogOut, ChevronRight, Check, X, Loader2 } from "lucide-react";
 import { Button, Badge } from "../design-system";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CaskmafDatahubLogo } from "./common/CaskmafDatahubLogo";
+import { packageService } from "../services/package.service";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ interface SidebarProps {
 
 // ─── Nav configs (unchanged from original) ───────────────────────────────────
 
-const getAgentNavItems = (): NavItem[] => [
+const getAgentNavItems = (packages: NavItem[] = []): NavItem[] => [
   {
     label: "Dashboard",
     path: "/agent/dashboard",
@@ -59,28 +60,7 @@ const getAgentNavItems = (): NavItem[] => [
     label: "Packages",
     path: "/agent/dashboard/packages",
     icon: <FaBox />,
-    children: [
-      {
-        label: "MTN Packages",
-        path: "/agent/dashboard/packages/mtn",
-        icon: <FaBox />,
-      },
-      {
-        label: "Telecel Packages",
-        path: "/agent/dashboard/packages/telecel",
-        icon: <FaBox />,
-      },
-      {
-        label: "AT BIG TIME",
-        path: "/agent/dashboard/packages/at-big-time",
-        icon: <FaBox />,
-      },
-      {
-        label: "AT iShare Premium",
-        path: "/agent/dashboard/packages/at-ishare-premium",
-        icon: <FaBox />,
-      },
-    ],
+    children: packages,
   },
   { label: "Orders", path: "/agent/dashboard/orders", icon: <FaMobile /> },
   { label: "Wallet", path: "/agent/dashboard/wallet", icon: <FaWallet /> },
@@ -173,6 +153,39 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     new Set(["packages", "wallet"]),
   );
 
+  // Dynamically loaded package nav items
+  const [packageNavItems, setPackageNavItems] = useState<NavItem[]>([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setPackagesLoading(true);
+        const response = await packageService.getPackages({
+          isActive: true,
+        });
+        const items: NavItem[] = (response.packages || []).map((pkg) => ({
+          label: pkg.name,
+          path: `/agent/dashboard/packages/${pkg.slug}`,
+          icon: <FaBox />,
+        }));
+        setPackageNavItems(items);
+      } catch {
+        setPackageNavItems([]);
+      } finally {
+        setPackagesLoading(false);
+      }
+    };
+    const isAgent = ["agent", "super_agent", "dealer", "super_dealer"].includes(
+      authState.user?.userType || "",
+    );
+    if (isAgent) {
+      fetchPackages();
+    } else {
+      setPackagesLoading(false);
+    }
+  }, [authState.user?.userType]);
+
   const toggleExpanded = (path: string) => {
     const next = new Set(expandedItems);
     if (next.has(path)) {
@@ -184,12 +197,21 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   };
 
   const getNavItems = (): NavItem[] => {
+    const loadingItem: NavItem = {
+      label: "Loading...",
+      path: "",
+      icon: <Loader2 className="w-4 h-4 animate-spin" />,
+    };
+    const resolvedPackageItems =
+      packagesLoading && packageNavItems.length === 0
+        ? [loadingItem]
+        : packageNavItems;
     switch (authState.user?.userType) {
       case "agent":
       case "super_agent":
       case "dealer":
       case "super_dealer":
-        return getAgentNavItems();
+        return getAgentNavItems(resolvedPackageItems);
       case "super_admin":
         return getSuperAdminNavItems();
       default:
