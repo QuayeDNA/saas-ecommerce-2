@@ -100,6 +100,11 @@ const NotificationItem: React.FC<ItemProps> = ({
         <div className="nd-item__top">
           <button className="nd-item__title" onClick={onClick}>
             {notification.title}
+            {(notification as any).category && (
+              <span className="nd-item__category" data-category={(notification as any).category}>
+                {(notification as any).category}
+              </span>
+            )}
             {notification.metadata?.navigationLink && (
               <FaExternalLinkAlt className="nd-item__link-icon" />
             )}
@@ -439,6 +444,22 @@ export const NotificationDropdown: React.FC = () => {
           color: var(--nd-accent);
           flex-shrink: 0;
         }
+
+        .nd-item__category {
+          font-size: 9px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          padding: 1px 5px;
+          border-radius: 4px;
+          margin-left: 4px;
+          flex-shrink: 0;
+        }
+        .nd-item__category[data-category="system"] { background: #e5e7eb; color: #374151; }
+        .nd-item__category[data-category="order"] { background: #dbeafe; color: #2563eb; }
+        .nd-item__category[data-category="wallet"] { background: #d1fae5; color: #059669; }
+        .nd-item__category[data-category="commission"] { background: #fef3c7; color: #d97706; }
+        .nd-item__category[data-category="announcement"] { background: #f3e8ff; color: #9333ea; }
 
         .nd-item__meta {
           display: flex;

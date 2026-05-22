@@ -30,6 +30,7 @@ import { ImpersonationService } from "../utils/impersonation";
 import { canHaveWallet, isAdminUser, isBusinessUser } from "../utils/userTypeHelpers";
 import { Badge } from "../design-system/components/badge";
 import { useTheme } from "../hooks/use-theme";
+import { referralService } from "../services/referral.service";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -369,6 +370,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTogglingSite, setIsTogglingSite] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
 
   const canShowWallet = canHaveWallet(authState.user?.userType ?? "");
   const isAdmin = isAdminUser(authState.user?.userType ?? "");
@@ -376,11 +378,18 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
   const isImpersonating = ImpersonationService.isImpersonating();
   const [referralCopied, setReferralCopied] = useState(false);
 
+  useEffect(() => {
+    if (isAgent) {
+      referralService.getDashboard().then((dash) => {
+        if (dash?.referralCode) setReferralCode(dash.referralCode);
+      }).catch(() => {});
+    }
+  }, [isAgent]);
+
   const copyReferralCode = async () => {
-    const code = authState.user?.agentCode;
-    if (!code) return;
+    if (!referralCode) return;
     try {
-      await navigator.clipboard.writeText(code);
+      await navigator.clipboard.writeText(referralCode);
       setReferralCopied(true);
       addToast("Referral code copied", "success");
       setTimeout(() => setReferralCopied(false), 2000);
@@ -533,7 +542,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
               {themeMode === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
 
-            {isAgent && authState.user?.agentCode && (
+            {isAgent && referralCode && (
               <button
                 onClick={copyReferralCode}
                 className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all"
@@ -544,7 +553,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                 }}
                 title="Click to copy referral code"
               >
-                {authState.user.agentCode}
+                {referralCode}
                 {referralCopied && <span className="ml-0.5 text-green-500">✓</span>}
               </button>
             )}
@@ -658,7 +667,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
               )}
 
               {/* referral code badge */}
-              {isAgent && authState.user?.agentCode && (
+              {isAgent && referralCode && (
                 <button
                   onClick={copyReferralCode}
                   className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all"
@@ -669,7 +678,7 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                   }}
                   title="Click to copy referral code"
                 >
-                  {authState.user.agentCode}
+                  {referralCode}
                   {referralCopied && <span className="ml-0.5 text-green-500">✓</span>}
                 </button>
               )}
