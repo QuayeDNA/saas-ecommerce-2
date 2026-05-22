@@ -138,12 +138,6 @@ const CommissionPage = lazy(() =>
   }))
 );
 
-const ReferralDashboardPage = lazy(() =>
-  import("../pages/agent/referral-dashboard-page").then((module) => ({
-    default: module.ReferralDashboardPage,
-  }))
-);
-
 // =============================================================================
 // LAZY LOADED COMPONENTS - PACKAGE SPECIFIC PAGES
 // =============================================================================
@@ -453,14 +447,6 @@ const agentRoutes: RouteObject[] = [
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CommissionPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: "referrals",
-            element: (
-              <Suspense fallback={<PageLoader />}>
-                <ReferralDashboardPage />
               </Suspense>
             ),
           },
