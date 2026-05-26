@@ -56,7 +56,7 @@ if (typeof document !== "undefined") {
 export const DashboardPage = () => {
   const { getTransactionHistory } = useWallet();
   const { getAgentAnalytics } = useOrder();
-  const { providers, loading: providersLoading } = useProvider();
+  const { providers } = useProvider();
   const { siteStatus } = useSiteStatus();
 
   // State for modals and data
@@ -630,7 +630,7 @@ export const DashboardPage = () => {
                   variant="interactive"
                   size="sm"
                   className="cursor-pointer"
-                  onClick={() => handleQuickLinkClick(pkg._id)}
+                  onClick={() => pkg._id && handleQuickLinkClick(pkg._id)}
                 >
                   <CardBody className="text-center">
                     <div
