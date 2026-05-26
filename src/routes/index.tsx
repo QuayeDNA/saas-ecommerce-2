@@ -132,27 +132,18 @@ const StorefrontDashboardPage = lazy(() =>
   }))
 );
 
+const CommissionPage = lazy(() =>
+  import("../pages/agent/commission-page").then((module) => ({
+    default: module.CommissionPage,
+  }))
+);
+
 // =============================================================================
 // LAZY LOADED COMPONENTS - PACKAGE SPECIFIC PAGES
 // =============================================================================
-const MtnPackagesPage = lazy(() =>
-  import("../pages/mtn-packages-page").then((module) => ({
-    default: module.MtnPackagesPage,
-  }))
-);
-const TelecelPackagesPage = lazy(() =>
-  import("../pages/telecel-packages-page").then((module) => ({
-    default: module.TelecelPackagesPage,
-  }))
-);
-const AtBigTimePackagesPage = lazy(() =>
-  import("../pages/at-bigtime-packages").then((module) => ({
-    default: module.AtBigTimePackagesPage,
-  }))
-);
-const AtISharePremiumPackagesPage = lazy(() =>
-  import("../pages/at-ishare-packages").then((module) => ({
-    default: module.AtISharePremiumPackagesPage,
+const PackageDetailPage = lazy(() =>
+  import("../pages/package-detail-page").then((module) => ({
+    default: module.PackageDetailPage,
   }))
 );
 
@@ -412,34 +403,10 @@ const agentRoutes: RouteObject[] = [
             ),
           },
           {
-            path: "packages/mtn",
+            path: "packages/:packageId",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <MtnPackagesPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: "packages/telecel",
-            element: (
-              <Suspense fallback={<PageLoader />}>
-                <TelecelPackagesPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: "packages/at-big-time",
-            element: (
-              <Suspense fallback={<PageLoader />}>
-                <AtBigTimePackagesPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: "packages/at-ishare-premium",
-            element: (
-              <Suspense fallback={<PageLoader />}>
-                <AtISharePremiumPackagesPage />
+                <PackageDetailPage />
               </Suspense>
             ),
           },
@@ -472,6 +439,14 @@ const agentRoutes: RouteObject[] = [
             element: (
               <Suspense fallback={<PageLoader />}>
                 <WalletPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "commissions",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CommissionPage />
               </Suspense>
             ),
           },

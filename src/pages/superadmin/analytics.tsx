@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
-  FaChartLine,
   FaUsers,
   FaShoppingCart,
   FaWallet,
@@ -91,7 +90,6 @@ export default function SuperAdminAnalyticsPage() {
         totalUsers: 0,
         totalOrders: 0,
         totalRevenue: 0,
-        totalCommissions: 0,
         totalWalletBalance: 0,
         activeProviders: 0,
         payoutLiability: 0,
@@ -158,7 +156,6 @@ export default function SuperAdminAnalyticsPage() {
   };
 
   const payoutQueueCount = analytics?.payouts?.queuedCount ?? analytics?.payouts?.thisPeriod?.count ?? 0;
-  const pendingCommissionAmount = analytics?.commissions?.pendingAmount ?? 0;
   const netFlow = analytics?.earnings?.period?.netFlow ?? 0;
 
   const chartLabels = analytics?.charts?.labels ?? [];
@@ -167,8 +164,7 @@ export default function SuperAdminAnalyticsPage() {
 
     if (selectedMetric === "revenue") return analytics.charts.revenue ?? [];
     if (selectedMetric === "orders") return analytics.charts.orders ?? [];
-    if (selectedMetric === "users") return analytics.charts.userRegistrations ?? analytics.charts.orders ?? [];
-    return analytics.charts.commissions ?? [];
+    return analytics.charts.userRegistrations ?? analytics.charts.orders ?? [];
   }, [analytics, selectedMetric]);
 
   const kpiCards = useMemo<Array<{ id: string; title: string; value: string; subtitle: string; icon: ReactNode; trend: "up" | "down" | "flat" }>>(
@@ -196,14 +192,6 @@ export default function SuperAdminAnalyticsPage() {
         subtitle: analytics?.growth?.revenue ? growthText(analytics.growth.revenue) : "vs previous period",
         icon: <FaMoneyBillWave />,
         trend: normalizeTrend(analytics?.growth?.revenue?.trend),
-      },
-      {
-        id: "commissions",
-        title: "Total Commissions",
-        value: formatCurrency(overview.totalCommissions),
-        subtitle: analytics?.growth?.commissions ? growthText(analytics.growth.commissions) : "vs previous period",
-        icon: <FaChartLine />,
-        trend: normalizeTrend(analytics?.growth?.commissions?.trend),
       },
       {
         id: "wallet",
@@ -245,17 +233,12 @@ export default function SuperAdminAnalyticsPage() {
         tone: toneFromTrend(analytics?.growth?.revenue?.trend),
       },
       {
-        label: "Pending Commissions",
-        value: formatCurrency(pendingCommissionAmount),
-        tone: "info",
-      },
-      {
         label: "Queued Payouts",
         value: formatNumber(payoutQueueCount),
         tone: analytics?.payouts?.queuedCount ? "warning" : "default",
       },
     ],
-    [analytics, overview, pendingCommissionAmount, payoutQueueCount]
+    [analytics, overview, payoutQueueCount]
   );
 
   const handleExport = () => {
@@ -374,7 +357,6 @@ export default function SuperAdminAnalyticsPage() {
             performanceTimeframe={timeframe}
             performanceTimeOptions={TIME_OPTIONS}
             onPerformanceTimeframeChange={setTimeframe}
-            pendingCommissionAmount={pendingCommissionAmount}
             payoutQueueCount={payoutQueueCount}
             netFlow={netFlow}
           />

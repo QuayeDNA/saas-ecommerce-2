@@ -6,7 +6,6 @@ import "./App.css";
 import { AppProvider } from "./providers/app-provider";
 import { UserProvider } from "./contexts/UserContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
-import { CommissionProvider } from "./contexts/CommissionContext";
 import { AnnouncementProvider } from "./contexts/AnnouncementContext";
 import { StorefrontSessionProvider } from "./contexts/storefront-session-context";
 import { NetworkStatusIndicator } from "./components/network-status-indicator";
@@ -27,9 +26,8 @@ function App() {
           <ToastProvider>
             <AppProvider>
               <UserProvider>
-                <CommissionProvider>
-                  <NotificationProvider>
-                    <AnnouncementProvider>
+                <NotificationProvider>
+                  <AnnouncementProvider>
                       <PushNotificationInitializer />
                       <div className="min-h-screen flex flex-col">
                         <MaintenanceBanner />
@@ -40,7 +38,6 @@ function App() {
                       </div>
                     </AnnouncementProvider>
                   </NotificationProvider>
-                </CommissionProvider>
               </UserProvider>
             </AppProvider>
           </ToastProvider>

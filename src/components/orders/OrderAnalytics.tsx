@@ -57,12 +57,6 @@ interface AnalyticsData {
       partiallyCompleted?: number;
     };
   };
-  commission?: {
-    totalEarned?: number;
-    totalPaid?: number;
-    pendingAmount?: number;
-    pendingCount?: number;
-  };
   revenue?: {
     total?: number;
     today?: number;
@@ -308,15 +302,6 @@ export const OrderAnalytics: React.FC<OrderAnalyticsProps> = ({
           value: formatCurrency(analyticsData.todayRevenue || 0),
           subtitle: `Total Sales: ${formatCurrency(
             analyticsData.totalRevenue || 0,
-          )}`,
-          icon: <FaMoneyBillWave />,
-          size: "md",
-        },
-        {
-          title: "Monthly Sales",
-          value: formatCurrency(analyticsData.monthlyRevenue || 0),
-          subtitle: `Commission: ${formatCurrency(
-            analyticsData.commission?.pendingAmount || 0,
           )}`,
           icon: <FaMoneyBillWave />,
           size: "md",

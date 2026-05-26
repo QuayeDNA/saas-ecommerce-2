@@ -58,7 +58,6 @@ interface AnalyticsActivityStageProps {
     performanceTimeframe: string;
     performanceTimeOptions: SelectOption[];
     onPerformanceTimeframeChange: (value: string) => void;
-    pendingCommissionAmount: number;
     payoutQueueCount: number;
     netFlow: number;
 }
@@ -114,7 +113,6 @@ export function AnalyticsActivityStage({
     performanceTimeframe,
     performanceTimeOptions,
     onPerformanceTimeframeChange,
-    pendingCommissionAmount,
     payoutQueueCount,
     netFlow,
 }: AnalyticsActivityStageProps) {
@@ -188,7 +186,7 @@ export function AnalyticsActivityStage({
                 <CardHeader className="pb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Recent Activity</h3>
                     <p className="text-xs sm:text-sm text-[var(--color-muted-text)] mt-1">
-                        Latest events across users, orders, payouts, and commissions.
+                        Latest events across users, orders, and payouts.
                     </p>
                 </CardHeader>
 
@@ -395,12 +393,6 @@ export function AnalyticsActivityStage({
                         </>
                     ) : (
                         <>
-                            <div className="flex items-center justify-between gap-4">
-                                <span className="text-[var(--color-secondary-text)]">Pending commission</span>
-                                <span className="font-semibold text-[var(--color-text)]">
-                                    {formatCurrency(pendingCommissionAmount)}
-                                </span>
-                            </div>
                             <div className="flex items-center justify-between gap-4">
                                 <span className="text-[var(--color-secondary-text)]">Payout queue</span>
                                 <span className="font-semibold text-[var(--color-text)]">

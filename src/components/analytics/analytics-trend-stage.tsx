@@ -13,7 +13,7 @@ import {
 import { Card, CardBody, CardHeader, Select, Skeleton } from "../../design-system";
 import { formatCurrency, formatNumber } from "./analytics-formatters";
 
-export type TrendMetric = "revenue" | "orders" | "users" | "commissions";
+export type TrendMetric = "revenue" | "orders" | "users";
 
 interface OrderStatusSnapshot {
     completed: number;
@@ -38,14 +38,12 @@ const metricOptions = [
     { value: "revenue", label: "Revenue" },
     { value: "orders", label: "Orders" },
     { value: "users", label: "Users" },
-    { value: "commissions", label: "Commissions" },
 ];
 
 const trendLabelMap: Record<TrendMetric, string> = {
     revenue: "Revenue (GHS)",
     orders: "Orders",
     users: "Users",
-    commissions: "Commissions (GHS)",
 };
 
 export function AnalyticsTrendStage({
@@ -62,7 +60,7 @@ export function AnalyticsTrendStage({
     }));
 
     const formatTrendValue = (value: number) => {
-        if (selectedMetric === "revenue" || selectedMetric === "commissions") {
+        if (selectedMetric === "revenue") {
             return formatCurrency(value);
         }
 
@@ -102,7 +100,7 @@ export function AnalyticsTrendStage({
                     <div>
                         <h2 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Performance Trend</h2>
                         <p className="text-xs sm:text-sm text-[var(--color-muted-text)] mt-1">
-                            Compare revenue, orders, users, and commissions over time.
+                            Compare revenue, orders, and users over time.
                         </p>
                     </div>
                     <Select

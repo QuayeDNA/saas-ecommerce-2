@@ -58,15 +58,6 @@ const cardToneMap: Record<
         downTrendClass: "text-[var(--color-failed-text)]",
         flatTrendClass: "text-[var(--color-success-text)]",
     },
-    commissions: {
-        cardClass: "bg-[var(--color-surface)] border border-[var(--color-border)]",
-        iconClass: "text-[var(--color-pending-icon)]",
-        titleClass: "text-[var(--color-pending-text)]",
-        valueClass: "text-[var(--color-text)]",
-        upTrendClass: "text-[var(--color-success-text)]",
-        downTrendClass: "text-[var(--color-failed-text)]",
-        flatTrendClass: "text-[var(--color-pending-text)]",
-    },
     wallet: {
         cardClass: "bg-[var(--color-surface)] border border-[var(--color-border)]",
         iconClass: "text-[var(--color-primary-500)]",
