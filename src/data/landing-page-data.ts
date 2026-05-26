@@ -208,7 +208,6 @@ export const landingPageData: LandingPageData = {
       metrics: { value: "10K+", label: "Per Minute" },
     },
     {
-    {
       id: "analytics-dashboard",
       title: "Advanced Analytics Engine",
       description:
