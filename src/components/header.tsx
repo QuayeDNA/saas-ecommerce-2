@@ -27,9 +27,10 @@ import {
 import { ChevronDown, Moon, Sun } from "lucide-react";
 import { NotificationDropdown } from "./notifications/NotificationDropdown";
 import { ImpersonationService } from "../utils/impersonation";
-import { canHaveWallet, isAdminUser } from "../utils/userTypeHelpers";
+import { canHaveWallet, isAdminUser, isBusinessUser } from "../utils/userTypeHelpers";
 import { Badge } from "../design-system/components/badge";
 import { useTheme } from "../hooks/use-theme";
+import { referralService } from "../services/referral.service";
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -369,10 +370,33 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTogglingSite, setIsTogglingSite] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
 
   const canShowWallet = canHaveWallet(authState.user?.userType ?? "");
   const isAdmin = isAdminUser(authState.user?.userType ?? "");
+  const isAgent = isBusinessUser(authState.user?.userType ?? "");
   const isImpersonating = ImpersonationService.isImpersonating();
+  const [referralCopied, setReferralCopied] = useState(false);
+
+  useEffect(() => {
+    if (isAgent) {
+      referralService.getDashboard().then((dash) => {
+        if (dash?.referralCode) setReferralCode(dash.referralCode);
+      }).catch(() => {});
+    }
+  }, [isAgent]);
+
+  const copyReferralCode = async () => {
+    if (!referralCode) return;
+    try {
+      await navigator.clipboard.writeText(referralCode);
+      setReferralCopied(true);
+      addToast("Referral code copied", "success");
+      setTimeout(() => setReferralCopied(false), 2000);
+    } catch {
+      addToast("Failed to copy", "error");
+    }
+  };
 
   const firstName = authState.user?.fullName.split(" ")[0] ?? "";
   const initials =
@@ -518,6 +542,22 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
               {themeMode === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
 
+            {isAgent && referralCode && (
+              <button
+                onClick={copyReferralCode}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all"
+                style={{
+                  backgroundColor: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
+                  color: "var(--color-accent)",
+                }}
+                title="Click to copy referral code"
+              >
+                {referralCode}
+                {referralCopied && <span className="ml-0.5 text-green-500">✓</span>}
+              </button>
+            )}
+
             <NotificationDropdown />
 
             <div className="relative">
@@ -623,6 +663,23 @@ export const Header = ({ onMenuClick, isScrolled = false }: HeaderProps) => {
                     <FaPowerOff className="w-3 h-3" />
                   )}
                   {isTogglingSite ? "Updating…" : siteStatus?.isSiteOpen ? "Site Open" : "Site Closed"}
+                </button>
+              )}
+
+              {/* referral code badge */}
+              {isAgent && referralCode && (
+                <button
+                  onClick={copyReferralCode}
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all"
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-accent)",
+                  }}
+                  title="Click to copy referral code"
+                >
+                  {referralCode}
+                  {referralCopied && <span className="ml-0.5 text-green-500">✓</span>}
                 </button>
               )}
 

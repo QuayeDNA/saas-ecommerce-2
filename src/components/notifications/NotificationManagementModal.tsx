@@ -212,18 +212,19 @@ export const NotificationManagementModal: React.FC<
   const [isLoading, setIsLoading] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const listRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(
-    async (page = 1, f: FilterType = filter) => {
+    async (page = 1, f: FilterType = filter, cat: string | undefined = categoryFilter) => {
       setIsLoading(true);
       setError(null);
       try {
         const readFilter = f === 'read' ? true : f === 'unread' ? false : undefined;
-        const res = await fetchAllNotifications(page, 20, readFilter);
+        const res = await fetchAllNotifications(page, 20, readFilter, cat);
         setNotifications(res.notifications || []);
         setPagination(res.pagination || null);
       } catch {
@@ -232,15 +233,21 @@ export const NotificationManagementModal: React.FC<
         setIsLoading(false);
       }
     },
-    [fetchAllNotifications, filter]
+    [fetchAllNotifications, filter, categoryFilter]
   );
 
   useEffect(() => {
-    if (isOpen) load(1, filter);
-  }, [isOpen, filter]);
+    if (isOpen) load(1, filter, categoryFilter);
+  }, [isOpen, filter, categoryFilter]);
 
   const changeFilter = (f: FilterType) => {
     setFilter(f);
+    setCurrentPage(1);
+    setSelected([]);
+  };
+
+  const changeCategoryFilter = (cat: string | undefined) => {
+    setCategoryFilter(cat);
     setCurrentPage(1);
     setSelected([]);
   };
@@ -454,6 +461,33 @@ export const NotificationManagementModal: React.FC<
         }
         body.theme-dark .nm-tab--active {
           box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        .nm-category-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          padding: 0 16px 10px;
+        }
+        .nm-category-chip {
+          font-size: 11px;
+          font-weight: 500;
+          padding: 3px 10px;
+          border-radius: 999px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.15s;
+          background: #f3f4f6;
+          color: #4b5563;
+        }
+        .nm-category-chip[data-category="system"] { background: #e5e7eb; color: #374151; }
+        .nm-category-chip[data-category="order"] { background: #dbeafe; color: #1d4ed8; }
+        .nm-category-chip[data-category="wallet"] { background: #d1fae5; color: #047857; }
+        .nm-category-chip[data-category="commission"] { background: #fef3c7; color: #b45309; }
+        .nm-category-chip[data-category="announcement"] { background: #f3e8ff; color: #7e22ce; }
+        .nm-category-chip--active {
+          ring: 2px solid var(--nm-accent);
+          ring-offset: 1px;
         }
 
         /* ── body / list ── */
@@ -722,6 +756,27 @@ export const NotificationManagementModal: React.FC<
                   onClick={() => changeFilter(f)}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* category filter chips */}
+            <div className="nm-category-chips">
+              {[
+                { value: undefined, label: 'All' },
+                { value: 'system', label: 'System' },
+                { value: 'order', label: 'Order' },
+                { value: 'wallet', label: 'Wallet' },
+                { value: 'commission', label: 'Commission' },
+                { value: 'announcement', label: 'Announcement' },
+              ].map((cat) => (
+                <button
+                  key={cat.value || 'all'}
+                  className={`nm-category-chip ${categoryFilter === cat.value ? 'nm-category-chip--active' : ''}`}
+                  data-category={cat.value || ''}
+                  onClick={() => changeCategoryFilter(cat.value)}
+                >
+                  {cat.label}
                 </button>
               ))}
             </div>
