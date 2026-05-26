@@ -16,7 +16,7 @@ import React from "react";
 
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FaUser,
   FaEye,
@@ -95,6 +95,7 @@ export const RegisterPage = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  const [selectedChannel, setSelectedChannel] = useState<"email" | "phone">("email");
 
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
@@ -118,6 +119,8 @@ export const RegisterPage = () => {
   // OTP state
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
+  const [otpChannel, setOtpChannel] = useState<"email" | "phone">("email");
+  const [maskedContact, setMaskedContact] = useState("");
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
   const [otpSending, setOtpSending] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
@@ -137,6 +140,17 @@ export const RegisterPage = () => {
       otpInputRefs.current[0]?.focus();
     }
   }, [currentStep]);
+
+  const [searchParams] = useSearchParams();
+
+  // Read referral code from URL query param on mount
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setFormData((prev) => ({ ...prev, referralCode: ref }));
+      setTouchedFields((prev) => new Set(prev).add("referralCode"));
+    }
+  }, [searchParams]);
 
   const totalSteps = 4;
 
@@ -256,11 +270,16 @@ export const RegisterPage = () => {
     setOtpSending(true);
     setOtpError(null);
     try {
-      await authService.sendOtp(formData.phone, formData.email);
+      const result = await authService.sendOtp(formData.phone, formData.email, selectedChannel);
       setOtpSent(true);
       setResendCooldown(60);
+      const channel = result.channel || selectedChannel;
+      setOtpChannel(channel);
+      setMaskedContact(result.maskedContact || "");
     } catch (err: any) {
-      setOtpError(err?.message || "Failed to send OTP");
+      const message = err?.message || "Failed to send OTP";
+      setOtpError(message);
+      addToast(message, "error");
     } finally {
       setOtpSending(false);
     }
@@ -290,9 +309,6 @@ export const RegisterPage = () => {
   // Step navigation
   const nextStep = () => {
     if (currentStep < totalSteps && validateCurrentStep()) {
-      if (currentStep === 2) {
-        handleSendOtp();
-      }
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -300,6 +316,12 @@ export const RegisterPage = () => {
 
   const prevStep = () => {
     if (currentStep > 1) {
+      if (currentStep === 3) {
+        setOtpSent(false);
+        setOtpVerified(false);
+        setOtpCode(["", "", "", "", "", ""]);
+        setOtpError(null);
+      }
       setCurrentStep(currentStep - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -525,7 +547,7 @@ export const RegisterPage = () => {
           </motion.div>
         )}
 
-        {/* Step 3: Verify Phone */}
+        {/* Step 3: Verify Phone / Email */}
         {currentStep === 3 && (
           <motion.div
             className="space-y-5"
@@ -533,56 +555,6 @@ export const RegisterPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="bg-[var(--color-primary-100)] rounded-lg p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <FaMobileAlt className="text-xl text-[var(--color-primary-700)]" />
-                <p className="text-sm font-medium text-[var(--color-primary-700)]">
-                  A 6-digit code has been sent to {formData.phone}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-2 py-4">
-              {otpCode.map((digit, idx) => (
-                <input
-                  key={idx}
-                  ref={(el) => { otpInputRefs.current[idx] = el; }}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "");
-                    const newOtp = [...otpCode];
-                    newOtp[idx] = val;
-                    setOtpCode(newOtp);
-                    if (val && idx < 5) {
-                      otpInputRefs.current[idx + 1]?.focus();
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Backspace" && !digit && idx > 0) {
-                      otpInputRefs.current[idx - 1]?.focus();
-                    }
-                  }}
-                  onPaste={(e) => {
-                    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-                    if (pasted.length === 6) {
-                      setOtpCode(pasted.split(""));
-                      otpInputRefs.current[5]?.focus();
-                    }
-                    e.preventDefault();
-                  }}
-                  className="w-11 h-12 text-center text-lg font-bold border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] transition-all"
-                  style={{
-                    borderColor: otpVerified
-                      ? "var(--color-success-500)"
-                      : "var(--color-border)",
-                  }}
-                  disabled={otpVerified}
-                />
-              ))}
-            </div>
-
             {otpError && (
               <Alert status="error" variant="solid" className="font-semibold text-sm">
                 <div className="flex items-start">
@@ -592,36 +564,179 @@ export const RegisterPage = () => {
               </Alert>
             )}
 
-            <Button
-              type="button"
-              variant="primary"
-              className="w-full"
-              onClick={handleVerifyOtp}
-              disabled={otpCode.join("").length !== 6 || otpVerifying || otpVerified}
-            >
-              {otpVerifying ? (
-                <><FaSpinner className="mr-2 animate-spin" /> Verifying...</>
-              ) : otpVerified ? (
-                <><FaCheck className="mr-2" /> Verified</>
-              ) : (
-                <><FaMobileAlt className="mr-2" /> Verify OTP</>
-              )}
-            </Button>
+            {!otpSent && !otpVerified && (
+              <div className="space-y-5">
+                <label className="block text-sm font-semibold text-[var(--color-text)]">
+                  Choose how to receive your code
+                </label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedChannel("email")}
+                    className={`flex-1 flex items-center gap-4 rounded-xl border-2 p-5 transition-all text-left ${
+                      selectedChannel === "email"
+                        ? "border-[var(--color-primary-500)] bg-[var(--color-primary-100)] ring-2 ring-[var(--color-primary-200)]"
+                        : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary-300)] hover:bg-[var(--color-primary-50)]"
+                    }`}
+                  >
+                    <div className={`flex h-6 w-6 items-center justify-center rounded-full border-2 flex-shrink-0 ${
+                      selectedChannel === "email"
+                        ? "border-[var(--color-primary-500)] bg-[var(--color-primary-500)]"
+                        : "border-[var(--color-muted-text)]"
+                    }`}>
+                      {selectedChannel === "email" && (
+                        <div className="h-2.5 w-2.5 rounded-full bg-white" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FaEnvelope className={`text-xl flex-shrink-0 ${selectedChannel === "email" ? "text-[var(--color-primary-700)]" : "text-[var(--color-muted-text)]"}`} />
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold ${selectedChannel === "email" ? "text-[var(--color-primary-700)]" : "text-[var(--color-text)]"}`}>
+                          Email
+                        </p>
+                        <p className="text-xs text-[var(--color-muted-text)] truncate">
+                          {formData.email}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
 
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleResendOtp}
-                disabled={resendCooldown > 0 || otpSending}
-                className="text-sm text-[var(--color-primary-600)] hover:underline disabled:opacity-50 disabled:no-underline"
-              >
-                {otpSending
-                  ? "Sending..."
-                  : resendCooldown > 0
-                    ? `Resend in ${resendCooldown}s`
-                    : "Resend OTP"}
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    disabled
+                    className="flex-1 flex items-center gap-4 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left opacity-50 cursor-not-allowed"
+                    title="SMS verification coming soon"
+                  >
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--color-muted-text)] bg-[var(--color-surface)] flex-shrink-0">
+                    </div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FaMobileAlt className="text-xl text-[var(--color-muted-text)] flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[var(--color-muted-text)]">
+                          Phone (SMS)
+                        </p>
+                        <p className="text-xs text-[var(--color-muted-text)] opacity-60 truncate">
+                          {formData.phone} &middot; Coming soon
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handleSendOtp}
+                  className="w-full"
+                  isLoading={otpSending}
+                  disabled={otpSending}
+                >
+                  {otpSending ? "Sending..." : "Send Verification Code"}
+                </Button>
+              </div>
+            )}
+
+            {(otpSent || otpVerified) && (
+              <>
+                <div className="bg-[var(--color-primary-100)] rounded-lg p-5 text-center">
+                  <div className="flex flex-col items-center gap-2 mb-2">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/80">
+                      {otpVerified ? (
+                        <FaCheckCircle className="text-2xl text-[var(--color-success-500)]" />
+                      ) : selectedChannel === "email" ? (
+                        <FaEnvelope className="text-2xl text-[var(--color-primary-700)]" />
+                      ) : (
+                        <FaMobileAlt className="text-2xl text-[var(--color-primary-700)]" />
+                      )}
+                    </div>
+                    <p className="text-sm font-semibold text-[var(--color-primary-700)]">
+                      {otpVerified
+                        ? `${selectedChannel === "email" ? "Email" : "Phone"} Verified`
+                        : `A 6-digit code has been sent to your ${selectedChannel === "email" ? "email" : "phone"}`}
+                    </p>
+                  </div>
+                  <p className="text-xs text-[var(--color-primary-600)]">
+                    {maskedContact || (selectedChannel === "email" ? formData.email : formData.phone)}
+                  </p>
+                </div>
+
+                {!otpVerified && (
+                  <>
+                    <div className="flex justify-center gap-2 py-4">
+                      {otpCode.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          ref={(el) => { otpInputRefs.current[idx] = el; }}
+                          type="text"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            const newOtp = [...otpCode];
+                            newOtp[idx] = val;
+                            setOtpCode(newOtp);
+                            if (val && idx < 5) {
+                              otpInputRefs.current[idx + 1]?.focus();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Backspace" && !digit && idx > 0) {
+                              otpInputRefs.current[idx - 1]?.focus();
+                            }
+                          }}
+                          onPaste={(e) => {
+                            const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                            if (pasted.length === 6) {
+                              setOtpCode(pasted.split(""));
+                              otpInputRefs.current[5]?.focus();
+                            }
+                            e.preventDefault();
+                          }}
+                          className="w-11 h-12 text-center text-lg font-bold border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] transition-all"
+                          style={{
+                            borderColor: otpVerified
+                              ? "var(--color-success-500)"
+                              : "var(--color-border)",
+                          }}
+                          disabled={otpVerified}
+                        />
+                      ))}
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="primary"
+                      className="w-full"
+                      onClick={handleVerifyOtp}
+                      disabled={otpCode.join("").length !== 6 || otpVerifying || otpVerified}
+                    >
+                      {otpVerifying ? (
+                        <><FaSpinner className="mr-2 animate-spin" /> Verifying...</>
+                      ) : otpVerified ? (
+                        <><FaCheck className="mr-2" /> Verified</>
+                      ) : (
+                        <><FaMobileAlt className="mr-2" /> {selectedChannel === "email" ? "Verify Email" : "Verify OTP"}</>
+                      )}
+                    </Button>
+
+                    <div className="text-center">
+                      <button
+                        type="button"
+                        onClick={handleResendOtp}
+                        disabled={resendCooldown > 0 || otpSending}
+                        className="text-sm text-[var(--color-primary-600)] hover:underline disabled:opacity-50 disabled:no-underline"
+                      >
+                        {otpSending
+                          ? "Sending..."
+                          : resendCooldown > 0
+                            ? `Resend in ${resendCooldown}s`
+                            : "Resend code"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
           </motion.div>
         )}
 
