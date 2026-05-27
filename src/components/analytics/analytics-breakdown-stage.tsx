@@ -38,6 +38,7 @@ export function AnalyticsBreakdownStage({
     userTypeBreakdown,
     orderTypeLeaders,
 }: AnalyticsBreakdownStageProps) {
+    const leaders = (orderTypeLeaders ?? []).filter(Boolean);
     const chartColors = [
         "#3b82f6",
         "#10b981",
@@ -54,13 +55,13 @@ export function AnalyticsBreakdownStage({
         { name: "Super Admins", value: userTypeBreakdown.super_admins, color: chartColors[4], fill: chartColors[4] },
     ];
 
-    const barData = orderTypeLeaders.map((item) => ({
+    const barData = leaders.map((item) => ({
         category: item.orderType.replace(/_/g, " "),
         orders: item.count,
         revenue: item.revenue,
     }));
 
-    const maxLeaderCount = Math.max(...orderTypeLeaders.map((item) => item.count), 1);
+    const maxLeaderCount = Math.max(...leaders.map((item) => item.count), 1);
 
     return (
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
@@ -144,7 +145,7 @@ export function AnalyticsBreakdownStage({
                                 <Skeleton variant="rectangular" height="0.5rem" />
                             </div>
                         ))
-                    ) : orderTypeLeaders.length === 0 ? (
+                    ) : leaders.length === 0 ? (
                         <p className="text-sm text-[var(--color-secondary-text)]">No order type data available for this period.</p>
                     ) : (
                         <div className="space-y-4">
@@ -189,7 +190,7 @@ export function AnalyticsBreakdownStage({
                             </div>
 
                             <div className="grid gap-3">
-                                {orderTypeLeaders.map((row) => {
+                                {leaders.map((row) => {
                                     const ratio = (row.count / maxLeaderCount) * 100;
 
                                     return (
