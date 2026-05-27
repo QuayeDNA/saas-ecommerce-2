@@ -10,6 +10,7 @@ import type {
   ReferralAdminStats,
   ReferralAdminUsersResponse,
   ReferralAdminUser,
+  BackendPagination,
 } from "../types/referral";
 
 class ReferralService {
@@ -29,24 +30,11 @@ class ReferralService {
     return response.data.data;
   }
 
-  async getReferralTree(depth = 3, userInfo?: { fullName?: string; phone?: string }): Promise<ReferralTreeNode | null> {
+  async getReferralTree(depth = 3): Promise<ReferralTreeNode[]> {
     const response = await apiClient.get<ReferralTreeResponse>(
       `/api/referrals/tree?depth=${depth}`
     );
-    const raw: unknown = response.data.data;
-    if (!raw || (Array.isArray(raw) && raw.length === 0)) return null;
-
-    const transform = (node: any, level: number): ReferralTreeNode => ({
-      userId: node.user?._id || "",
-      fullName: node.user?.fullName || "Unknown",
-      phone: node.user?.phone || "",
-      level,
-      createdAt: node.user?.createdAt || "",
-      children: (node.children || []).map((c: any) => transform(c, level + 1)),
-    });
-
-    const arr = Array.isArray(raw) ? raw : [raw];
-    return transform({ user: { _id: "", fullName: userInfo?.fullName || "You", phone: userInfo?.phone || "", createdAt: "" }, children: arr }, 0);
+    return Array.isArray(response.data.data) ? response.data.data : [];
   }
 
   async getAdminStats(): Promise<ReferralAdminStats> {
@@ -56,11 +44,17 @@ class ReferralService {
     return response.data.data;
   }
 
-  async getAdminUsers(): Promise<ReferralAdminUser[]> {
+  async getAdminUsers(): Promise<{
+    users: ReferralAdminUser[];
+    pagination: BackendPagination;
+  }> {
     const response = await apiClient.get<ReferralAdminUsersResponse>(
       "/api/referrals/admin/users"
     );
-    return response.data.data;
+    return {
+      users: Array.isArray(response.data.data.users) ? response.data.data.users : [],
+      pagination: response.data.data.pagination,
+    };
   }
 }
 

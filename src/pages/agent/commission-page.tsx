@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { commissionService } from "../../services/commission.service";
 import { referralService } from "../../services/referral.service";
-import { useAuth } from "../../hooks";
 import {
   FaCopy, FaShareAlt, FaWhatsapp, FaSms, FaCheck,
   FaUsers, FaMoneyBillWave, FaLink,
@@ -19,7 +18,8 @@ import {
 } from "../../design-system/components/table";
 import { Spinner } from "../../design-system/components/spinner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../design-system/components/tabs";
-import type { Commission, CommissionStats, WithdrawResponse, WithdrawalHistoryResponse } from "../../types/commission";
+import type { Commission, CommissionStats, WithdrawResponse } from "../../types/commission";
+import type { Withdrawal } from "../../types/commission";
 import type { ReferralDashboard, ReferralTreeNode } from "../../types/referral";
 
 const formatDate = (dateString: string | null | undefined) => {
@@ -63,18 +63,18 @@ const ReferralTreeBranch = ({ node, level = 0 }: { node: ReferralTreeNode; level
           <span className="w-3" />
         )}
         <div className="w-6 h-6 rounded-full bg-[var(--color-primary-100)] flex items-center justify-center text-xs font-bold text-[var(--color-primary-700)] flex-shrink-0">
-          {node.fullName?.charAt(0) || "?"}
+          {node.user.fullName?.charAt(0) || "?"}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--color-text)] truncate">{node.fullName}</p>
-          <p className="text-xs text-[var(--color-muted-text)]">{node.phone} &middot; {formatDate(node.createdAt)}</p>
+          <p className="text-sm font-medium text-[var(--color-text)] truncate">{node.user.fullName}</p>
+          <p className="text-xs text-[var(--color-muted-text)]">{node.user.phone} &middot; {formatDate(node.user.createdAt)}</p>
         </div>
-        <Badge size="xs" variant="subtle" colorScheme="info">Level {node.level}</Badge>
+        <Badge size="xs" variant="subtle" colorScheme="info">Level {level}</Badge>
       </div>
       {expanded && hasChildren && (
         <div>
           {node.children.map((child) => (
-            <ReferralTreeBranch key={child.userId} node={child} level={level + 1} />
+            <ReferralTreeBranch key={child.user._id} node={child} level={level + 1} />
           ))}
         </div>
       )}
@@ -83,13 +83,12 @@ const ReferralTreeBranch = ({ node, level = 0 }: { node: ReferralTreeNode; level
 };
 
 export const CommissionPage = () => {
-  const { authState } = useAuth();
   const { addToast } = useToast();
 
   const [balance, setBalance] = useState<number>(0);
   const [stats, setStats] = useState<CommissionStats | null>(null);
   const [commissions, setCommissions] = useState<Commission[]>([]);
-  const [withdrawals, setWithdrawals] = useState<WithdrawalHistoryResponse["data"]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawing, setWithdrawing] = useState(false);
@@ -98,7 +97,7 @@ export const CommissionPage = () => {
   const [activeTab, setActiveTab] = useState("commission");
 
   const [dashboard, setDashboard] = useState<ReferralDashboard | null>(null);
-  const [tree, setTree] = useState<ReferralTreeNode | null>(null);
+  const [tree, setTree] = useState<ReferralTreeNode[]>([]);
   const [treeLoading, setTreeLoading] = useState(false);
   const treeFetchedRef = useRef(false);
   const [copied, setCopied] = useState(false);
@@ -150,7 +149,7 @@ export const CommissionPage = () => {
     if (activeTab === "tree" && !treeFetchedRef.current) {
       treeFetchedRef.current = true;
       setTreeLoading(true);
-      referralService.getReferralTree(3, { fullName: authState.user?.fullName, phone: authState.user?.phone }).then(setTree).catch(() => {}).finally(() => setTreeLoading(false));
+      referralService.getReferralTree().then(setTree).catch(() => {}).finally(() => setTreeLoading(false));
     }
   }, [activeTab]);
 
@@ -164,7 +163,7 @@ export const CommissionPage = () => {
     try {
       const result = await commissionService.withdraw(amount);
       setWithdrawResult(result);
-      setBalance(result.newBalance);
+      setBalance(result.commissionBalance);
       setWithdrawAmount("");
       addToast(`GHS ${amount.toFixed(2)} withdrawn successfully`, "success");
       fetchAll();
@@ -331,8 +330,8 @@ export const CommissionPage = () => {
                       GHS {(stats.totalCommissions || 0).toFixed(2)}
                     </p>
                     <div className="flex gap-2 mt-1">
-                      <Badge colorScheme="success" size="xs" variant="subtle">{stats.paidCommissions || 0} paid</Badge>
-                      <Badge colorScheme="warning" size="xs" variant="subtle">{stats.pendingCommissions || 0} pending</Badge>
+                      <Badge colorScheme="success" size="xs" variant="subtle">{stats.creditedCount || 0} credited</Badge>
+                      <Badge colorScheme="warning" size="xs" variant="subtle">{stats.pendingCount || 0} pending</Badge>
                     </div>
                   </CardBody>
                 </Card>
@@ -340,9 +339,9 @@ export const CommissionPage = () => {
                   <CardBody>
                     <p className="text-xs sm:text-sm text-[var(--color-muted-text)]">Daily Average</p>
                     <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] mt-1">
-                      GHS {(stats.dailyAverage || 0).toFixed(2)}
+                      GHS {(stats.totalEarned || 0).toFixed(2)}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-[var(--color-muted-text)] mt-1">Per day average</p>
+                    <p className="text-[10px] sm:text-xs text-[var(--color-muted-text)] mt-1">Total credited</p>
                   </CardBody>
                 </Card>
               </>
@@ -398,7 +397,7 @@ export const CommissionPage = () => {
               )}
               {withdrawResult && (
                 <Alert status="success" variant="subtle" className="mt-3">
-                  Withdrawal of GHS {withdrawAmount} successful! New commission balance: GHS {(withdrawResult.newBalance ?? balance).toFixed(2)}
+                  Withdrawal of GHS {withdrawAmount} successful! New commission balance: GHS {(withdrawResult.commissionBalance ?? balance).toFixed(2)}
                 </Alert>
               )}
             </CardBody>
@@ -498,7 +497,7 @@ export const CommissionPage = () => {
                 <div className="flex items-center justify-center py-10">
                   <Spinner size="lg" />
                 </div>
-              ) : !tree ? (
+              ) : tree.length === 0 ? (
                 <div className="text-center py-10 text-[var(--color-muted-text)]">
                   <FaShareAlt className="w-10 h-10 mx-auto mb-3 opacity-30" />
                   <p className="text-sm font-medium">Your referral network is empty</p>
@@ -506,7 +505,7 @@ export const CommissionPage = () => {
                 </div>
               ) : (
                 <div className="bg-[var(--color-primary-50)] rounded-lg p-3">
-                  <ReferralTreeBranch node={tree} />
+                  <ReferralTreeBranch node={tree[0]} />
                 </div>
               )}
             </CardBody>

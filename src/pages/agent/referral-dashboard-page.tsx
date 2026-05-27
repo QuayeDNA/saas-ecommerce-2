@@ -5,7 +5,7 @@ import type { ReferralDashboard, LeaderboardEntry, ReferralTreeNode } from "../.
 export const ReferralDashboardPage = () => {
   const [dashboard, setDashboard] = useState<ReferralDashboard | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [tree, setTree] = useState<ReferralTreeNode | null>(null);
+  const [tree, setTree] = useState<ReferralTreeNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<"weekly" | "monthly" | "all">("monthly");
   const [treeDepth] = useState(3);
