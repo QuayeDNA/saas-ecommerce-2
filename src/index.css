@@ -2,11 +2,11 @@
 @import "react-data-grid/lib/styles.css";
 @import "./design-system/theme.css";
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap');
 
 :root {
   --font-family-sans: 'Montserrat', 'Open Sans', 'Segoe UI', 'Helvetica Neue', Arial, system-ui, sans-serif;
-  /* Brand colors generated from public/logo.png */
+  /* Brand colors from logo */
   --caskmaf-gold: #C0A670;
   --caskmaf-gold-highlight: #F2E3B7;
   --caskmaf-gold-dark: #A28752;
@@ -29,9 +29,9 @@ body {
   transition: background-color 180ms ease, color 180ms ease;
 }
 
-/* Make focus outlines consistent across browsers */
+/* Make focus outlines consistent and on-brand */
 *:focus-visible {
-  outline: 2px solid #3b82f6; /* Blue-500 */
+  outline: 2px solid var(--caskmaf-gold);
   outline-offset: 2px;
 }
 
@@ -83,58 +83,57 @@ a, button, input, select, textarea {
 
 .animate-marquee {
   animation: marquee 10s linear infinite;
-  /* Ensure the text is wide enough to scroll */
   min-width: max-content;
 }
 
 /* Excel View Custom Styles */
 .rdg-light {
-  --rdg-color: #374151;
-  --rdg-summary-border-color: #d1d5db;
-  --rdg-border-color: #e5e7eb;
-  --rdg-summary-background-color: #f9fafb;
+  --rdg-color: var(--caskmaf-navy);
+  --rdg-summary-border-color: #d4d8dc;
+  --rdg-border-color: #eaecee;
+  --rdg-summary-background-color: #f5f6f7;
   --rdg-background-color: #ffffff;
-  --rdg-header-background-color: #f3f4f6;
-  --rdg-row-hover-background-color: #f9fafb;
-  --rdg-row-selected-background-color: #dbeafe;
-  --rdg-row-selected-hover-background-color: #bfdbfe;
-  --rdg-checkbox-color: #3b82f6;
-  --rdg-checkbox-focus-color: #1d4ed8;
-  --rdg-checkbox-disabled-color: #9ca3af;
-  --rdg-selection-color: #3b82f6;
+  --rdg-header-background-color: var(--caskmaf-navy);
+  --rdg-row-hover-background-color: #faf4e4;
+  --rdg-row-selected-background-color: #f2e3b7;
+  --rdg-row-selected-hover-background-color: #e8dcba;
+  --rdg-checkbox-color: var(--caskmaf-gold);
+  --rdg-checkbox-focus-color: var(--caskmaf-gold-dark);
+  --rdg-checkbox-disabled-color: #b0b8bf;
+  --rdg-selection-color: var(--caskmaf-gold);
   --rdg-font-size: 14px;
 }
 
 /* Excel-like header styling */
 .rdg-light .rdg-header-row {
-  background-color: #f3f4f6 !important;
+  background-color: var(--caskmaf-navy) !important;
   font-weight: 600 !important;
-  color: #374151 !important;
-  border-bottom: 2px solid #d1d5db !important;
+  color: var(--caskmaf-gold-highlight) !important;
+  border-bottom: 2px solid var(--caskmaf-gold-dark) !important;
 }
 
 /* Excel-like cell styling */
 .rdg-light .rdg-cell {
-  border-right: 1px solid #e5e7eb !important;
-  border-bottom: 1px solid #e5e7eb !important;
+  border-right: 1px solid #eaecee !important;
+  border-bottom: 1px solid #eaecee !important;
   padding: 8px 12px !important;
 }
 
 /* Excel-like row hover */
 .rdg-light .rdg-row:hover {
-  background-color: #f9fafb !important;
+  background-color: #faf4e4 !important;
 }
 
 /* Excel-like focus styling */
 .rdg-light .rdg-cell:focus {
-  outline: 2px solid #3b82f6 !important;
+  outline: 2px solid var(--caskmaf-gold) !important;
   outline-offset: -2px !important;
 }
 
 /* Custom Scrollbar Styles for Notifications */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgba(209, 213, 219, 0.8) transparent;
+  scrollbar-color: var(--caskmaf-gold-dark) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -147,23 +146,23 @@ a, button, input, select, textarea {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(209, 213, 219, 0.8);
+  background: var(--caskmaf-gold-dark);
   border-radius: 3px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.9);
+  background: var(--caskmaf-gold);
 }
 
 /* Utility: hide scrollbar while keeping scroll behavior (mobile-friendly) */
 .hide-scrollbar {
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Webkit */
+  display: none;
 }
 
 /* Line clamp utility for text truncation */
