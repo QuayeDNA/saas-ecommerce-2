@@ -101,11 +101,7 @@ const PackageManagementPage = lazy(() =>
     default: module.default,
   }))
 );
-const OrderManagementPage = lazy(() =>
-  import("../pages/orders-page").then((module) => ({
-    default: module.OrderManagementPage,
-  }))
-);
+const OrderManagementPage = lazy(() => import("../pages/orders"));
 const AfaRegistrationPage = lazy(() =>
   import("../pages/afa-registration-page").then((module) => ({
     default: module.AfaRegistrationPage,

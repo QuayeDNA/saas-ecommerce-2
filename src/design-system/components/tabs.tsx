@@ -51,7 +51,7 @@ interface TabsListProps {
 export function TabsList({ children, className = "" }: TabsListProps) {
   return (
     <div
-      className={`flex w-full overflow-x-auto no-scrollbar scroll-smooth gap-2 items-center bg-[var(--color-surface)]/90 border border-[var(--color-border)] p-1.5 rounded-[16px] shadow-sm ${className}`}
+      className={`flex w-full overflow-x-auto flex-nowrap no-scrollbar scroll-smooth gap-2 items-center bg-[var(--color-surface)]/90 border border-[var(--color-border)] p-1.5 rounded-[16px] shadow-sm ${className}`}
       role="tablist"
     >
       {children}
