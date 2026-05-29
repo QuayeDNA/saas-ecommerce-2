@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CaskmafDatahubLogoCompact } from "../components/common/CaskmafDatahubLogo";
 import { Card, CardHeader, CardBody } from "../design-system";
+import { GlobalFab } from "../components/common/GlobalFab";
 
 interface AuthLayoutProps {
   title: string;
@@ -90,6 +91,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             {children}
           </CardBody>
         </Card>
+        <GlobalFab />
       </div>
     </div>
   );

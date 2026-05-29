@@ -21,8 +21,6 @@ import {
   FaEye,
   FaEyeSlash,
   FaSpinner,
-  FaWhatsapp,
-  FaUsers,
 } from "react-icons/fa";
 import {
   Button,
@@ -31,7 +29,6 @@ import {
 } from "../design-system";
 import { useAuth } from "../hooks";
 import { AuthLayout } from "../layouts/auth-layout";
-import { CONTACTS } from "../config/contacts";
 
 export const LoginPage = () => {
   const { authState, login, clearErrors } = useAuth();
@@ -225,34 +222,6 @@ export const LoginPage = () => {
           </Button>
         </div>
 
-        {/* Additional Help */}
-        <div className="text-center pt-5 mt-2 border-t border-[var(--color-border)]">
-          <p className="text-xs text-[var(--color-muted-text)] mb-3 font-medium">
-            Need help? Contact support or join our WhatsApp community.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <a
-              href={CONTACTS.support.waLinkWithMsg("Hello support, I need help with my account")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
-            >
-              <FaWhatsapp className="w-5 h-5 text-[var(--color-whatsapp-text)]" />
-              <span className="text-left">
-                Contact support
-              </span>
-            </a>
-            <a
-              href={CONTACTS.community.waGroupLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
-            >
-              <FaUsers className="w-5 h-5 text-[var(--color-whatsapp-dark)]" />
-              Join WhatsApp community
-            </a>
-          </div>
-        </div>
       </motion.form>
     </AuthLayout>
   );

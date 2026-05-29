@@ -22,8 +22,8 @@ import { NavigationLoader } from "../components/navigation-loader";
 import { TutorialProvider } from "../contexts/TutorialContext";
 import { TutorialPlayer } from "../components/tutorials/tutorial-player";
 import { TutorialLauncher } from "../components/tutorials/tutorial-launcher";
-import { TutorialAutoTrigger } from "../components/tutorials/tutorial-auto-trigger";
 import { AnnouncementPopupHandler } from "../components/announcements/announcement-popup-handler";
+import { GlobalFab } from "../components/common/GlobalFab";
 import { useAuth } from "../hooks";
 
 // User types that get a bottom nav (everything except roles that are desktop-only)
@@ -143,8 +143,10 @@ export const DashboardLayout = () => {
 
         {/* ── Tutorial system ───────────────────────────────────────────────── */}
         <TutorialPlayer />
-        <TutorialAutoTrigger />
         <TutorialLauncher />
+
+        {/* ── Global support FAB ────────────────────────────────────────────── */}
+        <GlobalFab />
 
         {/* ── Announcements ─────────────────────────────────────────────────── */}
         <AnnouncementPopupHandler />
