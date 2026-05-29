@@ -9,6 +9,7 @@ import {
   FaBolt,
   FaMobileAlt,
 } from "react-icons/fa";
+import { CONTACTS } from "../../config/contacts";
 import {
   Button,
   Input,
@@ -541,7 +542,7 @@ export const TopUpRequestModal: React.FC<Props> = ({
   const openWhatsApp = () => {
     const msg = `Hi, I need a wallet top-up of GH₵${parsedAmount}. Please process my request.`;
     window.open(
-      `https://wa.me/+233542405901?text=${encodeURIComponent(msg)}`,
+      CONTACTS.support.waLinkWithMsg(msg),
       "_blank",
     );
   };

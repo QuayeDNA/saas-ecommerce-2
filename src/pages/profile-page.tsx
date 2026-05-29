@@ -34,6 +34,7 @@ import type { User } from "../types";
 import { isBusinessUser } from "../utils/userTypeHelpers";
 import { ColorSchemeSelector } from "../components/common/color-scheme-selector";
 import pushNotificationService from "../services/pushNotificationService";
+import { CONTACTS } from "../config/contacts";
 
 export const ProfilePage: React.FC = () => {
   const { authState, logout } = useAuth();
@@ -743,7 +744,7 @@ export const ProfilePage: React.FC = () => {
             <CardBody className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <a
-                  href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
+                  href={CONTACTS.support.waLinkWithMsg("Hello support, I need help with my account")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
@@ -754,7 +755,7 @@ export const ProfilePage: React.FC = () => {
                   </span>
                 </a>
                 <a
-                  href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
+                  href={CONTACTS.community.waGroupLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"
@@ -918,7 +919,7 @@ export const ProfilePage: React.FC = () => {
               <CardBody className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <a
-                    href="https://wa.me/233542405901?text=Hello%20support%2C%20I%20need%20help%20with%20my%20account"
+                    href={CONTACTS.support.waLinkWithMsg("Hello support, I need help with my account")}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-whatsapp)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-text)] shadow-sm transition hover:bg-[var(--color-whatsapp-dark)]"
@@ -929,7 +930,7 @@ export const ProfilePage: React.FC = () => {
                     </span>
                   </a>
                   <a
-                    href="https://chat.whatsapp.com/CO5w8bisGsJ3yTA7EkXBBX"
+                    href={CONTACTS.community.waGroupLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-whatsapp-dark)] bg-[var(--color-whatsapp-muted)] px-4 py-3 text-sm font-semibold text-[var(--color-whatsapp-dark)] transition hover:bg-[var(--color-whatsapp)] hover:text-[var(--color-whatsapp-text)]"

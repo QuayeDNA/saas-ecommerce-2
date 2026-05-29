@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks';
 import { Button, Badge, Card, CardBody } from '../design-system';
+import { CONTACTS } from '../config/contacts';
 
 export const ForbiddenPage = () => {
   const { authState, logout } = useAuth();
@@ -50,7 +51,7 @@ export const ForbiddenPage = () => {
               <div className="mt-8 pt-6 border-t border-gray-100 text-center">
                 <div className="flex flex-wrap justify-center gap-2">
                   <a
-                    href="https://wa.me/+233548983019"
+                    href={CONTACTS.support.waLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center px-4 py-2 text-sm font-semibold bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors"
