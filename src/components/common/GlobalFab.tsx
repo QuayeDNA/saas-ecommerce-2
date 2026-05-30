@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, MessageCircle } from "lucide-react";
+import { X } from "lucide-react";
 import { FaUsers, FaWhatsapp } from "react-icons/fa";
 import { CONTACTS } from "../../config/contacts";
 
@@ -14,7 +14,7 @@ export function GlobalFab() {
           onClick={() => setFabOpen(false)}
         />
       )}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      <div className="fixed bottom-20 right-6 z-50 flex flex-col items-end gap-3">
         <div
           style={{
             animation: fabOpen

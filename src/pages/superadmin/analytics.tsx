@@ -353,7 +353,7 @@ export default function SuperAdminAnalyticsPage() {
             loading={loading}
             activityFeed={activityFeed}
             topAgents={topAgents}
-            topStorefronts={[]}
+            topStorefronts={analytics?.topPerformers?.storefronts || []}
             performanceTimeframe={timeframe}
             performanceTimeOptions={TIME_OPTIONS}
             onPerformanceTimeframeChange={setTimeframe}
