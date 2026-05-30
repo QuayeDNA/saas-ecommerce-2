@@ -276,14 +276,14 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     const baseClasses =
       "group flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors duration-150";
     const activeClasses =
-      "bg-slate-800 text-white shadow-sm shadow-slate-950/20";
+      "bg-[var(--color-gray-700)] text-[var(--color-gray-100)] shadow-sm shadow-[var(--color-gray-900)]/20";
     const inactiveClasses =
-      "text-slate-300 hover:bg-slate-800/80 hover:text-white";
+      "text-[var(--color-gray-300)] hover:bg-[var(--color-gray-700)]/80 hover:text-[var(--color-gray-100)]";
     const iconClasses =
       "flex h-10 w-10 items-center justify-center rounded-2xl text-lg transition-colors duration-150";
     const iconActive = "bg-primary-600 text-white";
     const iconInactive =
-      "bg-slate-800/80 text-slate-400 group-hover:bg-primary-600 group-hover:text-white";
+      "bg-[var(--color-gray-700)]/80 text-[var(--color-gray-400)] group-hover:bg-primary-600 group-hover:text-white";
 
     return (
       <li key={item.path} className="list-none">
@@ -301,14 +301,14 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               </span>
               <div className="min-w-0 flex-1 text-left">
                 <p
-                  className={`text-sm font-semibold ${isActive || hasActiveChildItem ? "text-white" : "text-slate-200"}`}
+                  className={`text-sm font-semibold ${isActive || hasActiveChildItem ? "text-white" : "text-[var(--color-gray-200)]"}`}
                 >
                   {item.label}
                 </p>
               </div>
               <ChevronRight
                 size={16}
-                className={`text-slate-400 transition-transform duration-200 ${isExpanded ? "rotate-90 text-white" : ""}`}
+                className={`text-[var(--color-gray-400)] transition-transform duration-200 ${isExpanded ? "rotate-90 text-white" : ""}`}
               />
             </button>
             {isExpanded && (
@@ -330,10 +330,10 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             </span>
             <div className="min-w-0 flex-1">
               <p
-                className={`text-sm font-semibold ${isActive ? "text-white" : "text-slate-200"}`}
-              >
-                {item.label}
-              </p>
+                  className={`text-sm font-semibold ${isActive ? "text-white" : "text-[var(--color-gray-200)]"}`}
+                >
+                  {item.label}
+                </p>
             </div>
             {item.path.includes("/orders") &&
               newOrderCount > 0 &&
@@ -355,18 +355,18 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 z-[70] w-72 transform transition-transform duration-300 ease-in-out bg-slate-950 text-slate-100 shadow-xl border-r border-slate-800 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:h-screen flex flex-col min-h-0 overflow-hidden`}
+      className={`fixed left-0 top-0 bottom-0 z-[70] w-72 transform transition-transform duration-300 ease-in-out bg-[var(--color-gray-900)] text-[var(--color-gray-100)] shadow-xl border-r border-[var(--color-gray-700)] ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:h-screen flex flex-col min-h-0 overflow-hidden`}
     >
-      <div className="flex items-center justify-between gap-4 p-2 bg-slate-900/95 border-b border-slate-700">
+      <div className="flex items-center justify-between gap-4 p-2 bg-[var(--color-gray-800)] border-b border-[var(--color-gray-600)]">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-950 shadow-sm shadow-slate-950/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--color-gray-900)] shadow-sm shadow-[var(--color-gray-900)]/20">
             <CaskmafDatahubLogo width={26} height={26} />
           </div>
           <div className="min-w-0">
             <p className="truncate text-base font-semibold text-white">
               Caskmaf Datahub
             </p>
-            <p className="truncate text-xs uppercase tracking-[0.24em] text-slate-500">
+            <p className="truncate text-xs uppercase tracking-[0.24em] text-[var(--color-gray-500)]">
               User Portal
             </p>
           </div>
@@ -377,14 +377,14 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           iconOnly
           aria-label="Close sidebar"
           onClick={onClose}
-          className="text-slate-300 hover:text-white"
+          className="text-[var(--color-gray-300)] hover:text-white"
         >
           <X size={18} />
         </Button>
       </div>
 
       <div className="px-5 pt-5 pb-3">
-        <span className="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-gray-500)]">
           Navigation
         </span>
       </div>
@@ -396,16 +396,16 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       </nav>
 
       {/* ── User profile + logout ── */}
-      <div className="flex-shrink-0 border-t border-slate-800 bg-slate-950/95 p-2 gap-2 flex flex-col">
-        <div className="flex items-center gap-3 rounded-3xl bg-slate-900/95 p-2 shadow-inner shadow-slate-950/10">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-800 text-white">
+      <div className="flex-shrink-0 border-t border-[var(--color-gray-700)] bg-[var(--color-gray-900)] p-2 gap-2 flex flex-col">
+        <div className="flex items-center gap-3 rounded-3xl bg-[var(--color-gray-800)] p-2 shadow-inner shadow-[var(--color-gray-900)]/10">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--color-gray-700)] text-text">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-sm font-semibold text-text">
               {authState.user?.fullName ?? "Admin user"}
             </p>
-            <p className="inline-flex items-center truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[8px] font-light uppercase tracking-[0.18em] text-white shadow-sm shadow-black/10">
+            <p className="inline-flex items-center truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[8px] font-light uppercase tracking-[0.18em] text-text shadow-sm shadow-black/10">
               {authState.user?.userType?.replace("_", " ") ?? "User"}
             </p>
           </div>
@@ -424,7 +424,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           Sign Out
         </Button>
 
-        <div className="text-center text-[11px] text-slate-500">
+        <div className="text-center text-[11px] text-[var(--color-gray-500)]">
           {authState.user?.businessName ?? "Caskmaf Datahub"} · v1.0.0
         </div>
       </div>
