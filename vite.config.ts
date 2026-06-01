@@ -86,6 +86,8 @@ export default defineConfig({
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],
           http: ["axios", "js-cookie"],
           query: ["@tanstack/react-query"],
+          charts: ["recharts"],
+          animation: ["framer-motion"],
         },
         entryFileNames: "assets/[name]-[hash].js",
         chunkFileNames: "assets/[name]-[hash].js",
