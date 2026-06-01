@@ -3,7 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "env": {
-    "VITE_API_URL": "https://caskmafdatahub-backend.onrender.com"
+    "VITE_API_URL": "https://caskmafhub-backend-uy0j.onrender.com"
   },
   "redirects": [
     {
