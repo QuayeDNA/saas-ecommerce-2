@@ -21,7 +21,7 @@
   "rewrites": [
     {
       "source": "/store/:path*",
-      "destination": "/index.html"
+      "destination": "/api/og?path=store/$1"
     },
     {
       "source": "/",
