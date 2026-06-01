@@ -24,7 +24,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   showLogo = true,
 }) => {
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-slate-950 flex flex-col sm:flex sm:items-center sm:justify-center">
+    <div className="relative min-h-[100dvh] overflow-y-auto overflow-x-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-slate-950 flex flex-col sm:flex sm:items-center sm:justify-center">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(0,87,255,0.16),transparent_28%)]" />
       <div className="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary-500/20 blur-[90px]" />
       <div className="absolute bottom-0 right-0 h-[24rem] w-[24rem] rounded-full bg-white/5 blur-[110px]" />
