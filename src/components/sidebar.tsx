@@ -55,7 +55,11 @@ const getInitials = (fullName: string): string => {
 /* ─── Skeleton ───────────────────────────────────────────────────────────── */
 
 const NavSkeleton = () => (
-  <div className="space-y-2 px-2" aria-hidden="true" aria-label="Loading navigation">
+  <div
+    className="space-y-2 px-2"
+    aria-hidden="true"
+    aria-label="Loading navigation"
+  >
     {[0, 1, 2, 3].map((i) => (
       <div
         key={i}
@@ -77,7 +81,7 @@ const loadingItem: NavItemConfig = {
 /* ─── Section header ─────────────────────────────────────────────────────── */
 
 const SectionHeader = ({ label }: { label: string }) => (
-  <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-[0.26em] text-[var(--sb-text-muted)]">
+  <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-[0.26em] text-[#94a3b8]">
     {label}
   </p>
 );
@@ -122,11 +126,16 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         if (!cancelled) setPackagesLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [authState.user?.userType]);
 
   const resolvedPackageItems = useMemo(
-    () => (packagesLoading && packageNavItems.length === 0 ? [loadingItem] : packageNavItems),
+    () =>
+      packagesLoading && packageNavItems.length === 0
+        ? [loadingItem]
+        : packageNavItems,
     [packagesLoading, packageNavItems],
   );
 
@@ -159,10 +168,12 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   }, [logout, onClose]);
 
   /* Derived values */
-  const appName  = authState.user?.businessName || "Caskmaf Datahub";
+  const appName = authState.user?.businessName || "Caskmaf Datahub";
   const initials = getInitials(authState.user?.fullName ?? "");
   const userRole = authState.user?.userType ?? "User";
-  const agentCode = isAgent(authState.user?.userType) ? (authState.user?.agentCode ?? null) : null;
+  const agentCode = isAgent(authState.user?.userType)
+    ? (authState.user?.agentCode ?? null)
+    : null;
   const isOnline = authState.isAuthenticated;
 
   const isOrdersPage =
@@ -222,7 +233,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         <div
           aria-hidden="true"
           onClick={onClose}
-          className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-10 bg-black/50 backdrop-blur-sm md:hidden"
         />
       )}
 
@@ -231,23 +242,23 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         data-sidebar
         aria-label="Main navigation"
         className={[
-          "fixed inset-y-0 left-0 z-30 flex w-72 flex-col bg-[var(--color-gray-900)]",
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[#252f36]",
           "transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] will-change-transform",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "md:static md:h-screen md:translate-x-0 md:flex-shrink-0",
         ].join(" ")}
       >
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="flex flex-shrink-0 items-center justify-between gap-4 border-b border-[var(--sb-divider)] bg-[var(--color-gray-800)] p-2">
+        <div className="flex flex-shrink-0 items-center justify-between gap-4 border-b border-[#94a3b8] bg-[#161d23] p-2">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-[var(--color-gray-900)] shadow-sm">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#161d23] shadow-sm">
               <CaskmafDatahubLogo width={26} height={26} />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-[var(--sb-text-primary)]">
+              <p className="truncate text-base font-semibold text-[#f8fafc]">
                 Caskmaf Datahub
               </p>
-              <p className="truncate text-xs uppercase tracking-[0.24em] text-[var(--sb-text-muted)]">
+              <p className="truncate text-xs uppercase tracking-[0.24em] text-[#94a3b8]">
                 User Portal
               </p>
             </div>
@@ -259,8 +270,8 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             aria-label="Close sidebar"
             className={[
               "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-2xl md:hidden",
-              "text-[var(--sb-text-secondary)] transition-colors duration-150",
-              "hover:bg-[var(--sb-hover-bg)] hover:text-[var(--sb-text-primary)]",
+              "text-[#cbd5e1] transition-colors duration-150",
+              "hover:bg-[var(--sb-hover-bg)] hover:text-[#f8fafc]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sb-accent)]",
             ].join(" ")}
           >
@@ -304,11 +315,11 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         </nav>
 
         {/* ── Footer ──────────────────────────────────────────────────────── */}
-        <footer className="flex flex-shrink-0 flex-col gap-2.5 border-t border-[var(--sb-divider)] bg-[var(--color-gray-900)] p-2">
+        <footer className="flex flex-shrink-0 flex-col gap-2.5 border-t border-[#94a3b8] bg-[#252f36] p-2">
           {/* User card */}
-          <div className="flex items-center gap-3 rounded-3xl bg-[var(--color-gray-800)] p-2 shadow-inner">
+          <div className="flex items-center gap-3 rounded-3xl bg-[#161d23]/50 p-2 shadow-inner">
             <div className="relative flex-shrink-0" aria-hidden="true">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--color-gray-700)] text-sm font-bold text-[var(--sb-text-primary)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#161d23] text-sm font-bold text-[#cbd5e1]">
                 {initials}
               </div>
               <span
@@ -316,17 +327,17 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   "absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full border-2 transition-colors duration-300",
                   isOnline ? "bg-emerald-500" : "bg-[var(--sb-text-muted)]",
                 ].join(" ")}
-                style={{ borderColor: "var(--color-gray-800)" }}
+                style={{ borderColor: "#d4d8dc" }}
                 title={isOnline ? "Online" : "Offline"}
               />
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-[var(--sb-text-primary)]">
+              <p className="truncate text-sm font-semibold text-[#f8fafc]">
                 {authState.user?.fullName ?? "Admin user"}
               </p>
               <div className="mt-0.5 flex items-center gap-1.5">
-                <span className="inline-flex items-center truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[8px] font-light uppercase tracking-[0.18em] text-[var(--sb-text-secondary)]">
+                <span className="inline-flex items-center truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[8px] font-light uppercase tracking-[0.18em] text-[#cbd5e1]">
                   {userRole.replace("_", " ")}
                 </span>
                 {agentCode && (
@@ -362,12 +373,15 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
           {/* App meta */}
           <div className="flex items-center justify-between px-1">
-            <span className="max-w-[70%] truncate text-[11px] text-[var(--sb-text-muted)]">
+            <span className="max-w-[70%] truncate text-[11px] text-[#94a3b8]">
               {appName}
             </span>
             <span
-              className="flex-shrink-0 rounded-full border px-1.5 py-px text-[10px] font-mono font-semibold tracking-wide text-[var(--sb-text-muted)]"
-              style={{ borderColor: "var(--sb-divider)", background: "var(--sb-hover-bg)" }}
+              className="flex-shrink-0 rounded-full border px-1.5 py-px text-[10px] font-mono font-semibold tracking-wide text-[#94a3b8]"
+              style={{
+                borderColor: "var(--sb-divider)",
+                background: "var(--sb-hover-bg)",
+              }}
             >
               v1.0.0
             </span>

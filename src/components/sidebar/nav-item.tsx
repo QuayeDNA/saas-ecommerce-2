@@ -31,11 +31,11 @@ interface NavItemProps {
 const baseRow =
   "group relative flex w-full items-center gap-3 rounded-2xl px-4 py-3 " +
   "transition-colors duration-150 " +
-  "text-[var(--sb-text-secondary)] " +
+  "text-[#cbd5e1] " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sb-accent)] focus-visible:ring-offset-0";
 
 const activeRow =
-  "bg-[var(--sb-active-bg)] text-[var(--sb-text-primary)] shadow-sm shadow-[var(--sb-active-shadow)] " +
+  "bg-[var(--sb-active-bg)] text-[#f8fafc] shadow-sm shadow-[var(--sb-active-shadow)] " +
   "hover:bg-[var(--sb-active-bg)]";
 
 /* Icon container (Caskmaf's 40×40 rounded-2xl wrapper) */
@@ -44,12 +44,12 @@ const iconBox =
 
 const iconActive = "bg-[var(--sb-accent)] text-white";
 const iconInactive =
-  "bg-[var(--sb-icon-bg)] text-[var(--sb-text-muted)] group-hover:bg-[var(--sb-accent)] group-hover:text-white";
+  "bg-[var(--sb-icon-bg)] text-[#94a3b8] group-hover:bg-[var(--sb-accent)] group-hover:text-white";
 
 /* Label text */
 const labelBase = "text-sm font-semibold truncate";
-const labelActive = "text-[var(--sb-text-primary)]";
-const labelInactive = "text-[var(--sb-text-secondary)] group-hover:text-[var(--sb-text-primary)]";
+const labelActive = "text-[#f8fafc]";
+const labelInactive = "text-[#cbd5e1] group-hover:text-[#f8fafc]";
 
 /* ─── Active check icon ──────────────────────────────────────────────────── */
 
@@ -85,17 +85,28 @@ export const NavItem = memo(function NavItem({
           aria-expanded={isExpanded}
           className={[
             baseRow,
-            parentActive ? activeRow : "hover:bg-[var(--sb-hover-bg)] hover:text-[var(--sb-text-primary)]",
+            parentActive
+              ? activeRow
+              : "hover:bg-[var(--sb-hover-bg)] hover:text-[#f8fafc]",
             level > 0 ? "pl-8" : "",
           ]
             .filter(Boolean)
             .join(" ")}
         >
-          <span className={[iconBox, parentActive ? iconActive : iconInactive].join(" ")}>
+          <span
+            className={[iconBox, parentActive ? iconActive : iconInactive].join(
+              " ",
+            )}
+          >
             {item.icon}
           </span>
           <span className="min-w-0 flex-1 text-left">
-            <span className={[labelBase, parentActive ? labelActive : labelInactive].join(" ")}>
+            <span
+              className={[
+                labelBase,
+                parentActive ? labelActive : labelInactive,
+              ].join(" ")}
+            >
               {item.label}
             </span>
           </span>
@@ -106,8 +117,8 @@ export const NavItem = memo(function NavItem({
               "flex-shrink-0 transition-transform duration-200",
               isExpanded ? "rotate-90" : "",
               parentActive
-                ? "text-[var(--sb-text-primary)]"
-                : "text-[var(--sb-text-muted)] group-hover:text-[var(--sb-text-secondary)]",
+                ? "text-[#f8fafc]"
+                : "text-[#94a3b8] group-hover:text-[#cbd5e1]",
             ].join(" ")}
           />
         </button>
@@ -146,24 +157,30 @@ export const NavItem = memo(function NavItem({
         aria-current={isActive ? "page" : undefined}
         className={[
           baseRow,
-          isActive ? activeRow : "hover:bg-[var(--sb-hover-bg)] hover:text-[var(--sb-text-primary)]",
+          isActive
+            ? activeRow
+            : "hover:bg-[var(--sb-hover-bg)] hover:text-[#f8fafc]",
           level > 0 ? "pl-8" : "",
         ]
           .filter(Boolean)
           .join(" ")}
       >
-        <span className={[iconBox, isActive ? iconActive : iconInactive].join(" ")}>
+        <span
+          className={[iconBox, isActive ? iconActive : iconInactive].join(" ")}
+        >
           {item.icon}
         </span>
         <span className="min-w-0 flex-1">
-          <span className={[labelBase, isActive ? labelActive : labelInactive].join(" ")}>
+          <span
+            className={[labelBase, isActive ? labelActive : labelInactive].join(
+              " ",
+            )}
+          >
             {item.label}
           </span>
         </span>
         {showBadge && (
-          <span
-            className="flex-shrink-0 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[var(--color-danger-500)] text-white text-[10px] font-semibold px-1"
-          >
+          <span className="flex-shrink-0 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[var(--color-danger-500)] text-white text-[10px] font-semibold px-1">
             {newOrderCount > 99 ? "99+" : newOrderCount}
           </span>
         )}
