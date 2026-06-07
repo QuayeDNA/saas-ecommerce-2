@@ -4,8 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import { useOrder } from "../../hooks/use-order";
 import { useAuth } from "../../hooks/use-auth";
 import { providerService } from "../../services/provider.service";
-import { analyticsService } from "../../services/analytics.service";
 import { websocketService } from "../../services/websocket.service";
+import { useSuperAdminAnalytics, useAgentAnalytics, useInvalidateAnalytics } from "../../hooks/use-analytics";
 import {
   Button,
   Card,
@@ -105,11 +105,73 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
   // Smart select dialog state
   const [showSmartSelectDialog, setShowSmartSelectDialog] = useState(false);
 
-  // Analytics state
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState(false);
-  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+  // Analytics via React Query (auth-gated to prevent 403)
+  const { data: adminAnalytics, isLoading: adminAnalyticsLoading, isError: adminAnalyticsError } = useSuperAdminAnalytics("30d", !!isAdmin);
+  const { data: agentAnalyticsRaw, isLoading: agentAnalyticsLoading, isError: agentAnalyticsError } = useAgentAnalytics("30d", !!isAgent);
+  const { invalidateAll } = useInvalidateAnalytics();
+
+  const analyticsLoading = isAdmin ? adminAnalyticsLoading : agentAnalyticsLoading;
+  const analyticsError = isAdmin ? (adminAnalyticsError ? "Failed to load analytics" : null) : (agentAnalyticsError ? "Failed to load analytics" : null);
+
+  // Transform analytics data to match OrderAnalytics props shape
+  const analyticsData = useMemo(() => {
+    if (isAdmin && adminAnalytics) {
+      const a = adminAnalytics;
+      return {
+        totalOrders: a.orders?.total || 0,
+        todayOrders: a.orders?.today?.total || 0,
+        thisMonthOrders: a.orders?.thisMonth?.total || 0,
+        totalRevenue: a.revenue?.total || 0,
+        todayRevenue: a.revenue?.today || 0,
+        monthlyRevenue: a.revenue?.thisMonth || 0,
+        todayCompletedOrders: a.orders?.today?.completed || 0,
+        todayProcessingOrders: a.orders?.today?.processing || 0,
+        todayPendingOrders: a.orders?.today?.pending || 0,
+        todayCancelledOrders: a.orders?.today?.cancelled || 0,
+        statusCounts: {
+          processing: a.orders?.processing || 0,
+          pending: a.orders?.pending || 0,
+          confirmed: a.orders?.confirmed || 0,
+          cancelled: a.orders?.cancelled || 0,
+          partiallyCompleted: a.orders?.partiallyCompleted || 0,
+        },
+        receptionCounts: {
+          received: a.orders?.completed || 0,
+          not_received: a.orders?.failed || 0,
+          checking: a.orders?.processing || 0,
+          resolved: a.orders?.completed || 0,
+        },
+      };
+    }
+    if (isAgent && agentAnalyticsRaw) {
+      const a = agentAnalyticsRaw;
+      return {
+        orders: {
+          total: a.orders?.total || 0,
+          completed: a.orders?.completed || 0,
+          processing: a.orders?.processing || 0,
+          pending: a.orders?.pending || 0,
+          confirmed: a.orders?.confirmed || 0,
+          cancelled: a.orders?.cancelled || 0,
+          partiallyCompleted: a.orders?.partiallyCompleted || 0,
+          today: {
+            completed: a.orders?.todayCounts?.completed || 0,
+            processing: a.orders?.todayCounts?.processing || 0,
+            pending: a.orders?.todayCounts?.pending || 0,
+            confirmed: a.orders?.todayCounts?.confirmed || 0,
+            cancelled: a.orders?.todayCounts?.cancelled || 0,
+            partiallyCompleted: a.orders?.todayCounts?.partiallyCompleted || 0,
+          },
+        },
+        revenue: {
+          total: a.revenue?.total || 0,
+          thisMonth: a.revenue?.thisMonth || 0,
+          today: a.revenue?.today || 0,
+        },
+      };
+    }
+    return null;
+  }, [isAdmin, adminAnalytics, isAgent, agentAnalyticsRaw]);
 
   // Provider data
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -145,101 +207,17 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     }
   }, []);
 
-  // Fetch analytics data
-  const fetchAnalytics = useCallback(async () => {
-    if (!isAdmin && !isAgent) return;
-
-    setAnalyticsLoading(true);
-    setAnalyticsError(null);
-
-    try {
-      if (isAdmin) {
-        // For super admin, use the dedicated analytics service
-        const analytics = await analyticsService.getSuperAdminAnalytics("30d");
-
-        const transformedData = {
-          totalOrders: analytics.orders.total || 0,
-          todayOrders: analytics.orders.today?.total || 0,
-          thisMonthOrders: analytics.orders.thisMonth?.total || 0,
-          totalRevenue: analytics.revenue.total || 0,
-          todayRevenue: analytics.revenue.today || 0,
-          monthlyRevenue: analytics.revenue.thisMonth || 0,
-          todayCompletedOrders: analytics.orders.today?.completed || 0,
-          todayProcessingOrders: analytics.orders.today?.processing || 0,
-          todayPendingOrders: analytics.orders.today?.pending || 0,
-          todayCancelledOrders: analytics.orders.today?.cancelled || 0,
-          statusCounts: {
-            processing: analytics.orders.processing || 0,
-            pending: analytics.orders.pending || 0,
-            confirmed: analytics.orders.confirmed || 0,
-            cancelled: analytics.orders.cancelled || 0,
-            partiallyCompleted: analytics.orders.partiallyCompleted || 0,
-          },
-          receptionCounts: {
-            received: analytics.orders.completed || 0,
-            not_received: analytics.orders.failed || 0,
-            checking: analytics.orders.processing || 0,
-            resolved: analytics.orders.completed || 0,
-          },
-        };
-
-        setAnalyticsData(transformedData);
-      } else if (isAgent) {
-        // For agents, use the agent analytics service
-        const analytics = await analyticsService.getAgentAnalytics("30d");
-
-        // Transform to match our component's expected structure
-        const transformedData = {
-          orders: {
-            total: analytics.orders.total || 0,
-            completed: analytics.orders.completed || 0,
-            processing: analytics.orders.processing || 0,
-            pending: analytics.orders.pending || 0,
-            confirmed: analytics.orders.confirmed || 0,
-            cancelled: analytics.orders.cancelled || 0,
-            partiallyCompleted: analytics.orders.partiallyCompleted || 0,
-            today: {
-              completed: analytics.orders.todayCounts?.completed || 0,
-              processing: analytics.orders.todayCounts?.processing || 0,
-              pending: analytics.orders.todayCounts?.pending || 0,
-              confirmed: analytics.orders.todayCounts?.confirmed || 0,
-              cancelled: analytics.orders.todayCounts?.cancelled || 0,
-              partiallyCompleted:
-                analytics.orders.todayCounts?.partiallyCompleted || 0,
-            },
-          },
-          revenue: {
-            total: analytics.revenue.total || 0,
-            thisMonth: analytics.revenue.thisMonth || 0,
-            today: analytics.revenue.today || 0,
-          },
-        };
-
-        setAnalyticsData(transformedData);
-      }
-    } catch (error) {
-      console.error("Failed to fetch analytics:", error);
-      setAnalyticsError("Failed to load analytics data");
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  }, [isAdmin, isAgent]);
-
   useEffect(() => {
     fetchOrders();
     // Fetch providers for filter
     if (isAdmin) {
       fetchProviders();
     }
-    // Fetch analytics for admin and agents
-    if (isAdmin || isAgent) {
-      fetchAnalytics();
-    }
 
     return () => {
       isMountedRef.current = false;
     };
-  }, [fetchOrders, isAdmin, fetchProviders, isAgent, fetchAnalytics]);
+  }, [fetchOrders, isAdmin, fetchProviders]);
 
   // WebSocket real-time updates with intelligent debouncing
   useEffect(() => {
@@ -287,6 +265,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
       }
       toastTimerId = setTimeout(showBatchedToast, 2000);
 
+      invalidateAll();
       fetchOrders(); // Refresh orders list
     };
 
@@ -323,6 +302,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
         toastTimerId = setTimeout(showBatchedToast, 2000);
       }
 
+      invalidateAll();
       fetchOrders(); // Refresh orders list
     };
 
@@ -346,7 +326,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
       }
       websocketService.off("order_status_updated", handleOrderStatusUpdated);
     };
-  }, [authState.user, isAdmin, isAgent, fetchOrders, fetchAnalytics, addToast]);
+  }, [authState.user, isAdmin, isAgent, fetchOrders, invalidateAll, addToast]);
 
   // Auto-search effect for instant filtering
   useEffect(() => {

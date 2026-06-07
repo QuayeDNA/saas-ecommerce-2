@@ -44,12 +44,13 @@ class ReferralService {
     return response.data.data;
   }
 
-  async getAdminUsers(): Promise<{
+  async getAdminUsers(page = 1): Promise<{
     users: ReferralAdminUser[];
     pagination: BackendPagination;
   }> {
     const response = await apiClient.get<ReferralAdminUsersResponse>(
-      "/api/referrals/admin/users"
+      "/api/referrals/admin/users",
+      { params: { page } }
     );
     return {
       users: Array.isArray(response.data.data.users) ? response.data.data.users : [],

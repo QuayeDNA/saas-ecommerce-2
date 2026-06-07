@@ -90,6 +90,14 @@ class CommissionService {
     return Array.isArray(withdrawals) ? withdrawals : [];
   }
 
+  async getWithdrawalHistoryPaginated(page = 1): Promise<WithdrawalHistoryResponse["data"]> {
+    const response = await apiClient.get<WithdrawalHistoryResponse>(
+      "/api/commissions/withdrawals",
+      { params: { page } }
+    );
+    return response.data.data;
+  }
+
   async processDailyBatch(): Promise<{
     success: boolean;
     message: string;

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { commissionService } from "../../services/commission.service";
 import { referralService } from "../../services/referral.service";
+import { useAgentAnalytics, useInvalidateAnalytics } from "../../hooks/use-analytics";
 import {
   FaCopy, FaShareAlt, FaWhatsapp, FaSms, FaCheck,
   FaUsers, FaMoneyBillWave, FaLink,
@@ -86,7 +87,6 @@ export const CommissionPage = () => {
   const { addToast } = useToast();
 
   const [balance, setBalance] = useState<number>(0);
-  const [stats, setStats] = useState<CommissionStats | null>(null);
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +95,16 @@ export const CommissionPage = () => {
   const [withdrawResult, setWithdrawResult] = useState<WithdrawResponse["data"] | null>(null);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("commission");
+
+  const { data: agentAnalytics } = useAgentAnalytics("30d");
+  const { invalidateAll } = useInvalidateAnalytics();
+
+  const analyticsCommissions = useMemo(() => ({
+    totalEarned: agentAnalytics?.commissions?.totalEarned || 0,
+    creditedCount: agentAnalytics?.commissions?.creditedCount || 0,
+    totalWithdrawn: agentAnalytics?.commissions?.totalWithdrawn || 0,
+    walletBalance: agentAnalytics?.wallet?.balance || 0,
+  }), [agentAnalytics]);
 
   const [dashboard, setDashboard] = useState<ReferralDashboard | null>(null);
   const [tree, setTree] = useState<ReferralTreeNode[]>([]);
@@ -112,15 +122,13 @@ export const CommissionPage = () => {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [bal, stat, comms, wds, dash] = await Promise.all([
+      const [bal, comms, wds, dash] = await Promise.all([
         commissionService.getBalance(),
-        commissionService.getStats(),
         commissionService.getCommissions(),
         commissionService.getWithdrawalHistory(),
         referralService.getDashboard(),
       ]);
       setBalance(bal);
-      setStats(stat);
       setCommissions(comms);
       setWithdrawals(wds);
       setDashboard(dash);
@@ -166,6 +174,7 @@ export const CommissionPage = () => {
       setBalance(result.commissionBalance);
       setWithdrawAmount("");
       addToast(`GHS ${amount.toFixed(2)} withdrawn successfully`, "success");
+      invalidateAll();
       fetchAll();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } }; message?: string };
@@ -321,31 +330,26 @@ export const CommissionPage = () => {
                 <p className="text-[10px] sm:text-xs text-[var(--color-muted-text)] mt-1">Ready to withdraw</p>
               </CardBody>
             </Card>
-            {stats && (
-              <>
-                <Card variant="elevated">
-                  <CardBody>
-                    <p className="text-xs sm:text-sm text-[var(--color-muted-text)]">Total Earned</p>
-                    <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] mt-1">
-                      GHS {(stats.totalCommissions || 0).toFixed(2)}
-                    </p>
-                    <div className="flex gap-2 mt-1">
-                      <Badge colorScheme="success" size="xs" variant="subtle">{stats.creditedCount || 0} credited</Badge>
-                      <Badge colorScheme="warning" size="xs" variant="subtle">{stats.pendingCount || 0} pending</Badge>
-                    </div>
-                  </CardBody>
-                </Card>
-                <Card variant="elevated">
-                  <CardBody>
-                    <p className="text-xs sm:text-sm text-[var(--color-muted-text)]">Daily Average</p>
-                    <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] mt-1">
-                      GHS {(stats.totalEarned || 0).toFixed(2)}
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-[var(--color-muted-text)] mt-1">Total credited</p>
-                  </CardBody>
-                </Card>
-              </>
-            )}
+            <Card variant="elevated">
+              <CardBody>
+                <p className="text-xs sm:text-sm text-[var(--color-muted-text)]">Total Earned</p>
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] mt-1">
+                  GHS {analyticsCommissions.totalEarned.toFixed(2)}
+                </p>
+                <div className="flex gap-2 mt-1">
+                  <Badge colorScheme="success" size="xs" variant="subtle">{analyticsCommissions.creditedCount} credited</Badge>
+                </div>
+              </CardBody>
+            </Card>
+            <Card variant="elevated">
+              <CardBody>
+                <p className="text-xs sm:text-sm text-[var(--color-muted-text)]">Total Withdrawn</p>
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] mt-1">
+                  GHS {analyticsCommissions.totalWithdrawn.toFixed(2)}
+                </p>
+                <p className="text-[10px] sm:text-xs text-[var(--color-muted-text)] mt-1">Lifetime withdrawals</p>
+              </CardBody>
+            </Card>
           </div>
 
           <Card variant="outlined">

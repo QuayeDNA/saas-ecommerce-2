@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   FaUsers,
@@ -7,7 +7,6 @@ import {
   FaMoneyBillWave,
   FaStore,
   FaDownload,
-  FaRedo,
 } from "react-icons/fa";
 import {
   AnalyticsActivityStage,
@@ -19,7 +18,7 @@ import {
   AnalyticsTrendStage,
 } from "../../components/analytics";
 import type { TrendMetric } from "../../components/analytics/analytics-trend-stage";
-import { analyticsService, type AnalyticsData } from "../../services/analytics.service";
+import { useSuperAdminAnalytics } from "../../hooks/use-analytics";
 import {
   formatCurrency,
   formatNumber,
@@ -58,32 +57,11 @@ function toneFromTrend(value?: string): "success" | "warning" | "default" {
 }
 
 export default function SuperAdminAnalyticsPage() {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [timeframe, setTimeframe] = useState("30d");
   const [selectedMetric, setSelectedMetric] = useState<TrendMetric>(DEFAULT_METRIC);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const loadAnalytics = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await analyticsService.getSuperAdminAnalytics(timeframe);
-      setAnalyticsData(data);
-    } catch (fetchError) {
-      console.error("Failed to load analytics", fetchError);
-      setError("Unable to load analytics data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [timeframe]);
-
-  useEffect(() => {
-    loadAnalytics();
-  }, [loadAnalytics]);
-
-  const analytics = analyticsData;
+  const { data: analytics, isLoading: loading, isError, error: fetchError, refetch } = useSuperAdminAnalytics(timeframe);
+  const error = isError ? (fetchError instanceof Error ? fetchError.message : "Unable to load analytics data. Please try again.") : null;
   const overview = useMemo(
     () =>
       analytics?.overview ?? {
@@ -248,7 +226,7 @@ export default function SuperAdminAnalyticsPage() {
     void Promise.resolve();
   };
 
-  if (!analytics && loading) {
+  if (loading && !analytics) {
     return <AnalyticsPageSkeleton />;
   }
 
@@ -275,12 +253,11 @@ export default function SuperAdminAnalyticsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={loadAnalytics}
+                onClick={() => refetch()}
                 disabled={loading}
                 className="w-full sm:w-auto"
               >
-                <FaRedo className={loading ? "mr-2 animate-spin" : "mr-2"} />
-                Refresh
+                {loading ? "Loading..." : "Refresh"}
               </Button>
               <Button
                 variant="outline"
@@ -319,7 +296,7 @@ export default function SuperAdminAnalyticsPage() {
             timeframe={timeframe}
             timeOptions={TIME_OPTIONS}
             onTimeframeChange={setTimeframe}
-            onRefresh={loadAnalytics}
+            onRefresh={() => refetch()}
             onExport={handleExport}
             loading={loading}
             generatedAt={analytics?.generatedAt}

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useWallet } from "../hooks";
-import { useOrder } from "../contexts/OrderContext";
 import { useProvider } from "../hooks/use-provider";
+import { useAgentAnalytics } from "../hooks/use-analytics";
 import { useSiteStatus } from "../contexts/site-status-context";
 import { orderService } from "../services/order.service";
 import { packageService } from "../services/package.service";
@@ -25,6 +25,7 @@ import type { Package } from "../types/package";
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -55,7 +56,6 @@ if (typeof document !== "undefined") {
 
 export const DashboardPage = () => {
   const { getTransactionHistory } = useWallet();
-  const { getAgentAnalytics } = useOrder();
   const { providers } = useProvider();
   const { siteStatus } = useSiteStatus();
 
@@ -63,46 +63,65 @@ export const DashboardPage = () => {
   const [recentTransactions, setRecentTransactions] = useState<
     WalletTransaction[]
   >([]);
-  const [analyticsData, setAnalyticsData] = useState({
-    orders: {
-      total: 0,
-      completed: 0,
-      pending: 0,
-      processing: 0,
-      confirmed: 0,
-      failed: 0,
-      cancelled: 0,
-      partiallyCompleted: 0,
-      successRate: 0,
-      todayCounts: {
-        total: 0,
-        completed: 0,
-        pending: 0,
-        processing: 0,
-        confirmed: 0,
-        failed: 0,
-        cancelled: 0,
-        partiallyCompleted: 0,
-      },
-    },
-    revenue: {
-      total: 0,
-      today: 0,
-      orderCount: 0,
-      averageOrderValue: 0,
-    },
-    wallet: {
-      balance: 0,
-    },
-    charts: {
-      labels: [] as string[],
-      orders: [] as number[],
-      revenue: [] as number[],
-      completedOrders: [] as number[],
-    },
-  });
   const [loading, setLoading] = useState(true);
-  const [analyticsTimeframe, setAnalyticsTimeframe] = useState("7d"); // default to Weekly
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState("7d");
+
+  const { data: agentAnalytics, isLoading: analyticsLoading } =
+    useAgentAnalytics(analyticsTimeframe);
+
+  const analyticsData = useMemo(() => {
+    if (!agentAnalytics) {
+      return {
+        orders: {
+          total: 0, completed: 0, pending: 0, processing: 0, confirmed: 0,
+          failed: 0, cancelled: 0, partiallyCompleted: 0, successRate: 0,
+          todayCounts: {
+            total: 0, completed: 0, pending: 0, processing: 0, confirmed: 0,
+            failed: 0, cancelled: 0, partiallyCompleted: 0,
+          },
+        },
+        revenue: { total: 0, today: 0, orderCount: 0, averageOrderValue: 0 },
+        wallet: { balance: 0 },
+        charts: { labels: [] as string[], orders: [] as number[], revenue: [] as number[], completedOrders: [] as number[] },
+      };
+    }
+    return {
+      orders: {
+        total: agentAnalytics.orders?.total || 0,
+        completed: agentAnalytics.orders?.completed || 0,
+        pending: agentAnalytics.orders?.pending || 0,
+        processing: agentAnalytics.orders?.processing || 0,
+        confirmed: agentAnalytics.orders?.confirmed || 0,
+        failed: agentAnalytics.orders?.failed || 0,
+        cancelled: agentAnalytics.orders?.cancelled || 0,
+        partiallyCompleted: agentAnalytics.orders?.partiallyCompleted || 0,
+        successRate: agentAnalytics.orders?.successRate || 0,
+        todayCounts: {
+          total: agentAnalytics.orders?.todayCounts?.total || 0,
+          completed: agentAnalytics.orders?.todayCounts?.completed || 0,
+          pending: agentAnalytics.orders?.todayCounts?.pending || 0,
+          processing: agentAnalytics.orders?.todayCounts?.processing || 0,
+          confirmed: agentAnalytics.orders?.todayCounts?.confirmed || 0,
+          failed: agentAnalytics.orders?.todayCounts?.failed || 0,
+          cancelled: agentAnalytics.orders?.todayCounts?.cancelled || 0,
+          partiallyCompleted: agentAnalytics.orders?.todayCounts?.partiallyCompleted || 0,
+        },
+      },
+      revenue: {
+        total: agentAnalytics.revenue?.total || 0,
+        today: agentAnalytics.revenue?.today || 0,
+        orderCount: agentAnalytics.revenue?.orderCount || 0,
+        averageOrderValue: agentAnalytics.revenue?.averageOrderValue || 0,
+      },
+      wallet: { balance: agentAnalytics.wallet?.balance || 0 },
+      charts: {
+        labels: agentAnalytics.charts?.labels || [],
+        orders: agentAnalytics.charts?.orders || [],
+        revenue: agentAnalytics.charts?.revenue || [],
+        completedOrders: agentAnalytics.charts?.completedOrders || [],
+      },
+    };
+  }, [agentAnalytics]);
   const [failedLogos, setFailedLogos] = useState<Set<string>>(new Set());
   const [showSiteMessage, setShowSiteMessage] = useState(true);
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
@@ -200,191 +219,24 @@ export const DashboardPage = () => {
     return type === "credit" ? "success" : "error";
   };
 
-  // Load dashboard data
+  // Load dashboard data (transactions only - analytics via React Query)
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadTransactions = async () => {
       try {
         setLoading(true);
-
-        // Load recent transactions (last 5)
         const transactionData = await getTransactionHistory(1, 5);
         if (transactionData) {
           setRecentTransactions(transactionData.transactions);
         }
-
-        // Load agent analytics
-        try {
-          const analytics = await getAgentAnalytics(analyticsTimeframe);
-          if (analytics) {
-            // Use the AgentAnalyticsData shape directly from the backend
-            const data = analytics as {
-              orders: {
-                total: number;
-                completed: number;
-                pending: number;
-                processing: number;
-                confirmed: number;
-                failed: number;
-                cancelled: number;
-                partiallyCompleted: number;
-                successRate: number;
-                todayCounts: {
-                  total: number;
-                  completed: number;
-                  pending: number;
-                  processing: number;
-                  confirmed: number;
-                  failed: number;
-                  cancelled: number;
-                  partiallyCompleted: number;
-                };
-              };
-              revenue: {
-                total: number;
-                today: number;
-                thisMonth: number;
-                orderCount: number;
-                averageOrderValue: number;
-              };
-              wallet: {
-                balance: number;
-              };
-              charts: {
-                labels: string[];
-                orders: number[];
-                revenue: number[];
-                completedOrders: number[];
-              };
-            };
-
-            setAnalyticsData({
-              orders: {
-                total: data.orders?.total || 0,
-                completed: data.orders?.completed || 0,
-                pending: data.orders?.pending || 0,
-                processing: data.orders?.processing || 0,
-                confirmed: data.orders?.confirmed || 0,
-                failed: data.orders?.failed || 0,
-                cancelled: data.orders?.cancelled || 0,
-                partiallyCompleted: data.orders?.partiallyCompleted || 0,
-                successRate: data.orders?.successRate || 0,
-                todayCounts: {
-                  total: data.orders?.todayCounts?.total || 0,
-                  completed: data.orders?.todayCounts?.completed || 0,
-                  pending: data.orders?.todayCounts?.pending || 0,
-                  processing: data.orders?.todayCounts?.processing || 0,
-                  confirmed: data.orders?.todayCounts?.confirmed || 0,
-                  failed: data.orders?.todayCounts?.failed || 0,
-                  cancelled: data.orders?.todayCounts?.cancelled || 0,
-                  partiallyCompleted:
-                    data.orders?.todayCounts?.partiallyCompleted || 0,
-                },
-              },
-              revenue: {
-                total: data.revenue?.total || 0,
-                today: data.revenue?.today || 0,
-                orderCount: data.revenue?.orderCount || 0,
-                averageOrderValue: data.revenue?.averageOrderValue || 0,
-              },
-              wallet: {
-                balance: data.wallet?.balance || 0,
-              },
-              charts: {
-                labels: data.charts?.labels || [],
-                orders: data.charts?.orders || [],
-                revenue: data.charts?.revenue || [],
-                completedOrders: data.charts?.completedOrders || [],
-              },
-            });
-          } else {
-            // Set default values if analytics fails
-            setAnalyticsData({
-              orders: {
-                total: 0,
-                completed: 0,
-                pending: 0,
-                processing: 0,
-                confirmed: 0,
-                failed: 0,
-                cancelled: 0,
-                partiallyCompleted: 0,
-                successRate: 0,
-                todayCounts: {
-                  total: 0,
-                  completed: 0,
-                  pending: 0,
-                  processing: 0,
-                  confirmed: 0,
-                  failed: 0,
-                  cancelled: 0,
-                  partiallyCompleted: 0,
-                },
-              },
-              revenue: {
-                total: 0,
-                today: 0,
-                orderCount: 0,
-                averageOrderValue: 0,
-              },
-              wallet: { balance: 0 },
-              charts: {
-                labels: [],
-                orders: [],
-                revenue: [],
-                completedOrders: [],
-              },
-            });
-          }
-        } catch (analyticsError) {
-          console.error("Analytics error:", analyticsError);
-          // Set default values if analytics fails
-          setAnalyticsData({
-            orders: {
-              total: 0,
-              completed: 0,
-              pending: 0,
-              processing: 0,
-              confirmed: 0,
-              failed: 0,
-              cancelled: 0,
-              partiallyCompleted: 0,
-              successRate: 0,
-              todayCounts: {
-                total: 0,
-                completed: 0,
-                pending: 0,
-                processing: 0,
-                confirmed: 0,
-                failed: 0,
-                cancelled: 0,
-                partiallyCompleted: 0,
-              },
-            },
-            revenue: {
-              total: 0,
-              today: 0,
-              orderCount: 0,
-              averageOrderValue: 0,
-            },
-            wallet: { balance: 0 },
-            charts: {
-              labels: [],
-              orders: [],
-              revenue: [],
-              completedOrders: [],
-            },
-          });
-        }
-      } catch (error) {
-        console.error("Dashboard data loading error:", error);
-        // Failed to load dashboard data
+      } catch (err) {
+        console.error("Failed to load transactions:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadDashboardData();
-  }, [getTransactionHistory, getAgentAnalytics, analyticsTimeframe]);
+    loadTransactions();
+  }, [getTransactionHistory]);
 
   // Fetch active (pending/processing/confirmed) orders
   useEffect(() => {
@@ -473,72 +325,37 @@ export const DashboardPage = () => {
     }
   };
 
-  const getSalesChartLabels = () => {
-    switch (analyticsTimeframe) {
-      case "7d":
-        return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      case "30d":
-        return Array.from({ length: 15 }, (_, index) => {
-          const day = index * 2 + 1;
-          if (day === 1) return "1st";
-          if (day === 3) return "3rd";
-          return `${day}th`;
-        });
-      case "365d":
-        return [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-      default:
-        return analyticsData.charts.labels || [];
-    }
-  };
-
-  // Prepare sales chart data for the bar chart with timeframe-aware labels
-  const prepareSalesChartData = () => {
+  // Prepare sales chart data using backend labels directly
+  const salesChartData = useMemo(() => {
+    const labels = analyticsData.charts.labels || [];
     const revenueData = analyticsData.charts.revenue || [];
-    const labels = getSalesChartLabels();
 
-    if (analyticsTimeframe === "30d") {
-      return labels.map((label, index) => {
-        const firstDay = revenueData[index * 2] || 0;
-        const secondDay = revenueData[index * 2 + 1] || 0;
+    if (labels.length === 0) return [];
 
-        return {
-          name: label,
-          revenue: firstDay + secondDay,
-        };
-      });
-    }
+    const formatLabel = (label: string) => {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
+        const d = new Date(label + "T00:00:00");
+        return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+      }
+      if (/^\d{4}-\d{2}$/.test(label)) {
+        const d = new Date(label + "-01T00:00:00");
+        return d.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+      }
+      return label;
+    };
 
-    return labels.map((label, index) => ({
-      name: label,
-      revenue: revenueData[index] || 0,
+    return labels.map((label, i) => ({
+      name: formatLabel(label),
+      revenue: revenueData[i] || 0,
     }));
-  };
-
-  const salesChartData = prepareSalesChartData();
+  }, [analyticsData.charts.labels, analyticsData.charts.revenue]);
 
   // Prepare order analytics chart data - Order completion trends
-  const prepareOrderAnalyticsChartData = () => {
-    return [
-      { name: "Total Orders", value: analyticsData.orders.total },
-      { name: "Completed", value: analyticsData.orders.completed },
-      { name: "Pending", value: analyticsData.orders.pending },
-    ];
-  };
-
-  const orderAnalyticsChartData = prepareOrderAnalyticsChartData();
+  const orderAnalyticsChartData = useMemo(() => [
+    { name: "Total Orders", value: analyticsData.orders.total },
+    { name: "Completed", value: analyticsData.orders.completed },
+    { name: "Pending", value: analyticsData.orders.pending },
+  ], [analyticsData.orders.total, analyticsData.orders.completed, analyticsData.orders.pending]);
 
   return (
     <div className="dashboard-welcome space-y-4 sm:space-y-6">
@@ -843,7 +660,7 @@ export const DashboardPage = () => {
           </div>
         </CardHeader>
         <CardBody>
-          {loading ? (
+          {loading || analyticsLoading ? (
             <div className="h-40 sm:h-48 rounded-lg border border-slate-100 p-3">
               <div className="h-full grid grid-cols-3 gap-3 items-end">
                 <Skeleton height="60%" className="rounded-md" />
@@ -895,10 +712,14 @@ export const DashboardPage = () => {
                   />
                   <Bar
                     dataKey="revenue"
-                    fill="var(--color-primary-500)"
                     radius={[8, 8, 0, 0]}
                     maxBarSize={28}
-                  />
+                  >
+                    {salesChartData.map((_, index) => {
+                      const palette = ["#10b981", "#34d399", "#6ee7b7", "#059669", "#047857", "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e", "#f97316", "#eab308", "#84cc16"];
+                      return <Cell key={index} fill={palette[index % palette.length]} />;
+                    })}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -922,7 +743,7 @@ export const DashboardPage = () => {
           </div>
         </CardHeader>
         <CardBody>
-          {loading ? (
+          {loading || analyticsLoading ? (
             <div className="h-40 sm:h-48 rounded-lg border border-slate-100 p-3">
               <div className="h-full grid grid-cols-3 gap-3 items-end">
                 <Skeleton height="60%" className="rounded-md" />
@@ -965,7 +786,12 @@ export const DashboardPage = () => {
                       backgroundColor: "#ffffff",
                     }}
                   />
-                  <Bar dataKey="value" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                    {orderAnalyticsChartData.map((_, index) => {
+                      const colors = ["#3b82f6", "#10b981", "#f59e0b"];
+                      return <Cell key={index} fill={colors[index]} />;
+                    })}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
