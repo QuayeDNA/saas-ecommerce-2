@@ -1,7 +1,7 @@
-import { FaUsers, FaUserTie, FaMoneyBillWave, FaUserPlus } from "react-icons/fa";
-import type { ReferralAdminStats } from "../../../types/referral";
-import { formatCurrency } from "../../../utils/pricingHelpers";
+import { FaUsers, FaUserTie, FaMoneyBillWave, FaUserPlus, FaBox, FaChartLine, FaLayerGroup, FaPercent } from "react-icons/fa";
+import type { ReferralAdminStats, LeaderboardEntry } from "../../../types/referral";
 import { ReferralBatchProcessor } from "./ReferralBatchProcessor";
+import { ReferralLeaderboard } from "./ReferralLeaderboard";
 import { StatsGrid, Spinner } from "../../../design-system";
 import type { StatCardProps } from "../../../design-system/components/stats-card";
 
@@ -12,10 +12,15 @@ interface ReferralOverviewTabProps {
   processing: boolean;
   batchResult: { success: boolean; message: string; data?: { processed: number; skipped: number; message: string; date: string } } | null;
   onProcessBatch: () => void;
+  leaderboard: LeaderboardEntry[];
+  leaderboardLoading: boolean;
+  leaderboardTimeframe: string;
+  onLeaderboardTimeframeChange: (tf: string) => void;
 }
 
 export const ReferralOverviewTab = ({
   adminStats, commissionRate, loading, processing, batchResult, onProcessBatch,
+  leaderboard, leaderboardLoading, leaderboardTimeframe, onLeaderboardTimeframeChange,
 }: ReferralOverviewTabProps) => {
   if (loading) {
     return (
@@ -28,38 +33,48 @@ export const ReferralOverviewTab = ({
   const primaryStats: StatCardProps[] = adminStats ? [
     { title: "Total Referrers", value: adminStats.totalReferrers, icon: <FaUsers /> },
     { title: "Active Referrers", value: adminStats.activeReferrers, icon: <FaUserTie /> },
-    { title: "Commission Paid", value: formatCurrency(adminStats.totalCommissionsPaid || 0), icon: <FaMoneyBillWave />, subtitle: "All time" },
+    { title: "Commission Paid", value: `GHS ${(adminStats.totalCommissionsPaid || 0).toFixed(2)}`, subtitle: "All time", icon: <FaMoneyBillWave /> },
     { title: "Total Referred", value: adminStats.totalReferred, icon: <FaUserPlus /> },
+  ] : [];
+
+  const secondaryStats: StatCardProps[] = adminStats ? [
+    { title: "Total Batches", value: adminStats.totalBatches, icon: <FaLayerGroup />, size: "sm" as const },
+    { title: "Orders from Referrals", value: adminStats.totalOrdersFromReferrals, icon: <FaBox />, size: "sm" as const },
+    { title: "Referred with Orders", value: adminStats.referredWithOrders, icon: <FaChartLine />, size: "sm" as const },
+    { title: "Conversion Rate", value: `${adminStats.referralConversionRate}%`, icon: <FaPercent />, size: "sm" as const },
   ] : [];
 
   return (
     <div className="space-y-6">
       {adminStats && <StatsGrid stats={primaryStats} columns={4} gap="md" />}
+      {adminStats && <StatsGrid stats={secondaryStats} columns={4} gap="md" />}
 
       {adminStats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <SecondaryStat label="Total Batches" value={adminStats.totalBatches} />
-          <SecondaryStat label="Orders from Referrals" value={adminStats.totalOrdersFromReferrals} />
-          <SecondaryStat label="Referred with Orders" value={adminStats.referredWithOrders} />
-          <SecondaryStat label="Conversion Rate" value={`${adminStats.referralConversionRate}%`} />
+        <div
+          className="border rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          style={{ background: "var(--color-control-bg)", borderColor: "var(--color-border)" }}
+        >
+          <div>
+            <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Current Commission Rate</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-muted-text)" }}>
+              Percentage of order value credited to referring agents
+            </p>
+          </div>
+          <div className="sm:text-right">
+            <p className="text-xl sm:text-2xl font-bold" style={{ color: "var(--color-primary-500)" }}>{commissionRate}%</p>
+            <p className="text-xs" style={{ color: "var(--color-muted-text)" }}>
+              GH₵ {(100 * commissionRate / 100).toFixed(2)} per GH₵ 100 order
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Current Commission Rate */}
-      <div className="bg-[var(--bg-surface-alt)] border border-[var(--border-color)] rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-[var(--text-primary)]">Current Commission Rate</p>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">
-            Percentage of order value credited to referring agents
-          </p>
-        </div>
-        <div className="sm:text-right">
-          <p className="text-xl sm:text-2xl font-bold text-[var(--color-secondary)]">{commissionRate}%</p>
-          <p className="text-xs text-[var(--text-muted)]">
-            GH₵ {(100 * commissionRate / 100).toFixed(2)} per GH₵ 100 order
-          </p>
-        </div>
-      </div>
+      <ReferralLeaderboard
+        data={leaderboard}
+        loading={leaderboardLoading}
+        timeframe={leaderboardTimeframe}
+        onTimeframeChange={onLeaderboardTimeframeChange}
+      />
 
       <ReferralBatchProcessor
         processing={processing}
@@ -69,10 +84,3 @@ export const ReferralOverviewTab = ({
     </div>
   );
 };
-
-const SecondaryStat = ({ label, value }: { label: string; value: string | number }) => (
-  <div className="bg-[var(--bg-surface-alt)] rounded-lg p-4 text-center">
-    <p className="text-xs text-[var(--text-muted)]">{label}</p>
-    <p className="text-xl font-bold text-[var(--text-primary)]">{value}</p>
-  </div>
-);

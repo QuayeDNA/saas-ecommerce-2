@@ -437,7 +437,7 @@ export const CommissionPage = () => {
                             <p className="text-sm whitespace-nowrap">{formatDate(c.date)}</p>
                           </TableCell>
                           <TableCell className="font-semibold">GHS {c.amount.toFixed(2)}</TableCell>
-                          <TableCell>{c.commissionRate}%</TableCell>
+                          <TableCell>{c.rate}%</TableCell>
                           <TableCell>{c.ordersCount || 0}</TableCell>
                           <TableCell>{c.qualifiedUsersCount || 0}</TableCell>
                           <TableCell><CommissionStatusBadge status={c.status} /></TableCell>
