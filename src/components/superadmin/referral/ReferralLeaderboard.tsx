@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { FaTrophy, FaTh, FaList, FaUser, FaMoneyBillWave, FaBox, FaUsers, FaLayerGroup } from "react-icons/fa";
+import { FaTrophy, FaTh, FaList, FaUser } from "react-icons/fa";
 import type { LeaderboardEntry } from "../../../types/referral";
 import { Button, Card, CardBody, Badge, Spinner, Table, TableHeader, TableBody, TableRow, TableHeaderCell, TableCell } from "../../../design-system";
 
 const TIMEFRAMES = [
-  { value: "all-time", label: "All Time" },
-  { value: "this-month", label: "This Month" },
-  { value: "this-week", label: "This Week" },
+  { value: "all", label: "All Time" },
+  { value: "monthly", label: "This Month" },
+  { value: "weekly", label: "This Week" },
 ] as const;
 
 interface ReferralLeaderboardProps {

@@ -50,7 +50,7 @@ export const ReferralManagement = () => {
   const [withdrawalsPage, setWithdrawalsPage] = useState(1);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [leaderboardTimeframe, setLeaderboardTimeframe] = useState("all-time");
+  const [leaderboardTimeframe, setLeaderboardTimeframe] = useState("all");
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -119,7 +119,13 @@ export const ReferralManagement = () => {
     try {
       const result = await commissionService.getWithdrawalHistoryPaginated(page);
       setWithdrawals(result.withdrawals);
-      setWithdrawalsPagination(result.pagination);
+      const p = result.pagination;
+      setWithdrawalsPagination({
+        page: p?.page ?? 1,
+        limit: p?.limit ?? 20,
+        total: p?.total ?? 0,
+        pages: p?.totalPages ?? 0,
+      });
     } catch {
       setWithdrawals([]);
     } finally {
@@ -130,7 +136,7 @@ export const ReferralManagement = () => {
   const fetchLeaderboard = useCallback(async (timeframe: string) => {
     setLeaderboardLoading(true);
     try {
-      const result = await referralService.getLeaderboard(timeframe as "this-week" | "this-month" | "all-time");
+      const result = await referralService.getLeaderboard(timeframe as "weekly" | "monthly" | "all");
       setLeaderboard(result);
     } catch {
       setLeaderboard([]);

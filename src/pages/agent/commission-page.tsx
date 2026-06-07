@@ -19,7 +19,7 @@ import {
 } from "../../design-system/components/table";
 import { Spinner } from "../../design-system/components/spinner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../design-system/components/tabs";
-import type { Commission, CommissionStats, WithdrawResponse } from "../../types/commission";
+import type { Commission, WithdrawResponse } from "../../types/commission";
 import type { Withdrawal } from "../../types/commission";
 import type { ReferralDashboard, ReferralTreeNode } from "../../types/referral";
 

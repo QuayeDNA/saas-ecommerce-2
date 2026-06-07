@@ -1,0 +1,161 @@
+import type { ReactNode } from "react";
+import { Home, Plus } from "lucide-react";
+import {
+  FaBox,
+  FaMobile,
+  FaUsers,
+  FaUsersCog,
+  FaWallet,
+  FaUser,
+  FaCog,
+  FaTachometerAlt,
+  FaBuilding,
+  FaClipboardList,
+  FaChartLine,
+  FaMoneyBillWave,
+  FaCreditCard,
+  FaHistory,
+  FaBullhorn,
+  FaStore,
+  FaShareAlt,
+  FaMoneyCheckAlt,
+} from "react-icons/fa";
+
+export interface NavItem {
+  label: string;
+  path: string;
+  icon: ReactNode;
+  children?: NavItem[];
+}
+
+export interface NavSection {
+  label: string;
+  items: NavItem[];
+}
+
+/* ─── Agent nav ──────────────────────────────────────────────────────────── */
+
+const getAgentSections = (packages: NavItem[] = []): NavSection[] => [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", path: "/agent/dashboard", icon: <Home className="w-4 h-4" /> },
+    ],
+  },
+  {
+    label: "Commerce",
+    items: [
+      { label: "Packages", path: "/agent/dashboard/packages", icon: <FaBox />, children: packages },
+      { label: "Orders", path: "/agent/dashboard/orders", icon: <FaMobile /> },
+      { label: "My Storefront", path: "/agent/dashboard/storefront", icon: <FaStore /> },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { label: "Wallet", path: "/agent/dashboard/wallet", icon: <FaWallet /> },
+      { label: "Commission", path: "/agent/dashboard/commissions", icon: <FaMoneyCheckAlt /> },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { label: "AFA Registration", path: "/agent/dashboard/afa-registration", icon: <Plus className="w-4 h-4" /> },
+      { label: "Profile", path: "/agent/dashboard/profile", icon: <FaUser /> },
+    ],
+  },
+];
+
+/* ─── Admin nav ──────────────────────────────────────────────────────────── */
+
+const getAdminSections = (): NavSection[] => [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", path: "/admin/dashboard", icon: <Home className="w-4 h-4" /> },
+    ],
+  },
+  {
+    label: "Commerce",
+    items: [
+      { label: "Packages", path: "/admin/dashboard/packages", icon: <FaBox /> },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { label: "Wallet", path: "/admin/dashboard/wallet", icon: <FaWallet /> },
+    ],
+  },
+  {
+    label: "Management",
+    items: [
+      { label: "User Management", path: "/admin/dashboard/users", icon: <FaUsersCog /> },
+      { label: "Profile", path: "/admin/dashboard/profile", icon: <FaUser /> },
+    ],
+  },
+];
+
+/* ─── Super admin nav ────────────────────────────────────────────────────── */
+
+const getSuperAdminSections = (): NavSection[] => [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", path: "/superadmin", icon: <FaTachometerAlt /> },
+      { label: "Analytics", path: "/superadmin/analytics", icon: <FaChartLine /> },
+    ],
+  },
+  {
+    label: "Management",
+    items: [
+      { label: "Users", path: "/superadmin/users", icon: <FaUsers /> },
+      { label: "Providers", path: "/superadmin/providers", icon: <FaBuilding /> },
+      { label: "Packages", path: "/superadmin/packages", icon: <FaBox /> },
+      { label: "Orders", path: "/superadmin/orders", icon: <FaClipboardList /> },
+      { label: "Announcements", path: "/superadmin/announcements", icon: <FaBullhorn /> },
+      { label: "Stores", path: "/superadmin/stores", icon: <FaStore /> },
+      { label: "Referrals", path: "/superadmin/referrals", icon: <FaShareAlt /> },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      {
+        label: "Wallet",
+        path: "/superadmin/wallet",
+        icon: <FaWallet />,
+        children: [
+          { label: "Top-ups", path: "/superadmin/wallet/top-ups", icon: <FaCreditCard /> },
+          { label: "Payouts", path: "/superadmin/wallet/payouts", icon: <FaMoneyBillWave /> },
+          { label: "History", path: "/superadmin/wallet/history", icon: <FaHistory /> },
+        ],
+      },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { label: "Settings", path: "/superadmin/settings", icon: <FaCog /> },
+    ],
+  },
+];
+
+/* ─── Helpers ────────────────────────────────────────────────────────────── */
+
+const agentTypes = new Set(["agent", "super_agent", "dealer", "super_dealer"]);
+
+export function isAgent(userType: string | undefined): boolean {
+  return agentTypes.has(userType ?? "");
+}
+
+export function getNavSections(
+  userType: string | undefined,
+  packages: NavItem[],
+): NavSection[] {
+  if (isAgent(userType)) {
+    return getAgentSections(packages);
+  }
+  if (userType === "super_admin") return getSuperAdminSections();
+  return getAdminSections();
+}
