@@ -388,22 +388,24 @@ export default function SuperAdminUserDetailsPage() {
         return <FaUser className="text-green-600" />;
       case "super_admin":
         return <FaUserCheck className="text-purple-600" />;
+      case "elite_dealer":
+        return <FaUserShield className="text-blue-600" />;
+      case "master_dealer":
+        return <FaUserShield className="text-red-600" />;
       default:
         return <FaUser className="text-gray-600" />;
     }
   };
 
   const getUserTypeLabel = (userType: string) => {
-    switch (userType) {
-      case "agent":
-        return "Agent";
-      case "customer":
-        return "Customer";
-      case "super_admin":
-        return "Super Admin";
-      default:
-        return userType;
-    }
+    const labels: Record<string, string> = {
+      agent: "Agent",
+      customer: "Customer",
+      super_admin: "Super Admin",
+      elite_dealer: "Elite Dealer",
+      master_dealer: "Master Dealer",
+    };
+    return labels[userType] || userType;
   };
 
   const formatCurrency = (amount: number) => {

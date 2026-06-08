@@ -144,6 +144,20 @@ export default function SuperAdminDashboard() {
       bgColor: "bg-[var(--color-primary-50)]",
     },
     {
+      key: "elite_dealers",
+      label: "Elite Dealers",
+      icon: <FaUserCog className="text-white text-sm sm:text-lg lg:text-xl" />,
+      color: "text-[var(--color-secondary-text)]",
+      bgColor: "bg-[var(--color-primary-50)]",
+    },
+    {
+      key: "master_dealers",
+      label: "Master Dealers",
+      icon: <FaUserCog className="text-white text-sm sm:text-lg lg:text-xl" />,
+      color: "text-[var(--color-secondary-text)]",
+      bgColor: "bg-[var(--color-primary-50)]",
+    },
+    {
       key: "super_admins",
       label: "Super Admins",
       icon: <FaCrown className="text-white text-sm sm:text-lg lg:text-xl" />,
