@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, { createContext, useEffect, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import type {
@@ -29,9 +28,8 @@ export const AnnouncementProvider: React.FC<AnnouncementProviderProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // For public contexts, skip auth entirely
-  const authState = isPublic ? { user: null } : useAuth().authState;
-  const user = authState.user;
+  const authState = useAuth().authState;
+  const user = isPublic ? null : authState.user;
 
   // Fetch active announcements for the user
   const fetchActiveAnnouncements = useCallback(async () => {
