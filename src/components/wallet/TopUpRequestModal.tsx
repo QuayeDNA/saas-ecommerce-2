@@ -7,7 +7,6 @@ import {
   FaArrowLeft,
   FaArrowRight,
   FaBolt,
-  FaMobileAlt,
 } from "react-icons/fa";
 import { CONTACTS } from "../../config/contacts";
 import {
@@ -29,14 +28,7 @@ import {
 import { walletService } from "../../services/wallet-service";
 import { AuthContext } from "../../contexts/AuthContext";
 import { canHaveWallet } from "../../utils/userTypeHelpers";
-import {
-  normalizeGhanaPhoneNumber,
-  isValidGhanaPhoneNumber,
-} from "../../utils/phone-utils";
-import type {
-  MomoInitiateResponse,
-  MomoVerifyResponse,
-} from "../../types/wallet";
+
 import { StepProgress } from "../common/StepProgress";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -114,18 +106,14 @@ export const TopUpRequestModal: React.FC<Props> = ({
   const [paystackPublicKey, setPaystackPublicKey] = useState<string | null>(
     null,
   );
-  const [mtnEnabled, setMtnEnabled] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    "paystack" | "mtn"
-  >("paystack");
-  const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone || "");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<"paystack">("paystack");
 
   const canUseWallet = useMemo(
     () => canHaveWallet(user?.userType ?? ""),
     [user],
   );
   const paystackMethodVisible = paystackEnabled && canUseWallet;
-  const mtnMethodVisible = mtnEnabled && canUseWallet;
 
   const [checkingPending, setCheckingPending] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
@@ -159,12 +147,9 @@ export const TopUpRequestModal: React.FC<Props> = ({
         // Use default minimum
       }
 
-      // local flags so we can pick a sensible default payment method once both checks complete
       let localPaystackEnabled = false;
-      let localMtnEnabled = false;
 
       try {
-        // determine paystack availability
         const paystackResp = await walletService.getPaystackPublicKey();
         const {
           publicKey,
@@ -182,20 +167,8 @@ export const TopUpRequestModal: React.FC<Props> = ({
         localPaystackEnabled = false;
       }
 
-      try {
-        const api = await settingsService.getApiSettings();
-        localMtnEnabled = Boolean(api.mtnWalletTopUpEnabled);
-        setMtnEnabled(localMtnEnabled);
-      } catch {
-        setMtnEnabled(false);
-        localMtnEnabled = false;
-      }
-
-      // Choose a sensible default payment method: prefer Paystack, otherwise MTN if available
       if (localPaystackEnabled) {
         setSelectedPaymentMethod("paystack");
-      } else if (localMtnEnabled) {
-        setSelectedPaymentMethod("mtn");
       } else {
         setSelectedPaymentMethod("paystack");
       }
@@ -317,14 +290,7 @@ export const TopUpRequestModal: React.FC<Props> = ({
     setFieldErrors({});
     setHasPendingRequest(false);
     setIsPaystackLoading(false);
-    setSelectedPaymentMethod(
-      paystackMethodVisible
-        ? "paystack"
-        : mtnMethodVisible
-          ? "mtn"
-          : "paystack",
-    );
-    setPhoneNumber(user?.phone || "");
+    setSelectedPaymentMethod("paystack");
   };
 
   const handleClose = () => {
@@ -443,87 +409,6 @@ export const TopUpRequestModal: React.FC<Props> = ({
     }
   };
 
-  // ── MTN Mobile Money Initiation ─────────────────────────────────────────
-  const [isMtnLoading, setIsMtnLoading] = useState(false);
-
-  const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-  const handleMtnCheckout = async () => {
-    if (!mtnEnabled) {
-      addToast("MTN Mobile Money is not enabled on this platform.", "error");
-      return;
-    }
-    if (!phoneNumber || phoneNumber.trim().length < 6) {
-      addToast(
-        "Please provide a valid phone number for MTN Mobile Money.",
-        "error",
-      );
-      return;
-    }
-
-    setIsMtnLoading(true);
-    try {
-      const normalizedPhone = normalizeGhanaPhoneNumber(phoneNumber.trim());
-      if (!isValidGhanaPhoneNumber(normalizedPhone)) {
-        addToast(
-          "Enter a valid Ghana MTN phone number, e.g. 024xxxxxxx.",
-          "error",
-        );
-        return;
-      }
-
-      const res: MomoInitiateResponse = await walletService.initiateMomoTopUp(
-        parsedAmount,
-        normalizedPhone,
-      );
-      const reference = res.referenceId ?? res.reference;
-      if (!reference) {
-        addToast(
-          res.message ||
-            "Request sent. Please approve the payment on your phone.",
-          "info",
-        );
-        handleClose();
-        return;
-      }
-
-      addToast(
-        "Payment request sent to your phone. Waiting for confirmation...",
-        "info",
-        4000,
-      );
-
-      // Poll for verification briefly (best-effort). If not confirmed, notify user and close.
-      for (let attempt = 1; attempt <= 6; attempt += 1) {
-        try {
-          const verify: MomoVerifyResponse =
-            await walletService.verifyMomoTopUp(reference);
-          if (verify.success && verify.transaction) {
-            addToast("Wallet credited successfully.", "success");
-            handleClose();
-            return;
-          }
-        } catch {
-          // continue polling
-        }
-        await wait(5000);
-      }
-
-      addToast(
-        "Payment pending — it will be credited once confirmed.",
-        "info",
-        8000,
-      );
-      handleClose();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to initiate MTN top-up";
-      addToast(message, "error");
-    } finally {
-      setIsMtnLoading(false);
-    }
-  };
-
   // ── Manual Request Submission ──────────────────────────────────────────────
 
   const handleManualSubmit = async () => {
@@ -541,10 +426,7 @@ export const TopUpRequestModal: React.FC<Props> = ({
 
   const openWhatsApp = () => {
     const msg = `Hi, I need a wallet top-up of GH₵${parsedAmount}. Please process my request.`;
-    window.open(
-      CONTACTS.support.waLinkWithMsg(msg),
-      "_blank",
-    );
+    window.open(CONTACTS.support.waLinkWithMsg(msg), "_blank");
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -624,7 +506,7 @@ export const TopUpRequestModal: React.FC<Props> = ({
         {!isBlocked && step === 1 && (
           <div className="space-y-4">
             {/* Mode selector — visual selection cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {/* Admin request card */}
               <button
                 type="button"
@@ -702,47 +584,6 @@ export const TopUpRequestModal: React.FC<Props> = ({
                   </div>
                 </button>
               )}
-
-              {/* MTN Mobile Money card */}
-              {mtnMethodVisible && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("instant");
-                    setSelectedPaymentMethod("mtn");
-                  }}
-                  className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-3 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-1 ${
-                    mode === "instant" && selectedPaymentMethod === "mtn"
-                      ? "border-[var(--color-primary-500)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)] shadow-sm"
-                      : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-secondary-text)] hover:bg-[var(--color-control-bg)] hover:border-[var(--color-primary-500)]"
-                  }`}
-                >
-                  {mode === "instant" && selectedPaymentMethod === "mtn" && (
-                    <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-[var(--color-surface)]">
-                      <FaCheck className="h-2 w-2" />
-                    </span>
-                  )}
-                  <div
-                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                      mode === "instant"
-                        ? "bg-[var(--color-primary-100)]"
-                        : "bg-[var(--color-control-bg)]"
-                    }`}
-                  >
-                    <FaMobileAlt
-                      className={`h-4 w-4 ${mode === "instant" ? "text-[var(--color-primary-700)]" : "text-[var(--color-muted-text)]"}`}
-                    />
-                  </div>
-                  <div className="text-center leading-tight">
-                    <p className="font-semibold">Mobile Money</p>
-                    <p
-                      className={`mt-0.5 text-xs ${mode === "instant" ? "text-[var(--color-primary-700)]" : "text-[var(--color-muted-text)]"}`}
-                    >
-                      Via MTN MoMo
-                    </p>
-                  </div>
-                </button>
-              )}
             </div>
 
             {/* Amount input */}
@@ -759,35 +600,14 @@ export const TopUpRequestModal: React.FC<Props> = ({
               errorText={fieldErrors.amount}
             />
 
-            {/* Optional description - hidden for MTN Mobile Money instant top-ups */}
-            {!(mode === "instant" && selectedPaymentMethod === "mtn") && (
-              <Textarea
-                id="description"
-                label="Description (optional)"
-                rows={2}
-                placeholder="Reason for top-up…"
-                value={form.description}
-                onChange={(e) => updateField("description", e.target.value)}
-              />
-            )}
-
-            {/* Phone input for MTN Mobile Money */}
-            {mode === "instant" && selectedPaymentMethod === "mtn" && (
-              <div className="space-y-2">
-                <Input
-                  id="mtnPhone"
-                  label="MTN Mobile Money number"
-                  placeholder={user?.phone || "e.g. 024xxxxxxx"}
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                />
-                <p className="text-xs text-[var(--color-muted-text)]">
-                  Enter your Ghana MTN number without spaces. We’ll
-                  automatically prefix local numbers with <strong>233</strong>{" "}
-                  when sending to MTN.
-                </p>
-              </div>
-            )}
+            <Textarea
+              id="description"
+              label="Description (optional)"
+              rows={2}
+              placeholder="Reason for top-up…"
+              value={form.description}
+              onChange={(e) => updateField("description", e.target.value)}
+            />
 
             {/* Fee preview (instant mode only) */}
             {mode === "instant" && collectionFeePreview && (
@@ -838,25 +658,17 @@ export const TopUpRequestModal: React.FC<Props> = ({
               </InfoBox>
             ) : (
               <InfoBox>
-                {selectedPaymentMethod === "paystack" ? (
-                  <>
-                    Pay instantly via Paystack. Your wallet is credited
-                    automatically on payment confirmation — no admin approval
-                    needed.
-                  </>
-                ) : (
-                  <>
-                    A payment request will be sent to your MTN number. Your
-                    wallet is credited once MTN confirms the MoMo transfer.
-                  </>
+                <>
+                  Pay instantly via Paystack. Your wallet is credited
+                  automatically on payment confirmation — no admin approval
+                  needed.
+                </>
+                {paystackMinimum > 0 && (
+                  <p className="mt-1 text-xs text-[var(--color-muted-text)]">
+                    Minimum GH₵{paystackMinimum} applies to Paystack instant
+                    top-ups.
+                  </p>
                 )}
-                {selectedPaymentMethod === "paystack" &&
-                  paystackMinimum > 0 && (
-                    <p className="mt-1 text-xs text-[var(--color-muted-text)]">
-                      Minimum GH₵{paystackMinimum} applies to Paystack instant
-                      top-ups.
-                    </p>
-                  )}
               </InfoBox>
             )}
           </div>
@@ -893,11 +705,7 @@ export const TopUpRequestModal: React.FC<Props> = ({
                 <>
                   <SummaryRow
                     label="Payment gateway"
-                    value={
-                      selectedPaymentMethod === "mtn"
-                        ? "MTN Mobile Money (MoMo)"
-                        : "Paystack (instant)"
-                    }
+                    value="Paystack (instant)"
                   />
                   <SummaryRow
                     label="Wallet credited"
@@ -944,18 +752,11 @@ export const TopUpRequestModal: React.FC<Props> = ({
 
             {mode === "instant" ? (
               <InfoBox>
-                {selectedPaymentMethod === "paystack" ? (
-                  <>
-                    Clicking <strong>Pay Now</strong> will open the Paystack
-                    payment window. Your wallet is credited immediately after a
-                    successful payment.
-                  </>
-                ) : (
-                  <>
-                    A payment request will be sent to your MTN number. Your
-                    wallet is credited once MTN confirms the MoMo transfer.
-                  </>
-                )}
+                <>
+                  Clicking <strong>Pay Now</strong> will open the Paystack
+                  payment window. Your wallet is credited immediately after a
+                  successful payment.
+                </>
               </InfoBox>
             ) : (
               <InfoBox>
@@ -1007,7 +808,7 @@ export const TopUpRequestModal: React.FC<Props> = ({
                   </>
                 )}
               </Button>
-            ) : selectedPaymentMethod === "paystack" ? (
+            ) : (
               <Button
                 onClick={handlePaystackCheckout}
                 disabled={!paystackEnabled || isPaystackLoading}
@@ -1021,23 +822,6 @@ export const TopUpRequestModal: React.FC<Props> = ({
                   <>
                     <FaBolt className="w-3.5 h-3.5 mr-2" />
                     <span>Pay Now</span>
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Button
-                onClick={handleMtnCheckout}
-                disabled={!mtnEnabled || isMtnLoading}
-              >
-                {isMtnLoading ? (
-                  <>
-                    <Spinner size="sm" color="primary" />
-                    <span className="ml-2">Sending request…</span>
-                  </>
-                ) : (
-                  <>
-                    <FaMobileAlt className="w-3.5 h-3.5 mr-2" />
-                    <span>Request via MoMo</span>
                   </>
                 )}
               </Button>

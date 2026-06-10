@@ -33,7 +33,6 @@ export const ApiSettingsDialog: React.FC<ApiSettingsDialogProps> = ({
   const [formData, setFormData] = useState<ApiSettings>(currentSettings);
   const [isLoading, setIsLoading] = useState(false);
   const [showKeys, setShowKeys] = useState({
-    mtn: false,
     telecel: false,
     airtelTigo: false,
   });
@@ -81,7 +80,7 @@ export const ApiSettingsDialog: React.FC<ApiSettingsDialogProps> = ({
 
   const handleClose = () => {
     setFormData(currentSettings);
-    setShowKeys({ mtn: false, telecel: false, airtelTigo: false });
+    setShowKeys({ telecel: false, airtelTigo: false });
     onClose();
   };
 
@@ -122,45 +121,6 @@ export const ApiSettingsDialog: React.FC<ApiSettingsDialogProps> = ({
               <h3 className="font-medium text-gray-900">Provider API Keys</h3>
 
               <div className="grid grid-cols-1 gap-4">
-                {/* MTN API Key */}
-                <div className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <Smartphone className="w-4 h-4 text-yellow-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">MTN API Key</h4>
-                      <p className="text-sm text-gray-600">
-                        For MTN data services
-                      </p>
-                    </div>
-                  </div>
-                  <FormField>
-                    <Input
-                      type={showKeys.mtn ? "text" : "password"}
-                      value={formData.mtnApiKey}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          mtnApiKey: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter MTN API key"
-                      className="font-mono"
-                      rightIcon={
-                        <button
-                          type="button"
-                          className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
-                          aria-label={showKeys.mtn ? 'Hide MTN key' : 'Reveal MTN key'}
-                          onClick={() => toggleKeyVisibility('mtn')}
-                        >
-                          {showKeys.mtn ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      }
-                    />
-                  </FormField>
-                </div>
-
                 {/* Telecel API Key */}
                 <div className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3 mb-3">
@@ -273,17 +233,6 @@ export const ApiSettingsDialog: React.FC<ApiSettingsDialogProps> = ({
                     />
                     <span className={`text-sm ${formData.paystackEnabled ? 'text-gray-700' : 'text-gray-400'}`}>
                       Allow Paystack for wallet top-ups
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={formData.mtnWalletTopUpEnabled || false}
-                      onCheckedChange={(checked: boolean) => setFormData(prev => ({ ...prev, mtnWalletTopUpEnabled: checked }))}
-                      isDisabled={!formData.mtnApiKey}
-                    />
-                    <span className={`text-sm ${formData.mtnApiKey ? 'text-gray-700' : 'text-gray-400'}`}>
-                      Allow MTN Mobile Money for wallet top-ups
                     </span>
                   </div>
 

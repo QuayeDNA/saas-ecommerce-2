@@ -3,7 +3,7 @@ import { Edit, Key as KeyIcon, Eye, EyeOff, Smartphone, CreditCard, HelpCircle }
 import { Button } from "../../design-system/components/button";
 import { Card } from "../../design-system/components/card";
 import { Badge } from "../../design-system/components/badge";
-import { Spinner, Tabs, TabsList, TabsTrigger, Switch } from "../../design-system";
+import { Spinner, Tabs, TabsList, TabsTrigger } from "../../design-system";
 import { useToast } from "../../design-system/components/toast";
 import { ColorSchemeSelector } from "../../components/common/color-scheme-selector";
 import { useTutorial } from "../../hooks/use-tutorial";
@@ -174,27 +174,6 @@ export default function SuperAdminSettingsPage() {
     }
   }, [addToast]);
 
-  // MTN Wallet top-up toggle (exposed on the API settings card)
-  const handleToggleMtnWalletTopUp = useCallback(async (checked: boolean) => {
-    if (!data) return;
-    const prev = Boolean(data.apiSettings.mtnWalletTopUpEnabled);
-    // optimistic UI
-    setData(d => d ? { ...d, apiSettings: { ...d.apiSettings, mtnWalletTopUpEnabled: checked } } : d);
-    setBusy('mtnWalletTopUpToggle', true);
-    try {
-      const updated = await settingsService.updateApiSettings({ ...data.apiSettings, mtnWalletTopUpEnabled: checked });
-      setData(d => d ? { ...d, apiSettings: updated } : d);
-      addToast(`MTN Mobile Money top-ups ${updated.mtnWalletTopUpEnabled ? 'enabled' : 'disabled'}`, 'success');
-    } catch (err) {
-      // revert
-      setData(d => d ? { ...d, apiSettings: { ...d.apiSettings, mtnWalletTopUpEnabled: prev } } : d);
-      console.error('Failed to update MTN wallet top-up setting', err);
-      addToast('Failed to update MTN top-up setting', 'error');
-    } finally {
-      setBusy('mtnWalletTopUpToggle', false);
-    }
-  }, [data, setBusy, addToast]);
-
   // derived values for compact templates
   const siteOpen = data?.siteSettings?.isSiteOpen ?? false;
   const storefrontsOpen = data?.siteSettings?.storefrontsOpen ?? true;
@@ -214,7 +193,6 @@ export default function SuperAdminSettingsPage() {
 
   // Reveal state for sensitive keys shown in the API tab (display only)
   const [revealKeys, setRevealKeys] = useState<Record<string, boolean>>({
-    mtn: false,
     telecel: false,
     airtelTigo: false,
     paystackTestPublic: false,
@@ -298,22 +276,6 @@ export default function SuperAdminSettingsPage() {
                       </label>
                     </div>
                   </div>
-                  {/* MTN Wallet Top-up toggle exposed on the API card */}
-                  <div className="p-3 bg-gray-50 rounded-lg flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">MTN Mobile Money (MoMo) Top-ups</div>
-                      <div className="text-xs text-gray-500 mt-1">Allow agents to top-up wallets using MTN Mobile Money (MoMo)</div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-sm font-medium ${data.apiSettings.mtnWalletTopUpEnabled ? 'text-green-600' : 'text-gray-500'}`}>{data.apiSettings.mtnWalletTopUpEnabled ? 'Enabled' : 'Disabled'}</span>
-                      <Switch
-                        checked={Boolean(data.apiSettings.mtnWalletTopUpEnabled)}
-                        onCheckedChange={handleToggleMtnWalletTopUp}
-                        isDisabled={!data.apiSettings.mtnApiKey}
-                      />
-                    </div>
-                  </div>
-
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <div className="text-sm font-medium text-gray-900">Maintenance message</div>
                     <div className="text-xs text-gray-500 mt-1">{data.siteSettings.customMessage || 'No custom message set'}</div>
@@ -384,18 +346,6 @@ export default function SuperAdminSettingsPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* MTN key (masked, reveal) */}
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm font-medium flex items-center gap-2"><Smartphone className="w-4 h-4 text-yellow-600" />MTN API Key</div>
-                      <div className="mt-2 flex items-center justify-between gap-3">
-                        <div className="font-mono text-sm text-gray-700 break-all whitespace-pre-wrap max-w-full overflow-auto">{revealKeys.mtn ? (data.apiSettings.mtnApiKey || 'Not configured') : formatMasked(data.apiSettings.mtnApiKey)}</div>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="ghost" leftIcon={revealKeys.mtn ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />} onClick={() => toggleRevealKey('mtn')}>{revealKeys.mtn ? 'Hide' : 'Reveal'}</Button>
-                          <Badge colorScheme={data.apiSettings.mtnApiKey ? 'success' : 'error'}>{data.apiSettings.mtnApiKey ? 'Active' : 'Inactive'}</Badge>
-                        </div>
-                      </div>
-                    </div>
-
                     {/* Telecel key (masked, reveal) */}
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="text-sm font-medium flex items-center gap-2"><Smartphone className="w-4 h-4 text-blue-600" />Telecel API Key</div>
