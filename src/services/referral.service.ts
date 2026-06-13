@@ -10,6 +10,7 @@ import type {
   ReferralAdminStats,
   ReferralAdminUsersResponse,
   ReferralAdminUser,
+  ReferralAdminUserDetail,
   BackendPagination,
 } from "../types/referral";
 
@@ -22,10 +23,11 @@ class ReferralService {
   }
 
   async getLeaderboard(
-    timeframe: "weekly" | "monthly" | "all" = "monthly"
-  ): Promise<LeaderboardEntry[]> {
+    timeframe: "weekly" | "monthly" | "all" = "monthly",
+    page = 1
+  ): Promise<{ entries: LeaderboardEntry[]; pagination: BackendPagination }> {
     const response = await apiClient.get<LeaderboardResponse>(
-      `/api/referrals/leaderboard?timeframe=${timeframe}`
+      `/api/referrals/leaderboard?timeframe=${timeframe}&page=${page}`
     );
     return response.data.data;
   }
@@ -56,6 +58,14 @@ class ReferralService {
       users: Array.isArray(response.data.data.users) ? response.data.data.users : [],
       pagination: response.data.data.pagination,
     };
+  }
+
+  async getAdminUserDetail(id: string): Promise<ReferralAdminUserDetail> {
+    const response = await apiClient.get<{
+      success: boolean;
+      data: ReferralAdminUserDetail;
+    }>(`/api/referrals/admin/users/${id}`);
+    return response.data.data;
   }
 }
 

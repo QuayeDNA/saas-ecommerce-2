@@ -6,7 +6,7 @@ import {
   FaCopy, FaShareAlt, FaWhatsapp, FaSms, FaCheck,
   FaUsers, FaMoneyBillWave, FaLink,
   FaWallet, FaHistory,
-  FaChevronRight, FaChevronDown, FaUserPlus,
+  FaUserPlus,
 } from "react-icons/fa";
 import { useToast } from "../../design-system/components/toast";
 import { Card, CardBody } from "../../design-system/components/card";
@@ -22,6 +22,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../design-system/co
 import type { Commission, WithdrawResponse } from "../../types/commission";
 import type { Withdrawal } from "../../types/commission";
 import type { ReferralDashboard, ReferralTreeNode } from "../../types/referral";
+import { ReferralTree } from "./referral-tree";
 
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return "";
@@ -45,42 +46,6 @@ const CommissionStatusBadge = ({ status }: { status: string }) => {
   };
   const c = colors[status] || { scheme: "info" as const, label: status };
   return <Badge colorScheme={c.scheme} size="sm">{c.label}</Badge>;
-};
-
-const ReferralTreeBranch = ({ node, level = 0 }: { node: ReferralTreeNode; level?: number }) => {
-  const [expanded, setExpanded] = useState(level < 1);
-  const hasChildren = node.children && node.children.length > 0;
-
-  return (
-    <div>
-      <div
-        className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-[var(--color-primary-50)] cursor-pointer transition-colors"
-        style={{ paddingLeft: `${level * 24 + 8}px` }}
-        onClick={() => setExpanded(!expanded)}
-      >
-        {hasChildren ? (
-          expanded ? <FaChevronDown className="w-3 h-3 text-[var(--color-muted-text)]" /> : <FaChevronRight className="w-3 h-3 text-[var(--color-muted-text)]" />
-        ) : (
-          <span className="w-3" />
-        )}
-        <div className="w-6 h-6 rounded-full bg-[var(--color-primary-100)] flex items-center justify-center text-xs font-bold text-[var(--color-primary-700)] flex-shrink-0">
-          {node.user.fullName?.charAt(0) || "?"}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--color-text)] truncate">{node.user.fullName}</p>
-          <p className="text-xs text-[var(--color-muted-text)]">{node.user.phone} &middot; {formatDate(node.user.createdAt)}</p>
-        </div>
-        <Badge size="xs" variant="subtle" colorScheme="info">Level {level}</Badge>
-      </div>
-      {expanded && hasChildren && (
-        <div>
-          {node.children.map((child) => (
-            <ReferralTreeBranch key={child.user._id} node={child} level={level + 1} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
 };
 
 export const CommissionPage = () => {
@@ -492,28 +457,7 @@ export const CommissionPage = () => {
         </TabsContent>
 
         <TabsContent value="tree" className="space-y-4 pt-4">
-          <Card variant="outlined">
-            <CardBody>
-              <h3 className="text-sm sm:text-base font-semibold text-[var(--color-text)] mb-4 flex items-center gap-2">
-                <FaShareAlt className="w-4 h-4 text-[var(--color-primary-500)]" /> Referral Network
-              </h3>
-              {treeLoading ? (
-                <div className="flex items-center justify-center py-10">
-                  <Spinner size="lg" />
-                </div>
-              ) : tree.length === 0 ? (
-                <div className="text-center py-10 text-[var(--color-muted-text)]">
-                  <FaShareAlt className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium">Your referral network is empty</p>
-                  <p className="text-xs mt-1">Share your referral code to start building your team</p>
-                </div>
-              ) : (
-                <div className="bg-[var(--color-primary-50)] rounded-lg p-3">
-                  <ReferralTreeBranch node={tree[0]} />
-                </div>
-              )}
-            </CardBody>
-          </Card>
+          <ReferralTree tree={tree} loading={treeLoading} />
         </TabsContent>
       </Tabs>
     </div>

@@ -136,8 +136,8 @@ export const ReferralManagement = () => {
   const fetchLeaderboard = useCallback(async (timeframe: string) => {
     setLeaderboardLoading(true);
     try {
-      const result = await referralService.getLeaderboard(timeframe as "weekly" | "monthly" | "all");
-      setLeaderboard(result);
+      const result = await referralService.getLeaderboard(timeframe as "weekly" | "monthly" | "all", 1);
+      setLeaderboard(result.entries);
     } catch {
       setLeaderboard([]);
     } finally {
