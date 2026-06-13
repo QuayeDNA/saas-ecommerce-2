@@ -38,6 +38,7 @@ import type {
   StorefrontBranding,
 } from "../../components/public/types";
 import { THEMES, DEFAULT_THEME } from "../../components/public/constants";
+import { getPaystackEmail } from "../../utils/paystack-email";
 import {
   normalizePhone,
   isValidPhone,
@@ -405,7 +406,7 @@ const PublicStore: React.FC = () => {
         customerInfo: {
           name: isAfa && activeOrder.customerName ? activeOrder.customerName.trim() : customerName.trim(),
           phone,
-          email: "",
+          email: getPaystackEmail(phone),
           ...(activeOrder.ghanaCardNumber && { ghanaCardNumber: activeOrder.ghanaCardNumber }),
         },
         paymentMethod: {
