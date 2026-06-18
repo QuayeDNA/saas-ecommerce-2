@@ -27,7 +27,7 @@ export type {
 export { estimateFee } from "./types";
 
 // Constants
-export { THEMES, DEFAULT_THEME, withAlpha, ORDER_STATUS_CFG, getSystemFooterText, TRACK_TTL } from "./constants";
+export { DEFAULT_THEME, withAlpha, ORDER_STATUS_CFG, getSystemFooterText, TRACK_TTL } from "./constants";
 
 // Utils
 export { fmt, normalizePhone, normalizeWhatsappNumber, isValidPhone, fmtValidity, getLogoUrl, loadPaystackScript, setOGMetaTag, updateStorefrontOGTags } from "./utils";
