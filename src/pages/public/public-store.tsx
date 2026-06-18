@@ -37,7 +37,7 @@ import type {
   PublicOrderResult,
   StorefrontBranding,
 } from "../../components/public/types";
-import { THEMES, DEFAULT_THEME } from "../../components/public/constants";
+import { DEFAULT_THEME } from "../../components/public/constants";
 import { getPaystackEmail } from "../../utils/paystack-email";
 import {
   normalizePhone,
@@ -225,27 +225,9 @@ const PublicStore: React.FC = () => {
   // Derived state
   // ==========================================================================
 
-  const theme = useMemo<ThemeConfig>(() => {
-    if (!storeData) return DEFAULT_THEME;
-    const b = storeData.storefront.branding;
-    if (b?.customColors?.primary) {
-      return {
-        primary: b.customColors.primary,
-        secondary: b.customColors.secondary || b.customColors.primary,
-        accent: b.customColors.accent || b.customColors.primary + "40",
-        bg: b.customColors.primary + "12",
-        text: "#FFFFFF",
-        gradient: `linear-gradient(135deg, ${b.customColors.primary}, ${b.customColors.secondary || b.customColors.primary})`,
-        cardBorder: b.customColors.primary + "30",
-        heroBg: b.customColors.primary + "10",
-      };
-    }
-    const key = storeData.storefront.settings?.theme || "blue";
-    return THEMES[key] || DEFAULT_THEME;
-  }, [storeData]);
+  const theme = DEFAULT_THEME;
 
   const branding: StorefrontBranding = storeData?.storefront.branding || {};
-  const storeLayout = branding.layout || "modern";
 
   const providers = useMemo(() => {
     if (!storeData) return [];
@@ -491,7 +473,7 @@ const PublicStore: React.FC = () => {
           </DialogFooter>
         </Dialog>
       )}
-      <StoreHeader storefront={storefront} branding={branding} theme={theme} storeLayout={storeLayout} />
+      <StoreHeader storefront={storefront} branding={branding} />
       <StoreToolbar
         theme={theme} searchTerm={searchTerm} onSearchChange={setSearchTerm}
         selectedProvider={selectedProvider} onProviderChange={setSelectedProvider}

@@ -30,15 +30,6 @@ export interface StorefrontData {
     whatsapp?: string;
   };
   settings?: {
-    theme?:
-      | "blue"
-      | "green"
-      | "purple"
-      | "red"
-      | "orange"
-      | "teal"
-      | "indigo"
-      | "pink";
     showContact?: boolean;
   };
   branding?: StorefrontBranding;
@@ -52,21 +43,13 @@ export interface StorefrontData {
 
 export interface StorefrontBranding {
   logoUrl?: string;
-  bannerUrl?: string;
   tagline?: string;
-  customColors?: {
-    primary?: string;
-    secondary?: string;
-    accent?: string;
-  };
   socialLinks?: {
     facebook?: string;
     instagram?: string;
     twitter?: string;
     tiktok?: string;
   };
-  layout?: "classic" | "modern" | "minimal";
-  showBanner?: boolean;
   footerText?: string;
 }
 
@@ -275,7 +258,6 @@ export interface PublicStorefront {
       whatsapp?: string;
     };
     settings?: {
-      theme?: string;
       showContact?: boolean;
     };
     branding?: StorefrontBranding;
@@ -710,7 +692,6 @@ class StorefrontService {
       displayName: string;
       description?: string;
       branding?: { logoUrl?: string; tagline?: string };
-      settings?: { theme?: string };
     }>
   > {
     const response = await apiClient.get(`${this.basePath}/discover/random`, {

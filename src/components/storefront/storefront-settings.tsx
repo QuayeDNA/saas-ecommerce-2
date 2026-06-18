@@ -50,7 +50,6 @@ import {
   Info,
   Save,
   MessageCircle,
-  Palette,
   Eye,
   Image,
   Type,
@@ -166,23 +165,9 @@ function getSystemDescription(displayName: string): string {
 }
 
 /** SVG data-URI used as the store logo when none is set */
-function getSystemLogoDataUrl(
-  initials: string,
-  theme: string = "blue",
-): string {
-  const themeColors: Record<string, [string, string]> = {
-    blue: ["#2563EB", "#1E40AF"],
-    green: ["#16A34A", "#15803D"],
-    purple: ["#7C3AED", "#6D28D9"],
-    orange: ["#EA580C", "#C2410C"],
-    red: ["#DC2626", "#B91C1C"],
-    teal: ["#0D9488", "#0F766E"],
-    indigo: ["#4F46E5", "#4338CA"],
-    pink: ["#DB2777", "#BE185D"],
-  };
-  const [from, to] = themeColors[theme] || themeColors.blue;
+function getSystemLogoDataUrl(initials: string): string {
   const letter = (initials || "S").charAt(0).toUpperCase();
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:${from}'/><stop offset='100%' style='stop-color:${to}'/></linearGradient></defs><rect width='200' height='200' rx='40' fill='url(#g)'/><text x='100' y='130' font-family='Arial Black,Arial,sans-serif' font-size='110' font-weight='900' fill='white' text-anchor='middle'>${letter}</text></svg>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:#2563EB'/><stop offset='100%' style='stop-color:#1E40AF'/></linearGradient></defs><rect width='200' height='200' rx='40' fill='url(#g)'/><text x='100' y='130' font-family='Arial Black,Arial,sans-serif' font-size='110' font-weight='900' fill='white' text-anchor='middle'>${letter}</text></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
@@ -269,19 +254,12 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
   // Branding state
   const [brandingData, setBrandingData] = useState({
     logoUrl: storefront.branding?.logoUrl || "",
-    bannerUrl: storefront.branding?.bannerUrl || "",
     tagline: storefront.branding?.tagline || "",
-    primaryColor: storefront.branding?.customColors?.primary || "",
-    secondaryColor: storefront.branding?.customColors?.secondary || "",
-    accentColor: storefront.branding?.customColors?.accent || "",
     facebook: storefront.branding?.socialLinks?.facebook || "",
     instagram: storefront.branding?.socialLinks?.instagram || "",
     twitter: storefront.branding?.socialLinks?.twitter || "",
     tiktok: storefront.branding?.socialLinks?.tiktok || "",
-    layout: storefront.branding?.layout || "classic",
-    showBanner: storefront.branding?.showBanner ?? true,
     footerText: storefront.branding?.footerText || "",
-    theme: storefront.settings?.theme || "blue",
     showContact: storefront.settings?.showContact ?? true,
   });
 
@@ -568,7 +546,6 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             formData.businessName ||
             storefront.businessName
           ).charAt(0),
-          brandingData.theme,
         );
 
       const resolvedFooterText =
@@ -579,25 +556,16 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
         description: resolvedDescription,
         branding: {
           logoUrl: resolvedLogoUrl,
-          bannerUrl: brandingData.bannerUrl.trim() || undefined,
           tagline: resolvedTagline,
-          customColors: {
-            primary: brandingData.primaryColor.trim() || undefined,
-            secondary: brandingData.secondaryColor.trim() || undefined,
-            accent: brandingData.accentColor.trim() || undefined,
-          },
           socialLinks: {
             facebook: brandingData.facebook.trim() || undefined,
             instagram: brandingData.instagram.trim() || undefined,
             twitter: brandingData.twitter.trim() || undefined,
             tiktok: brandingData.tiktok.trim() || undefined,
           },
-          layout: brandingData.layout,
-          showBanner: brandingData.showBanner,
           footerText: resolvedFooterText,
         },
         settings: {
-          theme: brandingData.theme,
           showContact: brandingData.showContact,
         },
       };
@@ -1102,55 +1070,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
           className="space-y-6"
           data-tour="storefront-branding"
         >
-          {/* Appearance & Theme */}
           <section className="space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
-              <Palette className="w-4 h-4 text-[var(--color-muted-text)]" />
-              <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
-                Appearance & Theme
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField label="Store Theme Color">
-                <Select
-                  value={brandingData.theme}
-                  onChange={(val) => handleBrandingChange("theme", val)}
-                  options={[
-                    { value: "blue", label: "Blue" },
-                    { value: "green", label: "Green" },
-                    { value: "purple", label: "Purple" },
-                    { value: "red", label: "Red" },
-                    { value: "orange", label: "Orange" },
-                    { value: "teal", label: "Teal" },
-                    { value: "indigo", label: "Indigo" },
-                    { value: "pink", label: "Pink" },
-                  ]}
-                />
-                <p className="text-xs text-[var(--color-muted-text)] mt-1">
-                  Sets the accent color on your public storefront page
-                </p>
-              </FormField>
-
-              <FormField label="Store Layout">
-                <Select
-                  value={brandingData.layout}
-                  onChange={(val) => handleBrandingChange("layout", val)}
-                  options={[
-                    { value: "classic", label: "Classic — Standard header" },
-                    { value: "modern", label: "Modern — Large banner overlay" },
-                    {
-                      value: "minimal",
-                      label: "Minimal — Clean, text-focused",
-                    },
-                  ]}
-                />
-                <p className="text-xs text-[var(--color-muted-text)] mt-1">
-                  How your public storefront looks to customers
-                </p>
-              </FormField>
-            </div>
-
             <FormField label="Store Tagline">
               <Input
                 value={brandingData.tagline}
@@ -1209,25 +1129,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                   }
                 />
               </div>
-              <div className="flex items-center justify-between p-3 bg-[var(--color-control-bg)] rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Image className="w-4 h-4 text-[var(--color-muted-text)]" />
-                  <div>
-                    <p className="text-sm font-medium text-[var(--color-text)]">
-                      Show Banner
-                    </p>
-                    <p className="text-xs text-[var(--color-muted-text)]">
-                      Display banner on public store
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  checked={brandingData.showBanner}
-                  onCheckedChange={(checked) =>
-                    handleBrandingChange("showBanner", checked)
-                  }
-                />
-              </div>
+
             </div>
           </section>
 
@@ -1236,7 +1138,7 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
             <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]">
               <Image className="w-4 h-4 text-[var(--color-muted-text)]" />
               <h3 className="text-sm font-semibold text-[var(--color-secondary-text)] uppercase tracking-wide">
-                Logo & Banner
+                Logo
               </h3>
             </div>
 
@@ -1276,7 +1178,6 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
                       storefront.businessName ||
                       "S"
                     ).charAt(0),
-                    brandingData.theme,
                   )}
                   alt="Auto logo"
                   className="w-14 h-14 rounded-xl object-cover border border-[var(--color-border)] shadow-sm shrink-0"
@@ -1297,55 +1198,6 @@ export const StorefrontSettings: React.FC<StorefrontSettingsProps> = ({
               </div>
             </div>
 
-            {/* Banner */}
-            <div className="space-y-2">
-              <FormField label="Store Banner URL">
-                <Input
-                  value={brandingData.bannerUrl}
-                  onChange={(e) =>
-                    handleBrandingChange("bannerUrl", e.target.value)
-                  }
-                  placeholder="https://example.com/banner.jpg"
-                  leftIcon={<Image className="w-4 h-4" />}
-                  helperText="Wide image recommended (1200×300 px). Leave blank to use the auto-generated gradient banner."
-                />
-              </FormField>
-              {/* Banner preview — always visible */}
-              <div className="p-3 bg-[var(--color-control-bg)] rounded-xl border border-[var(--color-border)] space-y-2">
-                <p className="text-xs font-medium text-[var(--color-muted-text)]">
-                  Banner preview
-                </p>
-                {brandingData.bannerUrl ? (
-                  <img
-                    src={brandingData.bannerUrl}
-                    alt="Store banner"
-                    className="w-full h-24 rounded-lg object-cover border border-[var(--color-border)]"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      (target.nextElementSibling as HTMLElement).style.display =
-                        "flex";
-                    }}
-                  />
-                ) : null}
-                {/* Fallback gradient banner */}
-                <div
-                  className="w-full h-24 rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)",
-                    display: brandingData.bannerUrl ? "none" : "flex",
-                  }}
-                >
-                  {formData.businessName || "Your Store"}
-                </div>
-                <p className="text-xs text-[var(--color-muted-text)]">
-                  {brandingData.bannerUrl
-                    ? "Your custom banner image will be shown on the storefront."
-                    : "A gradient banner is generated from the theme color when no image is set."}
-                </p>
-              </div>
-            </div>
           </section>
 
           {/* Social Links */}
