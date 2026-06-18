@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { FaMagnifyingGlass, FaBoxOpen } from "react-icons/fa6";
+import { memo, useState } from "react";
+import { FaMagnifyingGlass, FaBoxOpen, FaXmark } from "react-icons/fa6";
 import type { PublicStorefront, ThemeConfig, PublicBundle } from "./types";
 import { withAlpha } from "./constants";
 import { getProviderColors } from "../../utils/provider-colors";
@@ -46,6 +46,8 @@ export const StoreToolbar = memo(function StoreToolbar({
     (a) => !dismissedAnnouncements.has(a._id),
   );
 
+  const [announcementExpanded, setAnnouncementExpanded] = useState(false);
+
   return (
     <div
       className="sticky top-0 z-20 backdrop-blur-md border-b border-[var(--color-border)] shadow-sm"
@@ -56,20 +58,45 @@ export const StoreToolbar = memo(function StoreToolbar({
     >
       <div className="max-w-5xl mx-auto px-4 py-3 space-y-3">
         {publicAnnouncement && (
-          <div className="rounded-xl bg-[var(--color-primary-50)] border border-[var(--color-border)] p-3 text-sm text-[var(--color-text)] flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="font-semibold">{publicAnnouncement.title}</div>
-              <div className="truncate text-xs text-[var(--color-muted-text)] mt-1">
-                {publicAnnouncement.message}
+          <div
+            className="rounded-xl bg-[var(--color-primary-50)] border border-[var(--color-border)] p-3 text-sm text-[var(--color-text)] cursor-pointer select-none"
+            onClick={() => setAnnouncementExpanded((prev) => !prev)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setAnnouncementExpanded((prev) => !prev);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-expanded={announcementExpanded}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="font-semibold text-xs uppercase tracking-wider text-[var(--color-primary-700)]">
+                {publicAnnouncement.title}
               </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDismissAnnouncement(publicAnnouncement._id);
+                }}
+                className="shrink-0 transition-opacity hover:opacity-70 p-0.5 text-[var(--color-primary-700)]"
+                aria-label="Dismiss announcement"
+              >
+                <FaXmark className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => onDismissAnnouncement(publicAnnouncement._id)}
-              className="text-[var(--color-primary-700)] hover:text-[var(--color-primary-900)] text-xs font-semibold"
+            <div
+              className="mt-1.5 text-xs transition-all overflow-hidden text-[var(--color-muted-text)]"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: announcementExpanded ? "unset" : 2,
+                WebkitBoxOrient: "vertical",
+              }}
             >
-              Dismiss
-            </button>
+              {publicAnnouncement.message}
+            </div>
           </div>
         )}
         {storeClosed && (
