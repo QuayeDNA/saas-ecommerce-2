@@ -49,6 +49,7 @@ export const StoreHeader = memo(function StoreHeader({
   const tagline =
     branding.tagline || pickTagline(storefront.businessName || displayName);
   const logoSrc = branding.logoUrl;
+  const initials = (displayName || "S").charAt(0).toUpperCase();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -58,11 +59,15 @@ export const StoreHeader = memo(function StoreHeader({
   return (
     <header className={`sh-header ${mounted ? "is-mounted" : ""}`}>
       <div className="sh-header__inner">
-        {logoSrc && (
-          <div className="sh-header__logo-wrap">
+        <div className="sh-header__logo-wrap">
+          {logoSrc ? (
             <img src={logoSrc} alt={displayName} className="sh-header__logo" />
-          </div>
-        )}
+          ) : (
+            <div className="sh-header__logo-fallback" aria-hidden="true">
+              {initials}
+            </div>
+          )}
+        </div>
         <h1 className="sh-header__name">{displayName}</h1>
         <div className="sh-header__rule">
           <span className="sh-header__rule-dot" />
@@ -119,6 +124,21 @@ export const StoreHeader = memo(function StoreHeader({
           border-radius: 24px;
           object-fit: cover;
           box-shadow: 0 4px 20px color-mix(in srgb, var(--color-text, #252f36) 8%, transparent);
+        }
+
+        .sh-header__logo-fallback {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: clamp(80px, 12vw, 112px);
+          width: clamp(80px, 12vw, 112px);
+          border-radius: 24px;
+          background: linear-gradient(145deg, #C0A670, #A28752);
+          color: #fff;
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 800;
+          font-size: clamp(32px, 5vw, 48px);
+          user-select: none;
         }
 
         .sh-header__name {
