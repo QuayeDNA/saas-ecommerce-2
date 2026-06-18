@@ -28,6 +28,9 @@ export default function AdBanner({
   fullWidth = true,
   className = '',
 }: AdBannerProps) {
+  // Don't render if the slot is a placeholder or empty
+  if (!adSlot || adSlot.startsWith("YOUR_AD_SLOT_ID")) return null;
+
   const pushed = useRef(false);
 
   useEffect(() => {

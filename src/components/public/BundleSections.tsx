@@ -119,14 +119,14 @@ export const BundleSections = memo(({
       );
       if ((idx + 1) % AD_INTERVAL === 0 && idx + 1 < bundles.length) {
         items.push(
-          <div key={`ad-${idx}`} className="col-span-2 sm:col-span-3 lg:col-span-4">
+          <div key={`ad-${idx}`} className="col-span-1 sm:col-span-3 lg:col-span-4">
             <AdBanner adSlot="YOUR_AD_SLOT_ID_C" adFormat="rectangle" />
           </div>
         );
       }
     });
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {items}
       </div>
     );
