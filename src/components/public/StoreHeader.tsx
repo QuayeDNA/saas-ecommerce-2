@@ -148,7 +148,7 @@ export const StoreHeader = memo(function StoreHeader({
           line-height: 0.95;
           letter-spacing: -0.02em;
           margin: 0;
-          color: var(--color-text, #252f36);
+          color: var(--color-primary, #c0a670);
           opacity: 0;
           transform: translateY(14px);
           transition: opacity 700ms ease-out, transform 700ms cubic-bezier(0.19, 1, 0.22, 1);
