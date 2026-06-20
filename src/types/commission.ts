@@ -1,6 +1,7 @@
-export type CommissionStatus = "pending" | "paid" | "cancelled" | "credited";
+export type CommissionStatus = "credited" | "cancelled";
 
 export interface PopulatedUser {
+  _id: string;
   fullName: string;
   email: string;
   agentCode?: string;
@@ -12,9 +13,7 @@ export interface Commission {
   date: string;
   amount: number;
   rate: number;
-  batchTotal: number;
-  ordersCount: number;
-  qualifiedUsersCount: number;
+  order?: string | { _id: string; orderNumber: string };
   status: CommissionStatus;
   createdAt: string;
   updatedAt: string;
@@ -40,8 +39,6 @@ export interface CommissionBalanceResponse {
 export interface CommissionStats {
   totalCommissions: number;
   totalEarned: number;
-  totalPending: number;
-  pendingCount: number;
   creditedCount: number;
 }
 
@@ -77,7 +74,6 @@ export interface Withdrawal {
   description: string;
   metadata: {
     type: string;
-    commissionIds?: string[];
   };
   createdAt: string;
 }

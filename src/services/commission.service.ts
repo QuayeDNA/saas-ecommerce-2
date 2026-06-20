@@ -88,19 +88,6 @@ class CommissionService {
     return response.data.data;
   }
 
-  async processDailyBatch(): Promise<{
-    success: boolean;
-    message: string;
-    data?: {
-      processed: number;
-      skipped: number;
-      message: string;
-      date: string;
-    };
-  }> {
-    const response = await apiClient.post("/api/commissions/process-daily");
-    return response.data;
-  }
 }
 
 export const commissionService = new CommissionService();

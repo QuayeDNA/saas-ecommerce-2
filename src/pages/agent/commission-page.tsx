@@ -390,8 +390,6 @@ export const CommissionPage = () => {
                         <TableHeaderCell>Date</TableHeaderCell>
                         <TableHeaderCell>Amount</TableHeaderCell>
                         <TableHeaderCell>Rate</TableHeaderCell>
-                        <TableHeaderCell>Orders</TableHeaderCell>
-                        <TableHeaderCell>Qualified Users</TableHeaderCell>
                         <TableHeaderCell>Status</TableHeaderCell>
                       </TableRow>
                     </TableHeader>
@@ -403,8 +401,6 @@ export const CommissionPage = () => {
                           </TableCell>
                           <TableCell className="font-semibold">GHS {c.amount.toFixed(2)}</TableCell>
                           <TableCell>{c.rate}%</TableCell>
-                          <TableCell>{c.ordersCount || 0}</TableCell>
-                          <TableCell>{c.qualifiedUsersCount || 0}</TableCell>
                           <TableCell><CommissionStatusBadge status={c.status} /></TableCell>
                         </TableRow>
                       ))}

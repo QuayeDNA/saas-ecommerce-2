@@ -4,7 +4,7 @@ import type { Commission, PopulatedUser } from "../../../types/commission";
 import { Button, Card, CardBody, Badge, Spinner, Table, TableHeader, TableBody, TableRow, TableHeaderCell, TableCell, Pagination } from "../../../design-system";
 import { ReferralCommissionFilter } from "./ReferralCommissionFilter";
 
-type CommissionStatusFilter = "all" | "pending" | "credited" | "cancelled";
+type CommissionStatusFilter = "all" | "credited" | "cancelled";
 
 const formatDate = (dateString: string) => {
   const d = new Date(dateString);
@@ -14,7 +14,6 @@ const formatDate = (dateString: string) => {
 const statusBadge = (status: string) => {
   const map: Record<string, { colorScheme: "success" | "warning" | "error" | "info"; label: string }> = {
     credited: { colorScheme: "success", label: "Credited" },
-    pending: { colorScheme: "warning", label: "Pending" },
     cancelled: { colorScheme: "error", label: "Cancelled" },
   };
   const s = map[status] || { colorScheme: "info" as const, label: status };
@@ -104,9 +103,6 @@ export const ReferralCommissionsTab = ({
                     )}
                     <div className="flex gap-4 mt-1.5 text-xs" style={{ color: "var(--color-muted-text)" }}>
                       <span>{c.rate}% rate</span>
-                      <span>{c.ordersCount || 0} orders</span>
-                      <span>{c.qualifiedUsersCount || 0} users</span>
-                      <span>Batch: GHS {(c.batchTotal || 0).toFixed(2)}</span>
                     </div>
                   </CardBody>
                 </Card>
@@ -132,9 +128,6 @@ export const ReferralCommissionsTab = ({
                     <TableHeaderCell>Date</TableHeaderCell>
                     <TableHeaderCell>Amount</TableHeaderCell>
                     <TableHeaderCell>Rate</TableHeaderCell>
-                    <TableHeaderCell>Orders</TableHeaderCell>
-                    <TableHeaderCell>Users</TableHeaderCell>
-                    <TableHeaderCell>Batch Total</TableHeaderCell>
                     <TableHeaderCell>Status</TableHeaderCell>
                   </TableRow>
                 </TableHeader>
@@ -157,9 +150,6 @@ export const ReferralCommissionsTab = ({
                       </TableCell>
                       <TableCell className="font-semibold">GHS {c.amount.toFixed(2)}</TableCell>
                       <TableCell>{c.rate}%</TableCell>
-                      <TableCell>{c.ordersCount || 0}</TableCell>
-                      <TableCell>{c.qualifiedUsersCount || 0}</TableCell>
-                      <TableCell>GHS {(c.batchTotal || 0).toFixed(2)}</TableCell>
                       <TableCell>{statusBadge(c.status)}</TableCell>
                     </TableRow>
                   ))}
