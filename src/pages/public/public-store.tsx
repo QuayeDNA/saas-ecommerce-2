@@ -30,7 +30,6 @@ import {
   TrackOrderDrawer,
 } from "../../components/public";
 import type {
-  ThemeConfig,
   PublicBundle,
   PublicStorefront,
   PublicOrderData,
