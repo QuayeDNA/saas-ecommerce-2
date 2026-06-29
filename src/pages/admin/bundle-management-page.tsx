@@ -18,6 +18,7 @@ import {
   FaArrowLeft,
   FaTimesCircle,
   FaDollarSign,
+  FaTimes,
 } from "react-icons/fa";
 import {
   Button,
@@ -63,13 +64,6 @@ const categoryOptions = [
   { value: "custom", label: "Custom", color: "text-[var(--color-secondary-text)] bg-[var(--color-control-bg)]" },
 ];
 
-const dataUnitOptions = [
-  { value: "", label: "All Units" },
-  { value: "MB", label: "MB", color: "text-[var(--color-primary-700)] bg-[var(--color-primary-100)]" },
-  { value: "GB", label: "GB", color: "text-[var(--color-success-icon)] bg-[var(--color-success-bg)]" },
-  { value: "TB", label: "TB", color: "text-[var(--color-info)] bg-[var(--color-primary-100)]" },
-];
-
 export const BundleManagementPage: React.FC = () => {
   const { packageId } = useParams<{ packageId: string }>();
   const navigate = useNavigate();
@@ -92,9 +86,13 @@ export const BundleManagementPage: React.FC = () => {
   // Filter states
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
-  const [dataUnit, setDataUnit] = useState("");
   const [search, setSearch] = useState("");
   const { themeMode } = useTheme();
+
+  // Multi-select states
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
   const packageProviderColors = getProviderColors(pkg?.provider, themeMode);
 
@@ -112,12 +110,75 @@ export const BundleManagementPage: React.FC = () => {
       label: "Category",
       placeholder: "All Categories",
     },
-    dataUnit: {
-      value: dataUnit,
-      options: dataUnitOptions,
-      label: "Data Unit",
-      placeholder: "All Units",
-    },
+  };
+
+  const allSelected = bundles.length > 0 && selectedIds.size === bundles.length;
+  const someSelected = selectedIds.size > 0;
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(bundles.map((b) => b._id!)));
+    }
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkStatusToggle = async (activate: boolean) => {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    setBulkDeleteLoading(true);
+    try {
+      const result = await bundleService.updateBulkBundles(
+        ids.map((id) => ({ id, isActive: activate }))
+      );
+      addToast(
+        `${result.updated} bundle${result.updated !== 1 ? "s" : ""} ${activate ? "activated" : "deactivated"}`,
+        "success"
+      );
+      if (result.failed > 0) {
+        addToast(`${result.failed} bundle${result.failed !== 1 ? "s" : ""} failed`, "error");
+      }
+      clearSelection();
+      await fetchBundles();
+    } catch {
+      addToast("Failed to update bundles", "error");
+    } finally {
+      setBulkDeleteLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    setBulkDeleteLoading(true);
+    try {
+      const result = await bundleService.deleteBulkBundles(ids);
+      addToast(
+        `${result.deleted} bundle${result.deleted !== 1 ? "s" : ""} deleted`,
+        "success"
+      );
+      if (result.failed > 0) {
+        addToast(`${result.failed} bundle${result.failed !== 1 ? "s" : ""} failed to delete`, "error");
+      }
+      setShowBulkDeleteModal(false);
+      clearSelection();
+      await fetchBundles();
+    } catch {
+      addToast("Failed to delete bundles", "error");
+    } finally {
+      setBulkDeleteLoading(false);
+    }
   };
 
   const fetchBundles = async () => {
@@ -161,13 +222,6 @@ export const BundleManagementPage: React.FC = () => {
       );
     }
 
-    // Filter by data unit
-    if (dataUnit) {
-      filteredBundles = filteredBundles.filter(
-        (bundle) => bundle.dataUnit === dataUnit
-      );
-    }
-
     // Filter by search term
     if (search.trim()) {
       const searchTerm = search.trim().toLowerCase();
@@ -186,7 +240,7 @@ export const BundleManagementPage: React.FC = () => {
 
     if (
       filteredBundles.length === 0 &&
-      (status || category || dataUnit || search.trim())
+      (status || category || search.trim())
     ) {
       addToast("No bundles found matching your criteria", "info");
     }
@@ -222,7 +276,6 @@ export const BundleManagementPage: React.FC = () => {
     setSearch("");
     setStatus("");
     setCategory("");
-    setDataUnit("");
     applyFilters();
     addToast("Filters cleared", "info");
   };
@@ -237,8 +290,6 @@ export const BundleManagementPage: React.FC = () => {
       setStatus(value);
     } else if (filterKey === "category") {
       setCategory(value);
-    } else if (filterKey === "dataUnit") {
-      setDataUnit(value);
     }
     // Apply filters immediately when filter changes
     setTimeout(() => applyFilters(), 0);
@@ -642,7 +693,7 @@ export const BundleManagementPage: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-[var(--color-text)] mb-1">
-                  💡 Bulk Pricing Management Available
+                  Bulk Pricing Management Available
                 </h3>
                 <p className="text-xs text-[var(--color-secondary-text)] mb-2">
                   Manage pricing for all {bundles.length} bundles across
@@ -673,6 +724,57 @@ export const BundleManagementPage: React.FC = () => {
         onClearFilters={handleClearFilters}
         isLoading={loading}
       />
+
+      {/* Selection Toolbar */}
+      {someSelected && (
+        <Card>
+          <CardBody>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <span className="text-sm font-medium text-[var(--color-text)]">
+                {selectedIds.size} selected
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorScheme="success"
+                  onClick={() => handleBulkStatusToggle(true)}
+                  disabled={bulkDeleteLoading}
+                >
+                  <FaCheckCircle className="mr-1.5" />
+                  Activate
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleBulkStatusToggle(false)}
+                  disabled={bulkDeleteLoading}
+                >
+                  <FaTimes className="mr-1.5" />
+                  Deactivate
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => setShowBulkDeleteModal(true)}
+                  disabled={bulkDeleteLoading}
+                >
+                  <FaTrash className="mr-1.5" />
+                  Delete
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={clearSelection}
+                  disabled={bulkDeleteLoading}
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {/* Error Message */}
       {error && (
@@ -729,13 +831,21 @@ export const BundleManagementPage: React.FC = () => {
                     >
                       <CardBody className="p-4">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h3 className="text-base font-semibold text-[var(--color-text)] truncate">
-                              {bundle.name}
-                            </h3>
-                            <p className="text-xs text-[var(--color-secondary-text)] mt-0.5">
-                              {pkg?.provider || "N/A"}
-                            </p>
+                          <div className="flex items-start gap-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(bundle._id!)}
+                              onChange={() => toggleSelect(bundle._id!)}
+                              className="mt-1 w-4 h-4 accent-[var(--color-primary-500)] shrink-0 cursor-pointer"
+                            />
+                            <div className="min-w-0">
+                              <h3 className="text-base font-semibold text-[var(--color-text)] truncate">
+                                {bundle.name}
+                              </h3>
+                              <p className="text-xs text-[var(--color-secondary-text)] mt-0.5">
+                                {pkg?.provider || "N/A"}
+                              </p>
+                            </div>
                           </div>
                           <Badge
                             colorScheme={bundle.isActive ? "success" : "error"}
@@ -851,6 +961,14 @@ export const BundleManagementPage: React.FC = () => {
                 <Table size="sm" colorScheme="gray" className="min-w-full">
                   <TableHeader>
                     <TableRow>
+                      <TableHeaderCell className="w-10">
+                        <input
+                          type="checkbox"
+                          checked={allSelected}
+                          onChange={toggleSelectAll}
+                          className="w-4 h-4 accent-[var(--color-primary-500)] cursor-pointer"
+                        />
+                      </TableHeaderCell>
                       <TableHeaderCell>Bundle</TableHeaderCell>
                       <TableHeaderCell>Type / Data</TableHeaderCell>
                       <TableHeaderCell>Validity</TableHeaderCell>
@@ -863,6 +981,14 @@ export const BundleManagementPage: React.FC = () => {
                   <TableBody>
                     {bundles.map((bundle) => (
                       <TableRow key={bundle._id}>
+                        <TableCell className="w-10">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(bundle._id!)}
+                            onChange={() => toggleSelect(bundle._id!)}
+                            className="w-4 h-4 accent-[var(--color-primary-500)] cursor-pointer"
+                          />
+                        </TableCell>
                         <TableCell>
                           <div className="text-sm font-semibold text-[var(--color-text)]">{bundle.name}</div>
                           <div className="text-xs text-[var(--color-secondary-text)]">{pkg?.provider || "N/A"}</div>
@@ -988,6 +1114,43 @@ export const BundleManagementPage: React.FC = () => {
             disabled={actionLoading}
           >
             {actionLoading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Dialog
+        isOpen={showBulkDeleteModal}
+        onClose={() => {
+          if (!bulkDeleteLoading) setShowBulkDeleteModal(false);
+        }}
+        mode="bottom-sheet"
+        size="md"
+      >
+        <DialogHeader>
+          <h2 className="text-lg font-bold">Delete Bundles</h2>
+        </DialogHeader>
+        <DialogBody>
+          <p className="text-[var(--color-secondary-text)]">
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-[var(--color-error)]">{selectedIds.size}</span>{" "}
+            selected bundles? This action cannot be undone.
+          </p>
+        </DialogBody>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setShowBulkDeleteModal(false)}
+            disabled={bulkDeleteLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleBulkDelete}
+            disabled={bulkDeleteLoading}
+          >
+            {bulkDeleteLoading ? "Deleting..." : "Delete All"}
           </Button>
         </DialogFooter>
       </Dialog>
