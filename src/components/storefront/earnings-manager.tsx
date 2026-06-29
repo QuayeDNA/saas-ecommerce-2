@@ -388,8 +388,9 @@ export const EarningsManager: React.FC<EarningsManagerProps> = ({
         "success",
       );
       await load();
-    } catch {
-      addToast("Failed to submit payout request", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to submit payout request";
+      addToast(msg, "error");
     } finally {
       setSubmitting(false);
     }

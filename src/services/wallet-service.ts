@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from "axios";
 import { apiClient } from "../utils/api-client";
 import type {
   WalletInfo,
@@ -15,6 +16,14 @@ import type {
   AdminPayoutSummary,
 } from "../types/wallet";
 import { canHaveWallet } from "../utils/userTypeHelpers";
+
+function extractApiError(err: unknown): string {
+  if (axios.isAxiosError(err) && err.response?.data) {
+    return err.response.data.error || err.response.data.message || err.message || "Request failed";
+  }
+  if (err instanceof Error) return err.message;
+  return "Request failed";
+}
 
 // Use the consolidated apiClient for all wallet operations
 export const walletService = {
@@ -354,8 +363,12 @@ export const walletService = {
 
   requestPayout: async (amount: number, destination?: PayoutDestination): Promise<{ data: PayoutRequestItem; autoPayoutEnabled: boolean }> => {
     const payload = destination ? { amount, destination } : { amount };
-    const response = await apiClient.post<{ success: boolean; data: PayoutRequestItem; autoPayoutEnabled: boolean }>("/api/wallet/payouts/request", payload);
-    return { data: response.data.data, autoPayoutEnabled: response.data.autoPayoutEnabled ?? false };
+    try {
+      const response = await apiClient.post<{ success: boolean; data: PayoutRequestItem; autoPayoutEnabled: boolean }>("/api/wallet/payouts/request", payload);
+      return { data: response.data.data, autoPayoutEnabled: response.data.autoPayoutEnabled ?? false };
+    } catch (err: unknown) {
+      throw new Error(extractApiError(err));
+    }
   },
 
   /* Admin: payout queue & actions */
