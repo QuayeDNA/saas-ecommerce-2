@@ -264,9 +264,12 @@ export const BundleManagementPage: React.FC = () => {
     fetchBundles();
   }, [packageId]);
 
+  useEffect(() => {
+    if (allBundles) applyFiltersToBundles(allBundles);
+  }, [status, category, search]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    applyFilters();
     if (search.trim()) {
       addToast(`Searching for bundles matching "${search}"`, "info");
     }
@@ -276,13 +279,7 @@ export const BundleManagementPage: React.FC = () => {
     setSearch("");
     setStatus("");
     setCategory("");
-    applyFilters();
     addToast("Filters cleared", "info");
-  };
-
-  const applyFilters = () => {
-    if (!allBundles) return;
-    applyFiltersToBundles(allBundles);
   };
 
   const handleFilterChange = (filterKey: string, value: string) => {
@@ -291,8 +288,6 @@ export const BundleManagementPage: React.FC = () => {
     } else if (filterKey === "category") {
       setCategory(value);
     }
-    // Apply filters immediately when filter changes
-    setTimeout(() => applyFilters(), 0);
   };
 
   const handleCreate = () => {
@@ -729,19 +724,20 @@ export const BundleManagementPage: React.FC = () => {
       {someSelected && (
         <Card>
           <CardBody>
-            <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <span className="text-sm font-medium text-[var(--color-text)]">
                 {selectedIds.size} selected
               </span>
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-2 sm:flex gap-1.5 sm:gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   colorScheme="success"
                   onClick={() => handleBulkStatusToggle(true)}
                   disabled={bulkDeleteLoading}
+                  className="text-xs sm:text-sm"
                 >
-                  <FaCheckCircle className="mr-1.5" />
+                  <FaCheckCircle className="mr-1 sm:mr-1.5" />
                   Activate
                 </Button>
                 <Button
@@ -749,8 +745,9 @@ export const BundleManagementPage: React.FC = () => {
                   variant="outline"
                   onClick={() => handleBulkStatusToggle(false)}
                   disabled={bulkDeleteLoading}
+                  className="text-xs sm:text-sm"
                 >
-                  <FaTimes className="mr-1.5" />
+                  <FaTimes className="mr-1 sm:mr-1.5" />
                   Deactivate
                 </Button>
                 <Button
@@ -758,8 +755,9 @@ export const BundleManagementPage: React.FC = () => {
                   variant="danger"
                   onClick={() => setShowBulkDeleteModal(true)}
                   disabled={bulkDeleteLoading}
+                  className="text-xs sm:text-sm"
                 >
-                  <FaTrash className="mr-1.5" />
+                  <FaTrash className="mr-1 sm:mr-1.5" />
                   Delete
                 </Button>
                 <Button
@@ -767,6 +765,7 @@ export const BundleManagementPage: React.FC = () => {
                   variant="outline"
                   onClick={clearSelection}
                   disabled={bulkDeleteLoading}
+                  className="text-xs sm:text-sm"
                 >
                   Clear
                 </Button>
