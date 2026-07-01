@@ -85,7 +85,9 @@ export const SingleOrderModal: React.FC<SingleOrderModalProps> = ({
 
   // Get provider colors for branding
   const providerColors = getProviderColors(
-    bundle.provider?.toString() || "MTN"
+    typeof bundle.providerId === "object" && bundle.providerId !== null
+      ? bundle.providerId.code
+      : "MTN"
   );
 
   // Reset state when modal opens/closes

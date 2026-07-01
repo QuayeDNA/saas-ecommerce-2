@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { bundleService } from "../../services/bundle.service";
 import { packageService } from "../../services/package.service";
-import type { Bundle, Package, CreateBundleData } from "../../types/package";
+import type { Bundle, Package, CreateBundleData, UpdateBundleData } from "../../types/package";
 import { SearchAndFilter } from "../../components/common";
 import {
   FaCube,
@@ -72,6 +72,7 @@ export const BundleManagementPage: React.FC = () => {
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [allBundles, setAllBundles] = useState<Bundle[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pkgLoading, setPkgLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editBundle, setEditBundle] = useState<Bundle | null>(null);
@@ -95,6 +96,8 @@ export const BundleManagementPage: React.FC = () => {
   const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
   const packageProviderColors = getProviderColors(pkg?.provider, themeMode);
+
+  const fetchGenPkg = useRef(0);
 
   // Filter options for the reusable component
   const filterOptions = {
@@ -248,11 +251,15 @@ export const BundleManagementPage: React.FC = () => {
 
   const fetchPackage = async () => {
     if (!packageId) return;
+    const gen = ++fetchGenPkg.current;
+    setPkgLoading(true);
     try {
       const packageData = await packageService.getPackage(packageId);
-      setPkg(packageData);
+      if (gen === fetchGenPkg.current) setPkg(packageData);
     } catch {
-      setError("Failed to fetch package details");
+      if (gen === fetchGenPkg.current) setError("Failed to fetch package details");
+    } finally {
+      if (gen === fetchGenPkg.current) setPkgLoading(false);
     }
   };
 
@@ -354,14 +361,15 @@ export const BundleManagementPage: React.FC = () => {
     setActionError(null);
     try {
       if (editBundle?._id) {
-        // For updates, handle providerId properly
-        let providerIdValue: string | undefined = data.providerId;
-        if (typeof data.providerId === "object" && data.providerId !== null) {
-          const providerObj = data.providerId as { _id?: string; id?: string };
-          providerIdValue = providerObj._id || providerObj.id;
+        const pid = data.providerId;
+        let providerIdValue: string | undefined;
+        if (typeof pid === "object" && pid !== null) {
+          providerIdValue = pid._id;
+        } else {
+          providerIdValue = pid;
         }
 
-        const finalUpdateData: Partial<Bundle> = {
+        const finalUpdateData: UpdateBundleData = {
           name: data.name,
           description: data.description,
           price: data.price,
@@ -485,7 +493,7 @@ export const BundleManagementPage: React.FC = () => {
     totalValue: bundles.reduce((sum, b) => sum + (b.price || 0), 0),
   };
 
-  if (loading && !pkg) {
+  if ((pkgLoading || loading) && !pkg) {
     return (
       <div className="p-6 text-center">
         <div className="flex items-center justify-center">
@@ -563,7 +571,7 @@ export const BundleManagementPage: React.FC = () => {
                 <FaDownload className="mr-2" />
                 Export
               </Button>
-              <Button onClick={handleCreate} size="sm" className="col-span-2 sm:col-span-1 w-full">
+              <Button onClick={handleCreate} size="sm" className="col-span-2 sm:col-span-1 w-full" disabled={!pkg}>
                 <FaPlus className="mr-2" />
                 Create Bundle
               </Button>
@@ -1072,7 +1080,7 @@ export const BundleManagementPage: React.FC = () => {
         onSubmit={handleFormSubmit}
         initialData={editBundle}
         packageId={packageId}
-        providerId={pkg?.provider}
+        providerId=""
         providerCode={pkg?.provider}
       />
 

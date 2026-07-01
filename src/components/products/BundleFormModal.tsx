@@ -80,17 +80,13 @@ export const BundleFormModal: React.FC<BundleFormModalProps> = ({
   useEffect(() => {
     if (open) {
       if (initialData) {
-        // Ensure providerId is a string when editing
-        let providerIdValue: string | undefined = initialData.providerId;
-        if (typeof initialData.providerId === 'object' && initialData.providerId !== null) {
-          // If it's a populated object, extract the _id
-          const providerObj = initialData.providerId as { _id?: string; id?: string };
-          if (providerObj._id) {
-            providerIdValue = providerObj._id;
-          } else if (providerObj.id) {
-            providerIdValue = providerObj.id;
-          } else {
-            providerIdValue = '';
+        const pid = initialData.providerId;
+        let providerIdValue: string | undefined;
+        if (typeof pid === "object" && pid !== null) {
+          providerIdValue = pid._id;
+        } else {
+          providerIdValue = pid;
+        }
           }
         }
 
