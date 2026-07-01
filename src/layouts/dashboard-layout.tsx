@@ -24,6 +24,7 @@ import { TutorialPlayer } from "../components/tutorials/tutorial-player";
 import { TutorialLauncher } from "../components/tutorials/tutorial-launcher";
 import { AnnouncementPopupHandler } from "../components/announcements/announcement-popup-handler";
 import { GlobalFab } from "../components/common/GlobalFab";
+import { WhatsAppChannelModal } from "../components/common/WhatsAppChannelModal";
 import { useAuth } from "../hooks";
 
 // User types that get a bottom nav (everything except roles that are desktop-only)
@@ -38,7 +39,7 @@ const BOTTOM_NAV_HEIGHT = 64;
 const SCROLL_THRESHOLD = 24;
 
 export const DashboardLayout = () => {
-  const { authState, updateFirstTimeFlag } = useAuth();
+  const { authState } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const location = useLocation();
@@ -53,20 +54,6 @@ export const DashboardLayout = () => {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
-
-  // ── first-time onboarding flag ───────────────────────────────────────────────
-  useEffect(() => {
-    if (
-      authState.isAuthenticated &&
-      authState.user?.isFirstTime &&
-      location.pathname.includes("/dashboard")
-    ) {
-      if (localStorage.getItem("tourCompleted") !== "true") {
-        localStorage.setItem("tourCompleted", "true");
-        updateFirstTimeFlag();
-      }
-    }
-  }, [authState.isAuthenticated, authState.user, location.pathname, updateFirstTimeFlag]);
 
   // ── scroll handler ───────────────────────────────────────────────────────────
   const handleMainScroll = useCallback((e: UIEvent<HTMLElement>) => {
@@ -144,6 +131,9 @@ export const DashboardLayout = () => {
         {/* ── Tutorial system ───────────────────────────────────────────────── */}
         <TutorialPlayer />
         <TutorialLauncher />
+
+        {/* ── WhatsApp channel onboarding modal ─────────────────────────────── */}
+        <WhatsAppChannelModal />
 
         {/* ── Global support FAB ────────────────────────────────────────────── */}
         <GlobalFab />
