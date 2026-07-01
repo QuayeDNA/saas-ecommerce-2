@@ -87,8 +87,6 @@ export const BundleFormModal: React.FC<BundleFormModalProps> = ({
         } else {
           providerIdValue = pid;
         }
-          }
-        }
 
         setFormData({
           ...initialData,
