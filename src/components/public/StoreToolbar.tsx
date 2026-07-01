@@ -132,7 +132,7 @@ export const StoreToolbar = memo(function StoreToolbar({
           {/* Search + view toggle row */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-muted-text)] w-3.5 h-3.5 pointer-events-none" />
+              <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: isStuck ? "var(--color-muted-text)" : "rgba(255,255,255,0.55)" }} />
               <input
                 type="search"
                 placeholder="Search bundles…"
@@ -233,17 +233,28 @@ export const StoreToolbar = memo(function StoreToolbar({
 
       <style>{`
         .store-toolbar {
+          background: rgba(0, 0, 0, 0.25);
+          -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
           transition: background 350ms ease,
                       border-color 350ms ease,
                       box-shadow 350ms ease;
         }
 
+        .store-toolbar input::placeholder {
+          color: rgba(255, 255, 255, 0.45);
+        }
+
+        .store-toolbar--stuck input::placeholder {
+          color: var(--color-muted-text);
+        }
+
         .store-toolbar--stuck {
-          background: color-mix(in srgb, var(--color-surface, #FFFFFF) 65%, transparent);
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-          border-bottom: 1px solid color-mix(in srgb, var(--color-border, #D4D8DC) 40%, transparent);
-          box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+          background: var(--color-surface, #FFFFFF);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+          border-bottom: 1px solid var(--color-border, #D4D8DC);
+          box-shadow: 0 4px 24px rgba(0,0,0,0.08);
         }
 
         @media (prefers-reduced-motion: reduce) {
