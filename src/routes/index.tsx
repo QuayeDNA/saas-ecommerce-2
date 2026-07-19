@@ -134,6 +134,13 @@ const CommissionPage = lazy(() =>
   }))
 );
 
+const ApiMarketplacePage = lazy(() =>
+  import("../pages/agent/api-marketplace").then((m) => ({ default: m.ApiMarketplacePage }))
+);
+const ApiMarketplaceDocsPage = lazy(() =>
+  import("../pages/agent/api-marketplace-docs").then((m) => ({ default: m.ApiMarketplaceDocsPage }))
+);
+
 // =============================================================================
 // LAZY LOADED COMPONENTS - PACKAGE SPECIFIC PAGES
 // =============================================================================
@@ -451,6 +458,22 @@ const agentRoutes: RouteObject[] = [
             element: (
               <Suspense fallback={<PageLoader />}>
                 <StorefrontDashboardPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "api-marketplace",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ApiMarketplacePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "api-marketplace/docs",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ApiMarketplaceDocsPage />
               </Suspense>
             ),
           },

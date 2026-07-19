@@ -33,11 +33,13 @@ export { DialogFooter } from "./components/dialog-footer";
 export { BottomNav } from "./components/bottom-nav";
 export type { BottomNavItem, BottomNavProps } from "./components/bottom-nav";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/tabs";
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/accordion";
 
 export { Switch } from "./components/switch";
 
 // New components
 export { Spinner } from "./components/spinner";
+export { EmptyState } from "./components/empty-state";
 export {
   Skeleton,
   LoadingCard,

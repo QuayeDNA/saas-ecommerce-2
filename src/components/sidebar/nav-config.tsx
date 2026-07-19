@@ -19,6 +19,7 @@ import {
   FaStore,
   FaShareAlt,
   FaMoneyCheckAlt,
+  FaCode,
 } from "react-icons/fa";
 
 export interface NavItem {
@@ -47,6 +48,7 @@ const getAgentSections = (packages: NavItem[] = []): NavSection[] => [
     items: [
       { label: "Packages", path: "/agent/dashboard/packages", icon: <FaBox />, children: packages },
       { label: "Orders", path: "/agent/dashboard/orders", icon: <FaMobile /> },
+      { label: "API Marketplace", path: "/agent/dashboard/api-marketplace", icon: <FaCode /> },
       { label: "My Storefront", path: "/agent/dashboard/storefront", icon: <FaStore /> },
     ],
   },
@@ -115,6 +117,7 @@ const getSuperAdminSections = (): NavSection[] => [
       { label: "Orders", path: "/superadmin/orders", icon: <FaClipboardList /> },
       { label: "Announcements", path: "/superadmin/announcements", icon: <FaBullhorn /> },
       { label: "Stores", path: "/superadmin/stores", icon: <FaStore /> },
+      { label: "API Marketplace", path: "/superadmin/api-marketplace", icon: <FaCode /> },
       { label: "Referrals", path: "/superadmin/referrals", icon: <FaShareAlt /> },
     ],
   },
