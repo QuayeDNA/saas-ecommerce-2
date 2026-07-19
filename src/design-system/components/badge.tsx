@@ -10,6 +10,7 @@ type BadgeSize = "xs" | "sm" | "md" | "lg";
 // Badge color schemes - separate theme colors from semantic colors
 type BadgeColorScheme =
   | "default"
+  | "primary"
   | "success"
   | "warning"
   | "error"

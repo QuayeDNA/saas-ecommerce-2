@@ -612,7 +612,7 @@ export const ApiMarketplaceDocsPage = () => {
                     )}
 
                     {/* Code Examples */}
-                    <Tabs value={activeLang} onValueChange={(v) => setActiveLang(v as Lang)} variant="file">
+                    <Tabs value={activeLang} onValueChange={(v) => setActiveLang(v as Lang)}>
                       <div className="flex items-end border-b border-[var(--color-border)]">
                         <TabsList className="flex-1">
                           {(Object.keys(LANG_LABELS) as Lang[]).map((lang) => (
