@@ -7,10 +7,11 @@ import { Spinner, Tabs, TabsList, TabsTrigger } from "../../design-system";
 import { useToast } from "../../design-system/components/toast";
 import { ColorSchemeSelector } from "../../components/common/color-scheme-selector";
 import { useTutorial } from "../../hooks/use-tutorial";
-import { settingsService, type SiteSettings, type ApiSettings, type WalletSettings, type FeeSettings, type SystemInfo } from "../../services/settings.service";
+import { settingsService, type SiteSettings, type ApiSettings, type WalletSettings, type FeeSettings, type SystemInfo, type MtnRestrictionSettings } from "../../services/settings.service";
 import pushNotificationService from "../../services/pushNotificationService";
 import { SiteSettingsDialog, ApiSettingsDialog, WalletSettingsDialog, AdminPasswordDialog } from "../../components/superadmin";
 import { FeeSettingsDialog } from "../../components/superadmin/fee-settings-dialog";
+import KnownNumbersDialog from "./settings/components/KnownNumbersDialog";
 
 export default function SuperAdminSettingsPage() {
 
@@ -22,6 +23,7 @@ export default function SuperAdminSettingsPage() {
     signupApproval: { requireApprovalForSignup: boolean };
     autoApproveStorefronts: { autoApproveStorefronts: boolean };
     systemInfo: SystemInfo;
+    mtnRestriction: MtnRestrictionSettings;
   } | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -36,6 +38,8 @@ export default function SuperAdminSettingsPage() {
   const [feeDialogOpen, setFeeDialogOpen] = useState(false);
   const [feeSettings, setFeeSettings] = useState<FeeSettings | null>(null);
   const [testPushLoading, setTestPushLoading] = useState(false);
+  const [mtnNumbersCount, setMtnNumbersCount] = useState<number | null>(null);
+  const [showKnownNumbers, setShowKnownNumbers] = useState(false);
   const { setLauncherOpen } = useTutorial();
 
   // single load + client cache via settingsService.getAllSettings()
@@ -48,6 +52,10 @@ export default function SuperAdminSettingsPage() {
         if (!mounted) return;
         setData(all);
         if (all.feeSettings) setFeeSettings(all.feeSettings);
+        try {
+          const stats = await settingsService.getMtnNumberStats();
+          if (mounted) setMtnNumbersCount(stats.totalKnownNumbers);
+        } catch {/** */}
       } catch (err) {
         console.error("Failed to load settings:", err);
         if (mounted) addToast("Failed to load settings", "error");
@@ -127,6 +135,32 @@ export default function SuperAdminSettingsPage() {
     }
   }, [data, setBusy, addToast]);
 
+  const handleToggleMtnRestriction = useCallback(async () => {
+    if (!data) return;
+    const prev = data.mtnRestriction.mtnOrderRestrictionEnabled;
+    setData(d => d ? { ...d, mtnRestriction: { mtnOrderRestrictionEnabled: !prev } } : d);
+    setBusy("mtnRestriction", true);
+    try {
+      await settingsService.updateMtnRestriction({ mtnOrderRestrictionEnabled: !prev });
+      addToast(`MTN order restriction ${!prev ? "enabled" : "disabled"}`, "success");
+    } catch {
+      setData(d => d ? { ...d, mtnRestriction: { mtnOrderRestrictionEnabled: prev } } : d);
+      addToast("Failed to update MTN restriction", "error");
+    } finally {
+      setBusy("mtnRestriction", false);
+    }
+  }, [data, setBusy, addToast]);
+
+  const refreshMtnStats = useCallback(async () => {
+    try {
+      const stats = await settingsService.getMtnNumberStats();
+      setMtnNumbersCount(stats.totalKnownNumbers);
+      addToast("Stats refreshed", "success");
+    } catch {
+      addToast("Failed to refresh stats", "error");
+    }
+  }, [addToast]);
+
   // Dialog callbacks update the combined `data` object — prevents refetching
   const handleSiteSettingsSuccess = useCallback((settings: SiteSettings) => {
     setData(d => d ? { ...d, siteSettings: settings } : d);
@@ -179,6 +213,7 @@ export default function SuperAdminSettingsPage() {
   const storefrontsOpen = data?.siteSettings?.storefrontsOpen ?? true;
   const signupRequired = data?.signupApproval?.requireApprovalForSignup ?? false;
   const autoApprove = data?.autoApproveStorefronts?.autoApproveStorefronts ?? false;
+  const mtnRestrictionEnabled = data?.mtnRestriction?.mtnOrderRestrictionEnabled ?? false;
 
   // compact responsive layout pieces
   const SectionHeader: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
@@ -321,6 +356,49 @@ export default function SuperAdminSettingsPage() {
                       <input type="checkbox" className="sr-only peer" checked={autoApprove} onChange={handleToggleAutoApprove} disabled={!!busyKeys['autoApproveToggle']} />
                       <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-blue-600 relative transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
                     </label>
+                  </div>
+                </div>
+              </Card>
+
+              <Card>
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">MTN Order Restriction</h3>
+                      <p className="text-sm text-gray-500 mt-1">Block new (unseen) MTN numbers from processing</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Restriction status</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {mtnRestrictionEnabled ? "Orders from unknown MTN numbers will be blocked" : "All MTN numbers allowed (no restriction)"}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-sm font-medium ${mtnRestrictionEnabled ? 'text-green-600' : 'text-gray-500'}`}>{mtnRestrictionEnabled ? "On" : "Off"}</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={mtnRestrictionEnabled} onChange={handleToggleMtnRestriction} disabled={!!busyKeys['mtnRestriction']} />
+                          <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-blue-600 relative transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">Known numbers</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {mtnNumbersCount !== null ? `${mtnNumbersCount.toLocaleString()} numbers in the allowlist` : "Loading..."}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowKnownNumbers(true)}
+                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                      >
+                        Manage
+                      </button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -615,6 +693,12 @@ export default function SuperAdminSettingsPage() {
         <FeeSettingsDialog isOpen={feeDialogOpen} onClose={() => setFeeDialogOpen(false)} currentSettings={feeSettings} onSuccess={handleFeeSettingsSuccess} />
 
         <AdminPasswordDialog isOpen={passwordDialogOpen} onClose={() => setPasswordDialogOpen(false)} onSuccess={handlePasswordChangeSuccess} />
+
+        <KnownNumbersDialog
+          isOpen={showKnownNumbers}
+          onClose={() => setShowKnownNumbers(false)}
+          onStatsChange={refreshMtnStats}
+        />
       </div>
     </div>
   );

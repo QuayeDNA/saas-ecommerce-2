@@ -55,6 +55,7 @@ const STATUS_OPTIONS = [
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
   { value: "failed", label: "Failed" },
+  { value: "wip", label: "WIP" },
 ];
 
 const ITEMS_PER_PAGE = 10;
@@ -71,6 +72,7 @@ const STATUS_BADGE_MAP: Record<
   pending: "warning",
   pending_payment: "warning",
   partially_completed: "warning",
+  wip: "warning",
 };
 
 const formatDate = (dateString: string) =>

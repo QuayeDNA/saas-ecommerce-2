@@ -93,6 +93,14 @@ export interface RoleChangeRequest {
     | "super_admin";
 }
 
+export interface MtnRestrictionSettings {
+  mtnOrderRestrictionEnabled: boolean;
+}
+
+export interface MtnNumberStats {
+  totalKnownNumbers: number;
+}
+
 // =============================================================================
 // SETTINGS SERVICE
 // =============================================================================
@@ -144,6 +152,59 @@ class SettingsService {
 
   async updateAutoApproveStorefronts(autoApprove: boolean): Promise<{ autoApproveStorefronts: boolean }> {
     const response = await apiClient.put("/api/settings/storefront-auto-approve", { autoApproveStorefronts: autoApprove });
+    this._allSettingsCache = null;
+    return response.data;
+  }
+
+  // ── MTN Order Restriction ─────────────────────────────────────────────────
+
+  async getMtnRestriction(): Promise<MtnRestrictionSettings> {
+    const response = await apiClient.get("/api/settings/mtn-restriction");
+    return response.data.data ?? response.data;
+  }
+
+  async updateMtnRestriction(
+    data: Partial<MtnRestrictionSettings>
+  ): Promise<MtnRestrictionSettings> {
+    const response = await apiClient.put("/api/settings/mtn-restriction", data);
+    this._allSettingsCache = null;
+    return response.data.data ?? response.data;
+  }
+
+  async getMtnNumberStats(): Promise<MtnNumberStats> {
+    const response = await apiClient.get("/api/settings/mtn-numbers/stats");
+    return response.data.data;
+  }
+
+  async listMtnNumbers(
+    page: number = 1,
+    limit: number = 20,
+    search: string = ""
+  ): Promise<{
+    numbers: Array<{ _id: string; phone: string; importedAt: string }>;
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set("search", search);
+    const response = await apiClient.get(`/api/settings/mtn-numbers?${params}`);
+    return response.data;
+  }
+
+  async addMtnNumber(phone: string): Promise<{ phone: string }> {
+    const response = await apiClient.post("/api/settings/mtn-numbers", { phone });
+    this._allSettingsCache = null;
+    return response.data.number ?? response.data;
+  }
+
+  async deleteMtnNumber(id: string): Promise<void> {
+    await apiClient.delete(`/api/settings/mtn-numbers/${id}`);
+    this._allSettingsCache = null;
+  }
+
+  async bulkDeleteMtnNumbers(ids: string[]): Promise<{ deletedCount: number }> {
+    const response = await apiClient.post("/api/settings/mtn-numbers/bulk-delete", { ids });
     this._allSettingsCache = null;
     return response.data;
   }
@@ -257,13 +318,18 @@ class SettingsService {
     signupApproval: { requireApprovalForSignup: boolean };
     autoApproveStorefronts: { autoApproveStorefronts: boolean };
     systemInfo: SystemInfo;
+    mtnRestriction: MtnRestrictionSettings;
   }> {
     const TTL = 30_000; // 30s
     if (!force && this._allSettingsCache && (Date.now() - this._allSettingsCache.ts) < TTL) {
       return this._allSettingsCache.data;
     }
 
-    const [siteSettings, apiSettings, walletSettings, feeSettings, signupApproval, autoApproveStorefronts, systemInfo] = await Promise.all([
+    const fetchOrDefault = async <T,>(fn: () => Promise<T>, fallback: T): Promise<T> => {
+      try { return await fn(); } catch { return fallback; }
+    };
+
+    const [siteSettings, apiSettings, walletSettings, feeSettings, signupApproval, autoApproveStorefronts, systemInfo, mtnRestriction] = await Promise.all([
       this.getSiteSettings(),
       this.getApiSettings(),
       this.getWalletSettings(),
@@ -271,9 +337,10 @@ class SettingsService {
       this.getSignupApprovalSetting(),
       this.getAutoApproveStorefronts(),
       this.getSystemInfo(),
+      fetchOrDefault(() => this.getMtnRestriction(), { mtnOrderRestrictionEnabled: false }),
     ]);
 
-    const combined = { siteSettings, apiSettings, walletSettings, feeSettings, signupApproval, autoApproveStorefronts, systemInfo };
+    const combined = { siteSettings, apiSettings, walletSettings, feeSettings, signupApproval, autoApproveStorefronts, systemInfo, mtnRestriction };
     this._allSettingsCache = { ts: Date.now(), data: combined };
     return combined;
   }

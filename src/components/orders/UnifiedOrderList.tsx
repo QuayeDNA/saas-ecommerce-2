@@ -596,6 +596,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           { value: "completed", label: "Completed" },
           { value: "cancelled", label: "Cancelled" },
           { value: "failed", label: "Failed" },
+          { value: "wip", label: "WIP" },
         ],
         label: "Status",
         placeholder: "All Status",

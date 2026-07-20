@@ -351,7 +351,9 @@ export const UnifiedOrderExcel: React.FC<UnifiedOrderExcelProps> = ({
                     ? "error"
                     : row.status === "failed"
                       ? "error"
-                      : "default"
+                      : row.status === "wip"
+                        ? "warning"
+                        : "default"
             }
             className="text-xs"
           >

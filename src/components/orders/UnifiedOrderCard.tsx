@@ -120,6 +120,11 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
       label: "Cancelled",
       color: "bg-[var(--color-control-bg)] text-[var(--color-muted-text)]",
     },
+    {
+      value: "wip",
+      label: "WIP",
+      color: "bg-[var(--color-pending-bg)] text-[var(--color-pending-text)]",
+    },
   ];
 
   const getStatusColor = (status: string) => {
@@ -138,6 +143,8 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
         return "bg-[var(--color-primary-700)] text-[var(--color-surface)]";
       case "draft":
         return "bg-[var(--color-gray-400)] text-[var(--color-surface)]";
+      case "wip":
+        return "bg-[var(--color-warning)] text-[var(--color-surface)]";
       default:
         return "bg-[var(--color-gray-600)] text-[var(--color-surface)]";
     }
@@ -152,6 +159,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
       case "pending": return "border-l-[var(--color-warning)]";
       case "confirmed": return "border-l-[var(--color-primary-700)]";
       case "draft": return "border-l-[var(--color-gray-400)]";
+      case "wip": return "border-l-[var(--color-warning)]";
       default: return "border-l-[var(--color-gray-300)]";
     }
   };
@@ -275,7 +283,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
   };
 
   const canCancel = (status: string) =>
-    ["pending", "confirmed", "processing", "draft"].includes(status);
+    ["pending", "confirmed", "processing", "draft", "wip"].includes(status);
 
   const canUserCancelOrder = (order: Order) => {
     if (isOrderLocked(order)) return false;

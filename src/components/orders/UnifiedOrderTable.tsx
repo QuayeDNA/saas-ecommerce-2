@@ -166,6 +166,8 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
         return "text-[var(--color-pending-text)] bg-[var(--color-pending-bg)]";
       case "confirmed":
         return "text-[var(--color-primary-700)] bg-[var(--color-primary-100)]";
+      case "wip":
+        return "text-[var(--color-pending-text)] bg-[var(--color-pending-bg)]";
       default:
         return "text-[var(--color-muted-text)] bg-[var(--color-control-bg)]";
     }
@@ -183,6 +185,8 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
         return <FaClock className="text-[var(--color-pending-text)]" />;
       case "confirmed":
         return <FaCheck className="text-[var(--color-primary-700)]" />;
+      case "wip":
+        return <FaClock className="text-[var(--color-pending-text)]" />;
       default:
         return <FaClock className="text-[var(--color-muted-text)]" />;
     }
@@ -310,7 +314,7 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
   };
 
   const canCancel = (status: string) =>
-    ["pending", "confirmed", "processing", "draft"].includes(status);
+    ["pending", "confirmed", "processing", "draft", "wip"].includes(status);
 
   const canUserCancelOrder = (order: Order) => {
     if (isOrderLocked(order)) return false;
@@ -371,6 +375,7 @@ export const UnifiedOrderTable: React.FC<UnifiedOrderTableProps> = ({
 
     { value: "completed", label: "Completed" },
     { value: "cancelled", label: "Cancelled" },
+    { value: "wip", label: "WIP" },
   ];
 
   return (

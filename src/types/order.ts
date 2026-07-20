@@ -139,7 +139,8 @@ export interface Order {
     | "processing"
     | "completed"
     | "cancelled"
-    | "failed";
+    | "failed"
+    | "wip";
   receptionStatus?: "not_received" | "received" | "checking" | "resolved";
   reported?: boolean;
   reportedAt?: Date;
