@@ -515,6 +515,7 @@ export const useOrder = () => {
       processOrderItem: async () => {},
       processBulkOrder: async () => {},
       bulkUpdateReceptionStatus: async () => {},
+      bulkProcessOrders: async () => {},
       cancelOrder: async () => {},
       updateOrderStatus: async () => {},
       updateReceptionStatus: async () => {},

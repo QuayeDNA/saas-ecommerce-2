@@ -706,7 +706,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
       </Card>
       {/* Analytics Section - Only show for admin and agents */}
       {analyticsData && (
-        <OrderAnalytics data={analyticsData} loading={analyticsLoading} error={analyticsError} />
+        <OrderAnalytics analyticsData={analyticsData} loading={analyticsLoading} error={analyticsError} isAdmin={isAdmin} isAgent={isAgent} />
       )}
       <SearchAndFilter {...searchAndFilterConfig} />
       {/* View Mode Toggle */}
