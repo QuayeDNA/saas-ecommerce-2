@@ -76,7 +76,7 @@ export const SmartSelectDialog: React.FC<SmartSelectDialogProps> = ({
               <p className="font-medium mb-1">Select orders by status</p>
               <p>
                 Only Pending and Processing orders can be bulk selected.
-                Completed, Failed, Cancelled, and Draft orders are excluded.
+                Completed, Failed, and Cancelled orders are excluded.
               </p>
             </div>
           </div>

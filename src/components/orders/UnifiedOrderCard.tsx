@@ -141,8 +141,6 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
         return "bg-[var(--color-warning)] text-[var(--color-surface)]";
       case "confirmed":
         return "bg-[var(--color-primary-700)] text-[var(--color-surface)]";
-      case "draft":
-        return "bg-[var(--color-gray-400)] text-[var(--color-surface)]";
       case "wip":
         return "bg-[var(--color-warning)] text-[var(--color-surface)]";
       default:
@@ -158,7 +156,6 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
       case "cancelled": return "border-l-[var(--color-gray-400)]";
       case "pending": return "border-l-[var(--color-warning)]";
       case "confirmed": return "border-l-[var(--color-primary-700)]";
-      case "draft": return "border-l-[var(--color-gray-400)]";
       case "wip": return "border-l-[var(--color-warning)]";
       default: return "border-l-[var(--color-gray-300)]";
     }
@@ -283,7 +280,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
   };
 
   const canCancel = (status: string) =>
-    ["pending", "confirmed", "processing", "draft", "wip"].includes(status);
+    ["pending", "confirmed", "processing", "wip"].includes(status);
 
   const canUserCancelOrder = (order: Order) => {
     if (isOrderLocked(order)) return false;
@@ -292,11 +289,8 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
     // Admins can cancel any order
     if (isAdmin) return true;
 
-    // Agents can cancel their own draft or pending orders
-    if (
-      (order.status === "draft" || order.status === "pending") &&
-      currentUserId
-    ) {
+    // Agents can cancel their own pending orders
+    if (order.status === "pending" && currentUserId) {
       const createdById =
         typeof order.createdBy === "string"
           ? order.createdBy
@@ -596,7 +590,7 @@ export const UnifiedOrderCard: React.FC<UnifiedOrderCardProps> = ({
                 className="text-[var(--color-error)] hover:text-[var(--color-error)] border-[var(--color-error)] hover:border-[var(--color-error)] px-3 py-1 text-xs"
               >
                 <FaTimes className="w-3 h-3 mr-1" />
-                {order.status === "draft" ? "Delete Draft" : "Cancel Order"}
+                {"Cancel Order"}
               </Button>
             )}
 
