@@ -69,6 +69,7 @@ interface OrderContextType {
   ) => Promise<void>;
   processOrderItem: (orderId: string, itemId: string) => Promise<void>;
   processBulkOrder: (orderId: string) => Promise<void>;
+  bulkProcessOrders: (
     orderIds: string[],
     action: "processing" | "completed"
   ) => Promise<void>;
