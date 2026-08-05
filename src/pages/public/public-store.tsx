@@ -88,7 +88,7 @@ const PublicStore: React.FC = () => {
 
   // ── UI ───────────────────────────────────────────────────────────────────────
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProvider, setSelectedProvider] = useState<string>("all");
+  const [selectedPackage, setSelectedPackage] = useState<string>("all");
   const [collapsedPackages, setCollapsedPackages] = useState<Set<string>>(new Set());
 
   // ── Single-item order ─────────────────────────────────────────────────────────
@@ -241,6 +241,27 @@ const PublicStore: React.FC = () => {
     return Array.from(map.entries()).map(([code, name]) => ({ code, name, logo: undefined }));
   }, [storeData]);
 
+  const packages = useMemo(() => {
+    if (!storeData) return [];
+    const map = new Map<string, number>();
+    if (Array.isArray(storeData.providers) && storeData.providers.length > 0) {
+      for (const p of storeData.providers) {
+        for (const pkg of p.packages || []) {
+          map.set(
+            pkg.name,
+            (map.get(pkg.name) || 0) + (pkg.bundles?.length || 0),
+          );
+        }
+      }
+    } else {
+      for (const b of storeData.bundles) {
+        const name = b.packageName || "General";
+        map.set(name, (map.get(name) || 0) + 1);
+      }
+    }
+    return Array.from(map.entries()).map(([name, count]) => ({ name, count }));
+  }, [storeData]);
+
   const groupedBundles = useMemo(() => {
     if (!storeData) return new Map<string, Map<string, PublicBundle[]>>();
     let filtered = storeData.bundles;
@@ -254,7 +275,10 @@ const PublicStore: React.FC = () => {
           (b.packageName?.toLowerCase() || "").includes(term),
       );
     }
-    if (selectedProvider !== "all") filtered = filtered.filter((b) => b.provider === selectedProvider);
+    if (selectedPackage !== "all")
+      filtered = filtered.filter(
+        (b) => (b.packageName || "General") === selectedPackage,
+      );
     const result = new Map<string, Map<string, PublicBundle[]>>();
     for (const bundle of filtered) {
       const provCode = bundle.provider || "Unknown";
@@ -265,7 +289,7 @@ const PublicStore: React.FC = () => {
       pkgMap.get(pkgName)!.push(bundle);
     }
     return result;
-  }, [storeData, searchTerm, selectedProvider]);
+  }, [storeData, searchTerm, selectedPackage]);
 
   const popularBundles = useMemo(() => {
     if (storeData?.popularBundles && storeData.popularBundles.length) return storeData.popularBundles.slice(0, 8);
@@ -424,7 +448,7 @@ const PublicStore: React.FC = () => {
     }
   }, [businessName, storeData, canSubmitOrder, activeOrder, orderPhone, customerName, paymentType, transactionRef, openPaystackInline]);
 
-  const onClearSearch = useCallback(() => { setSearchTerm(""); setSelectedProvider("all"); }, []);
+  const onClearSearch = useCallback(() => { setSearchTerm(""); setSelectedPackage("all"); }, []);
 
   // ==========================================================================
   // Conditional renders
@@ -475,8 +499,8 @@ const PublicStore: React.FC = () => {
       <StoreHeader storefront={storefront} branding={branding} />
       <StoreToolbar
         theme={theme} searchTerm={searchTerm} onSearchChange={setSearchTerm}
-        selectedProvider={selectedProvider} onProviderChange={setSelectedProvider}
-        providers={providers} storeData={storeData} groupedBundles={groupedBundles}
+        selectedPackage={selectedPackage} onSelectPackage={setSelectedPackage}
+        packages={packages} storeData={storeData}
         onOpenTrackDrawer={() => setShowTrackDrawer(true)}
         storeClosed={storeClosed} storeClosedMessage={storeClosedMessage}
         storefrontsClosed={storefrontsClosed} storefrontsClosedMessage={storefrontsClosedMessage}
@@ -494,7 +518,7 @@ const PublicStore: React.FC = () => {
         </div>
         <BundleSections
           storeData={storeData} groupedBundles={groupedBundles} searchTerm={searchTerm}
-          selectedProvider={selectedProvider} providers={providers}
+          selectedPackage={selectedPackage} providers={providers}
           activeOrderBundleId={activeOrder?.bundle._id} ordersClosed={ordersClosed}
           collapsedPackages={collapsedPackages} onTogglePackage={togglePackage}
           onBuy={openOrderDialog} onClearSearch={onClearSearch}

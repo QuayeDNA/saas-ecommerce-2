@@ -1,19 +1,16 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { FaMagnifyingGlass, FaBoxOpen, FaXmark } from "react-icons/fa6";
-import type { PublicStorefront, ThemeConfig, PublicBundle } from "./types";
+import type { PublicStorefront, ThemeConfig } from "./types";
 import { withAlpha } from "./constants";
-import { getProviderColors } from "../../utils/provider-colors";
-import { getLogoUrl } from "./utils";
 
 export interface StoreToolbarProps {
   theme: ThemeConfig;
   searchTerm: string;
   onSearchChange: (v: string) => void;
-  selectedProvider: string;
-  onProviderChange: (v: string) => void;
-  providers: Array<{ code: string; name: string; logo?: unknown }>;
+  selectedPackage: string;
+  onSelectPackage: (v: string) => void;
+  packages: Array<{ name: string; count: number }>;
   storeData: PublicStorefront;
-  groupedBundles: Map<string, Map<string, PublicBundle[]>>;
   onOpenTrackDrawer: () => void;
   storeClosed: boolean;
   storeClosedMessage: string;
@@ -28,11 +25,10 @@ export const StoreToolbar = memo(function StoreToolbar({
   theme,
   searchTerm,
   onSearchChange,
-  selectedProvider,
-  onProviderChange,
-  providers,
+  selectedPackage,
+  onSelectPackage,
+  packages,
   storeData,
-  groupedBundles,
   onOpenTrackDrawer,
   storeClosed,
   storeClosedMessage,
@@ -156,16 +152,16 @@ export const StoreToolbar = memo(function StoreToolbar({
             </button>
           </div>
 
-          {/* Provider carousel — only shown when multiple providers */}
-          {providers.length > 1 && (
+          {/* Package carousel — only shown when multiple packages */}
+          {packages.length > 1 && (
             <div className="-mx-4 px-4">
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 snap-x">
                 {/* All */}
                 <button
-                  onClick={() => onProviderChange("all")}
+                  onClick={() => onSelectPackage("all")}
                   className="shrink-0 snap-start flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all"
                   style={
-                    selectedProvider === "all"
+                    selectedPackage === "all"
                       ? {
                           borderColor: theme.primary,
                           backgroundColor: theme.primary,
@@ -180,24 +176,18 @@ export const StoreToolbar = memo(function StoreToolbar({
                 >
                   All · {storeData?.bundles.length ?? 0}
                 </button>
-                {providers.map((prov) => {
-                  const pc = getProviderColors(prov.code);
-                  const isActive = selectedProvider === prov.code;
-                  const count = groupedBundles.get(prov.code)
-                    ? Array.from(
-                        groupedBundles.get(prov.code)!.values(),
-                      ).reduce((s, a) => s + a.length, 0)
-                    : 0;
+                {packages.map((pkg) => {
+                  const isActive = selectedPackage === pkg.name;
                   return (
                     <button
-                      key={prov.code}
-                      onClick={() => onProviderChange(prov.code)}
+                      key={pkg.name}
+                      onClick={() => onSelectPackage(pkg.name)}
                       className="shrink-0 snap-start flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold border-2 transition-all"
                       style={
                         isActive
                           ? {
-                              borderColor: pc.primary,
-                              backgroundColor: pc.primary,
+                              borderColor: theme.primary,
+                              backgroundColor: theme.primary,
                               color: "#fff",
                             }
                           : {
@@ -207,21 +197,7 @@ export const StoreToolbar = memo(function StoreToolbar({
                             }
                       }
                     >
-                      {getLogoUrl(prov.logo as { url?: string; alt?: string } | string | undefined) ? (
-                        <img
-                          src={getLogoUrl(prov.logo as { url?: string; alt?: string } | string | undefined)}
-                          alt={prov.name}
-                          className="w-4 h-4 rounded-full object-cover"
-                        />
-                      ) : (
-                        <span
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-                          style={{ backgroundColor: pc.primary }}
-                        >
-                          {prov.name.charAt(0)}
-                        </span>
-                      )}
-                      {prov.name} · {count}
+                      {pkg.name} · {pkg.count}
                     </button>
                   );
                 })}
