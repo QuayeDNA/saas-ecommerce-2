@@ -4,6 +4,8 @@ import { useSearchParams } from "react-router-dom";
 import { useOrder } from "../../hooks/use-order";
 import { useAuth } from "../../hooks/use-auth";
 import { providerService } from "../../services/provider.service";
+import { packageService } from "../../services/package.service";
+import { orderService } from "../../services/order.service";
 import { websocketService } from "../../services/websocket.service";
 import { useSuperAdminAnalytics, useAgentAnalytics, useInvalidateAnalytics } from "../../hooks/use-analytics";
 import {
@@ -28,7 +30,7 @@ import {
   FaCheckSquare,
 } from "react-icons/fa";
 import type { Order, OrderFilters } from "../../types/order";
-import type { Provider } from "../../types/package";
+import type { Package, Provider } from "../../types/package";
 import { UnifiedOrderCard } from "./UnifiedOrderCard";
 import { UnifiedOrderTable } from "./UnifiedOrderTable";
 import { UnifiedOrderExcel } from "./UnifiedOrderExcel";
@@ -79,6 +81,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
   const [receptionStatusFilter, setReceptionStatusFilter] =
     useState<string>("");
   const [providerFilter, setProviderFilter] = useState<string>("");
+  const [packageFilter, setPackageFilter] = useState<string>("");
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"cards" | "table" | "excel">(
@@ -171,6 +174,9 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
   // Provider data
   const [providers, setProviders] = useState<Provider[]>([]);
 
+  // Package data for the package filter
+  const [packages, setPackages] = useState<Package[]>([]);
+
   // Ref to track if component is mounted
   const isMountedRef = useRef(true);
 
@@ -202,17 +208,34 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     }
   }, []);
 
+  // Fetch active packages for the package filter
+  const fetchPackages = useCallback(async () => {
+    try {
+      const response = await packageService.getPackages(
+        { isActive: true },
+        { limit: 500 },
+      );
+      setPackages(response.packages);
+    } catch (error) {
+      console.error("Failed to fetch packages:", error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchOrders();
     // Fetch providers for filter
     if (isAdmin) {
       fetchProviders();
     }
+    // Fetch packages for filter (admin + agents)
+    if (isAdmin || isAgent) {
+      fetchPackages();
+    }
 
     return () => {
       isMountedRef.current = false;
     };
-  }, [fetchOrders, isAdmin, fetchProviders]);
+  }, [fetchOrders, isAdmin, fetchProviders, isAgent, fetchPackages]);
 
   // WebSocket real-time updates with intelligent debouncing
   useEffect(() => {
@@ -335,6 +358,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           paymentStatus: paymentStatusFilter || undefined,
           receptionStatus: receptionStatusFilter || undefined,
           provider: providerFilter || undefined,
+          packageId: packageFilter || undefined,
           startDate: dateRange.startDate || undefined,
           endDate: dateRange.endDate || undefined,
         };
@@ -347,6 +371,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
           orderType: orderTypeFilter || undefined,
           paymentStatus: paymentStatusFilter || undefined,
           provider: providerFilter || undefined,
+          packageId: packageFilter || undefined,
           startDate: dateRange.startDate || undefined,
           endDate: dateRange.endDate || undefined,
         };
@@ -363,6 +388,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     paymentStatusFilter,
     receptionStatusFilter,
     providerFilter,
+    packageFilter,
     dateRange,
     activeTab, // Add activeTab to dependencies
     setFilters,
@@ -382,6 +408,7 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     setPaymentStatusFilter("");
     setReceptionStatusFilter("");
     setProviderFilter("");
+    setPackageFilter("");
     setDateRange({ startDate: "", endDate: "" });
     setFilters({});
     fetchOrders();
@@ -558,6 +585,56 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     );
   }, []);
 
+  // Select every order that matches the current filters (up to the backend cap)
+  const handleSelectAllMatching = useCallback(async () => {
+    const total = currentPagination.total;
+    if (total === 0) return;
+
+    if (total > 500) {
+      const confirmed = window.confirm(
+        `This will select all ${total} matching order(s). Continue?`,
+      );
+      if (!confirmed) return;
+    }
+
+    const isReported = activeTab === "reported";
+    const filterParams: OrderFilters = {
+      search: searchTerm || undefined,
+      status: statusFilter || undefined,
+      orderType: orderTypeFilter || undefined,
+      paymentStatus: paymentStatusFilter || undefined,
+      provider: providerFilter || undefined,
+      packageId: packageFilter || undefined,
+      startDate: dateRange.startDate || undefined,
+      endDate: dateRange.endDate || undefined,
+      ...(isReported ? { receptionStatus: receptionStatusFilter || undefined } : {}),
+      ...(isReported ? { reported: true } : {}),
+    };
+
+    try {
+      if (total > 2000) {
+        addToast(
+          `More than 2000 orders match. Selecting the first 2000.`,
+          "info",
+        );
+      }
+      const res = await orderService.getMatchingOrderIds(filterParams, 2000);
+      const ids = res.orderIds || [];
+      if (ids.length === 0) {
+        addToast("No orders match the current filters", "info");
+        return;
+      }
+      setSelectedOrders(ids);
+      addToast(`Selected ${ids.length} matching order(s)`, "success");
+    } catch {
+      addToast("Failed to select matching orders", "error");
+    }
+  }, [
+    currentPagination.total, activeTab, searchTerm, statusFilter,
+    orderTypeFilter, paymentStatusFilter, providerFilter, packageFilter,
+    receptionStatusFilter, dateRange, addToast,
+  ]);
+
   // Define search and filter configuration
   const searchAndFilterConfig = {
     searchTerm,
@@ -606,6 +683,19 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
             },
           }
         : {}),
+      ...(isAdmin || isAgent
+        ? {
+            package: {
+              value: packageFilter,
+              options: packages.map((pkg) => ({
+                value: pkg._id || "",
+                label: pkg.name,
+              })),
+              label: "Package",
+              placeholder: "All Packages",
+            },
+          }
+        : {}),
       ...(isAdmin
         ? {
             provider: {
@@ -634,6 +724,8 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
         setReceptionStatusFilter(value);
       } else if (filterKey === "provider") {
         setProviderFilter(value);
+      } else if (filterKey === "package") {
+        setPackageFilter(value);
       }
     },
     dateRange,
@@ -644,6 +736,19 @@ export const UnifiedOrderList: React.FC<UnifiedOrderListProps> = ({
     onSearch: handleSearch,
     onClearFilters: handleClearFilters,
     isLoading: currentLoading,
+    customActions:
+      (isAdmin || isAgent) && currentPagination.total > 0 ? (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSelectAllMatching}
+          disabled={currentLoading}
+          title="Select all orders matching the current filters"
+        >
+          <FaCheckSquare className="mr-2" style={{ color: "var(--color-primary-hover)" }} />
+          Select all {currentPagination.total} matching
+        </Button>
+      ) : undefined,
   };
 
   if (currentError) {

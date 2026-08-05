@@ -176,6 +176,7 @@ export interface OrderFilters {
   endDate?: string;
   search?: string;
   provider?: string;
+  packageId?: string;
   reported?: boolean;
 }
 

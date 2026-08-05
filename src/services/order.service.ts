@@ -100,6 +100,16 @@ class OrderService {
     return response.data;
   }
 
+  // Get all order IDs matching the current filters (for select-all bulk actions)
+  async getMatchingOrderIds(
+    filters: OrderFilters = {},
+    limit = 2000
+  ): Promise<{ orderIds: string[]; total: number }> {
+    const params = { ...filters, limit };
+    const response = await apiClient.get("/api/orders/ids", { params });
+    return response.data;
+  }
+
   // Get single order
   async getOrder(id: string): Promise<Order> {
     const response = await apiClient.get(`/api/orders/${id}`);
